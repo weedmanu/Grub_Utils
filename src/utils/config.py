@@ -9,7 +9,7 @@ ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tga"}
 ALLOWED_THEME_EXTENSIONS = {".txt"}
 
 # Limites de validation
-BACKUP_MAX_COUNT = 5
+BACKUP_MAX_COUNT = 3
 
 # Timeouts (en secondes)
 COMMAND_TIMEOUT = 60  # Timeout par défaut pour l'exécution des commandes
@@ -21,10 +21,8 @@ TOAST_TIMEOUT = 3000  # Durée d'affichage des toasts
 # Dimensions UI
 MAIN_WINDOW_WIDTH = 500
 MAIN_WINDOW_HEIGHT = 600
-PREVIEW_WINDOW_WIDTH = 600
-PREVIEW_WINDOW_HEIGHT = 400
-DIALOG_WIDTH = 600
-DIALOG_HEIGHT = 400
+PREVIEW_WINDOW_WIDTH = 1200
+PREVIEW_WINDOW_HEIGHT = 800
 
 # Espacement et marges UI
 DEFAULT_MARGIN = 20

@@ -1,83 +1,69 @@
 """Dialog d'erreur avec détails techniques."""
 
-from typing import Optional
+from dataclasses import dataclass
 
-import gi
-from gi.repository import Gtk
-
-from src.utils.config import DIALOG_HEIGHT, DIALOG_WIDTH
-
-gi.require_version("Gtk", "4.0")
+from src.ui.dialogs.base_dialog import BaseDialog
+from src.ui.dialogs.text_view_utils import create_monospace_text_view
+from src.ui.gtk_init import Gtk
 
 
-class ErrorDialog(Gtk.AlertDialog):
+@dataclass
+class ErrorOptions:
+    """Configuration options for error dialog."""
+
+    title: str
+    message: str
+    details: str | None = None
+
+
+class ErrorDialog(BaseDialog):
     """Dialog d'erreur avec option pour afficher les détails techniques."""
-
-    # pylint: disable=no-member
 
     def __init__(
         self,
-        _parent: Gtk.Window,
-        title: str,
-        message: str,
-        details: Optional[str] = None,
-    ):
-        """
-        Initialise le dialog d'erreur.
+        parent: Gtk.Window,
+        options: ErrorOptions,
+    ) -> None:
+        """Initialise le dialog d'erreur.
 
         Args:
             parent: Fenêtre parente
-            title: Titre du dialog
-            message: Message d'erreur principal
-            details: Détails techniques optionnels
+            options: Error dialog configuration options
+
         """
-        super().__init__()
-        self.set_modal(True)
-        self.set_message(title)
-        self.set_detail(message)
+        super().__init__(parent, options.title, (500, 250))
 
-        if details:
-            # Ajouter un bouton pour afficher les détails
-            self.add_response("details", "Détails techniques")
-            self.add_response("ok", "OK")
-            self.set_default_response("ok")
-            self.connect("response", self._on_response, details)
-        else:
-            self.add_response("ok", "OK")
-            self.set_default_response("ok")
+        main_box = self.create_main_box()
 
-    def _on_response(self, _dialog, response, details):
-        """Gère la réponse du dialog."""
-        if response == "details":
-            self._show_details(details)
+        # Message principal
+        label = self.create_message_label(options.message)
+        main_box.append(label)
 
-    def _show_details(self, details: str):
-        """Affiche les détails techniques dans un dialog séparé."""
-        details_dialog = Gtk.Window(title="Détails techniques")
-        details_dialog.set_default_size(DIALOG_WIDTH, DIALOG_HEIGHT)
-        details_dialog.set_modal(True)
+        # Détails si présents
+        if options.details:
+            expander = Gtk.Expander(label="Détails techniques")
+            details_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        scrolled = Gtk.ScrolledWindow()
-        text_view = Gtk.TextView()
-        text_view.set_editable(False)
-        text_view.set_monospace(True)
-        text_view.get_buffer().set_text(details)
-        scrolled.set_child(text_view)
+            scrolled = Gtk.ScrolledWindow()
+            scrolled.set_vexpand(True)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.append(scrolled)
+            text_view = create_monospace_text_view(editable=False)
+            text_view.get_buffer().set_text(options.details)
 
-        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        button_box.set_halign(Gtk.Align.END)
-        button_box.set_margin_top(10)
-        button_box.set_margin_bottom(10)
-        button_box.set_margin_start(10)
-        button_box.set_margin_end(10)
+            scrolled.set_child(text_view)
+            details_box.append(scrolled)
+
+            expander.set_child(details_box)
+            main_box.append(expander)
+
+        # Boutons
+        button_box = self.create_button_box()
 
         close_btn = Gtk.Button(label="Fermer")
-        close_btn.connect("clicked", lambda _: details_dialog.destroy())
-        button_box.append(close_btn)
+        close_btn.get_style_context().add_class("suggested-action")
+        close_btn.connect("clicked", lambda _: self.close())
 
-        box.append(button_box)
-        details_dialog.set_child(box)
-        details_dialog.present()
+        button_box.append(close_btn)
+        main_box.append(button_box)
+
+        self.finalize_dialog(main_box)

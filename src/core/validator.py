@@ -2,24 +2,24 @@
 
 import os
 import re
-from typing import Dict, Optional
 
-from src.utils.config import GRUB_TIMEOUT_MAX
+from src.core.exceptions import GrubValidationError
+from src.core.security import InputSecurityValidator, SecurityError
+from src.utils.config import (
+    ALLOWED_IMAGE_EXTENSIONS,
+    ALLOWED_THEME_EXTENSIONS,
+    GRUB_TIMEOUT_MAX,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-class GrubValidationError(ValueError):
-    """Exception levée lorsqu'une validation échoue."""
 
 
 class GrubValidator:
     """Classe pour valider les entrées utilisateur de GRUB."""
 
     # Extensions autorisées pour les fichiers
-    ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tga"}
-    ALLOWED_THEME_EXTENSIONS = {".txt"}
+    # Importées depuis config.py
 
     # Patterns de validation
     GFXMODE_PATTERN = re.compile(r"^(auto|\d{3,4}x\d{3,4})$")
@@ -93,8 +93,7 @@ class GrubValidator:
 
     @staticmethod
     def validate_timeout(timeout_str: str) -> int:
-        """
-        Validate GRUB timeout.
+        """Validate GRUB timeout.
 
         Args:
             timeout_str: Chaîne représentant le timeout.
@@ -104,6 +103,7 @@ class GrubValidator:
 
         Raises:
             GrubValidationError: Si invalide.
+
         """
         if not timeout_str:
             return 5  # Valeur par défaut
@@ -119,8 +119,7 @@ class GrubValidator:
 
     @staticmethod
     def validate_gfxmode(gfxmode: str) -> str:
-        """
-        Validate GFXMODE resolution.
+        """Validate GFXMODE resolution.
 
         Args:
             gfxmode: Chaîne de résolution.
@@ -130,6 +129,7 @@ class GrubValidator:
 
         Raises:
             GrubValidationError: Si invalide.
+
         """
         if not gfxmode or gfxmode.lower() == "auto":
             return "auto"
@@ -140,9 +140,8 @@ class GrubValidator:
         return gfxmode
 
     @staticmethod
-    def validate_file_path(file_path: str, allowed_extensions: set) -> Optional[str]:
-        """
-        Validate a file path.
+    def validate_file_path(file_path: str, allowed_extensions: set) -> str | None:
+        """Validate a file path.
 
         Args:
             file_path: Chemin du fichier.
@@ -153,9 +152,16 @@ class GrubValidator:
 
         Raises:
             GrubValidationError: Si invalide.
+
         """
         if not file_path:
             return None
+
+        # Security check
+        try:
+            InputSecurityValidator.validate_file_path(file_path)
+        except SecurityError as e:
+            raise GrubValidationError(f"Security error: {e}")
 
         # Vérifier que le fichier existe
         if not os.path.exists(file_path):
@@ -179,8 +185,7 @@ class GrubValidator:
 
     @staticmethod
     def validate_kernel_params(params_str: str) -> str:
-        """
-        Validate kernel parameters.
+        """Validate kernel parameters.
 
         Args:
             params_str: Chaîne des paramètres.
@@ -190,9 +195,16 @@ class GrubValidator:
 
         Raises:
             GrubValidationError: Si invalide.
+
         """
         if not params_str:
             return ""
+
+        # Security check
+        try:
+            InputSecurityValidator.validate_kernel_params(params_str)
+        except SecurityError as e:
+            raise GrubValidationError(f"Security error: {e}")
 
         # Diviser en paramètres individuels
         params = params_str.split()
@@ -213,15 +225,15 @@ class GrubValidator:
         return params_str
 
     @staticmethod
-    def validate_all(entries: Dict[str, str]) -> None:
-        """
-        Validate all GRUB entries.
+    def validate_all(entries: dict[str, str]) -> None:
+        """Validate all GRUB entries.
 
         Args:
             entries: Dictionnaire des entrées GRUB.
 
         Raises:
             GrubValidationError: Si une validation échoue.
+
         """
         try:
             # Valider le timeout
@@ -235,7 +247,7 @@ class GrubValidator:
             # Valider l'image de fond
             if "GRUB_BACKGROUND" in entries:
                 validated_path = GrubValidator.validate_file_path(
-                    entries["GRUB_BACKGROUND"], GrubValidator.ALLOWED_IMAGE_EXTENSIONS
+                    entries["GRUB_BACKGROUND"], ALLOWED_IMAGE_EXTENSIONS
                 )
                 if validated_path is None:
                     del entries["GRUB_BACKGROUND"]
@@ -245,7 +257,7 @@ class GrubValidator:
             # Valider le thème
             if "GRUB_THEME" in entries:
                 validated_path = GrubValidator.validate_file_path(
-                    entries["GRUB_THEME"], GrubValidator.ALLOWED_THEME_EXTENSIONS
+                    entries["GRUB_THEME"], ALLOWED_THEME_EXTENSIONS
                 )
                 if validated_path is None:
                     del entries["GRUB_THEME"]
@@ -259,7 +271,7 @@ class GrubValidator:
                 )
 
         except GrubValidationError:
-            raise  # Re-lever l'exception
-        except Exception as e:
-            logger.exception("Erreur inattendue lors de la validation")
-            raise GrubValidationError(f"Erreur de validation: {e}") from e
+            raise  # Re-raise the specific validation error
+        except (KeyError, ValueError, TypeError) as e:
+            logger.exception("Unexpected error during validation")
+            raise GrubValidationError(f"Validation error: {e}") from e

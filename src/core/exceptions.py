@@ -1,21 +1,41 @@
-"""Exceptions personnalisées pour GRUB Manager."""
+"""Professional exception hierarchy for GRUB Manager."""
 
 
 class GrubError(Exception):
-    """Exception de base pour les erreurs GRUB."""
+    """Base exception for all GRUB-related errors.
 
+    All custom exceptions inherit from this base class, allowing
+    catch-all handling when needed while maintaining specificity.
+    """
 
-class GrubPermissionError(GrubError):
-    """Exception levée lorsque les permissions sont insuffisantes."""
+    def __init__(self, message: str, details: str = "") -> None:
+        """Initialize exception with message and optional details.
+
+        Args:
+            message: Human-readable error message
+            details: Technical details for debugging
+
+        """
+        super().__init__(message)
+        self.message = message
+        self.details = details
 
 
 class GrubConfigError(GrubError):
-    """Exception levée lors d'erreurs de configuration."""
+    """Raised when configuration file has errors or cannot be accessed."""
 
 
 class GrubValidationError(GrubError):
-    """Exception levée lors d'erreurs de validation."""
+    """Raised when configuration values fail validation."""
 
 
 class GrubBackupError(GrubError):
-    """Exception levée lors d'erreurs de sauvegarde."""
+    """Raised when backup operations fail."""
+
+
+class GrubApplyError(GrubError):
+    """Raised when applying configuration to system fails."""
+
+
+class GrubServiceError(GrubError):
+    """Raised when service-level operations fail."""

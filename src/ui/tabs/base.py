@@ -1,16 +1,12 @@
 """Classe de base pour les onglets de l'application."""
 
-import gi
-from gi.repository import Gtk
-
+from src.ui.gtk_init import Gtk
 from src.utils.config import (
     DEFAULT_MARGIN,
     DEFAULT_SPACING,
     GRID_COLUMN_SPACING,
     GRID_ROW_SPACING,
 )
-
-gi.require_version("Gtk", "4.0")
 
 
 class BaseTab(Gtk.Box):
@@ -25,3 +21,12 @@ class BaseTab(Gtk.Box):
 
         self.grid = Gtk.Grid(column_spacing=GRID_COLUMN_SPACING, row_spacing=GRID_ROW_SPACING)
         self.append(self.grid)
+
+    def get_config(self) -> dict[str, str]:
+        """Récupère la configuration de l'onglet.
+
+        Returns:
+            dict[str, str]: Configuration modifiée
+
+        """
+        return {}

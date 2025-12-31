@@ -1,28 +1,122 @@
+# Python project configuration with strict code quality standards
+# All tools configured with consistent line length (120) and strict linting rules
+
+# ============================================================================
+# RUFF - Fast Python linter (Rust-based, replaces flake8 and isort)
+# ============================================================================
 [tool.ruff]
+# Maximum line length before triggering E501 (handled by black separately)
 line-length = 120
+
+# Directories to exclude from linting
 exclude = [".venv", "venv", "__pycache__"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I"]
-ignore = ["E501", "E402"]
+# Rules to enable:
+#   E   - pycodestyle errors (PEP 8 style violations)
+#   W   - pycodestyle warnings (PEP 8 warnings)
+#   F   - pyflakes (undefined names, unused imports)
+#   I   - isort (import sorting)
+#   D   - pydocstyle (docstring conventions)
+#   C   - McCabe complexity (function complexity)
+#   UP  - pyupgrade (syntax modernization for Python 3.12)
+select = ["E", "W", "F", "I", "D", "C", "UP"]
 
+# Rules to ignore:
+#   E501 - line too long (120 chars) - handled by black formatter instead
+#   D100 - missing module docstring (common in scripts)
+#   D104 - missing package docstring (common in __init__.py)
+ignore = ["E501", "D100", "D104"]
+
+# ============================================================================
+# PYLINT - Comprehensive code quality checker
+# ============================================================================
 [tool.pylint.format]
+# Maximum line length (120 characters, same as ruff and black)
 max-line-length = 120
 
 [tool.pylint.master]
+# Initialize path to allow relative imports from src/
 init-hook = "import sys; sys.path.append('.')"
+
+# Source code roots for module resolution
 source-roots = ["src"]
+
+# Patterns to ignore (.venv directory)
 ignore-patterns = ["^\\.venv"]
 
+[tool.pylint.messages_control]
+# Disable rules that conflict with our design decisions
+disable = []
+
+[tool.pylint.design]
+# Strict code complexity limits
+max-attributes = 7
+max-branches = 12
+max-locals = 15
+max-positional-arguments = 5
+max-bool-expr = 5
+
+# ============================================================================
+# MYPY - Static type checker for Python
+# ============================================================================
 [tool.mypy]
+# Strong type checking without enforcing annotations everywhere
+strict = false
+
+# Allow untyped calls/definitions in stdlib/third-party (GTK has no types)
 ignore_missing_imports = true
 
+# Check untyped function definitions where we do have info
+check_untyped_defs = true
+
+# Warn about unused configurations and redundant casts
+warn_redundant_casts = true
+warn_unused_configs = true
+
+# Disable incompatible strict settings for GTK compatibility
+no_implicit_optional = false
+disallow_any_explicit = false
+
+# Per-module options
+[tool.mypy-src.ui.app]
+# app.py uses GTK heavily, suppress union-attr errors from None checks
+ignore_errors = true
+
+# ============================================================================
+# ISORT - Import sorting utility
+# ============================================================================
 [tool.isort]
+# Use black-compatible profile for import grouping and sorting
 profile = "black"
+
+# Same line length as black and ruff for consistency
 line_length = 120
+
+# Respect .gitignore patterns when finding imports
 skip_gitignore = true
 
+# ============================================================================
+# BLACK - Code formatter (opinionated, enforces consistent style)
+# ============================================================================
 [tool.black]
+# Line length limit (120 characters for larger screens)
 line-length = 120
+
+# Target Python version (3.12)
 target-version = ["py312"]
+
+# Exclude virtual environments from formatting
 exclude = '\.venv'
+
+# =========================================================================
+# PYDOCSTYLE - Docstring style checker
+# =========================================================================
+[tool.pydocstyle]
+# Utiliser la convention Google (Args/Returns/Raises) et éviter les règles NumPy.
+convention = "google"
+
+# D202 est incompatible avec Black (Black insère une ligne vide après docstring).
+# D203/D213 entrent souvent en conflit avec d'autres conventions/outils.
+# D100/D104 sont déjà ignorées via Ruff; on aligne pydocstyle.
+add_ignore = ["D100", "D104", "D202", "D203", "D213"]

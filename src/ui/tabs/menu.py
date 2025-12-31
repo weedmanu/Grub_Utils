@@ -1,11 +1,7 @@
 """Module pour l'onglet de gestion du menu."""
 
-import gi
-from gi.repository import Gtk
-
+from src.ui.gtk_init import Gtk
 from src.ui.tabs.base import BaseTab
-
-gi.require_version("Gtk", "4.0")
 
 
 class MenuTab(BaseTab):
@@ -16,26 +12,39 @@ class MenuTab(BaseTab):
         super().__init__(app)
 
         scrolled = Gtk.ScrolledWindow(vexpand=True)
-        self.app.widgets.menu_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        scrolled.set_child(self.app.widgets.menu_list)
+        self.menu_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        scrolled.set_child(self.menu_list)
         self.append(scrolled)
 
-        self.app.widgets.check_buttons = {}
-        self._render_menu_level(self.app.manager.menu_entries, self.app.widgets.menu_list)
+        self.check_buttons = {}
+        self._render_menu_level(self.app.facade.menu_entries, self.menu_list)
 
     def _render_menu_level(self, items, container):
-        """Rendu récursif des entrées et sous-menus."""
+        """Rendu récursif des entrées et sous-menus.
+
+        Args:
+            items: Liste des entrées de menu
+            container: Conteneur GTK pour afficher les entrées
+
+        """
         for item in items:
-            if item["type"] == "entry":
-                name = item["name"]
-                check = Gtk.CheckButton(label=name, active=name not in self.app.manager.hidden_entries)
-                container.append(check)
-                self.app.widgets.check_buttons[name] = check
-            elif item["type"] == "submenu":
-                expander = Gtk.Expander(label=item["name"])
-                expander.set_margin_start(10)
-                sub_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-                sub_box.set_margin_start(20)
-                expander.set_child(sub_box)
-                container.append(expander)
-                self._render_menu_level(item["entries"], sub_box)
+            title = item["title"]
+            is_submenu = item.get("submenu", False)
+
+            check = Gtk.CheckButton(label=title, active=title not in self.app.facade.hidden_entries)
+
+            # Indenter les sous-menus
+            if is_submenu:
+                check.set_margin_start(20)
+
+            container.append(check)
+            self.check_buttons[title] = check
+
+    def get_hidden_entries(self) -> list[str]:
+        """Récupère la liste des entrées cachées.
+
+        Returns:
+            list[str]: Liste des titres des entrées cachées
+
+        """
+        return [title for title, check in self.check_buttons.items() if not check.get_active()]
