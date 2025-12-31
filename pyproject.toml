@@ -1,0 +1,28 @@
+[tool.ruff]
+line-length = 120
+exclude = [".venv", "venv", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+ignore = ["E501", "E402"]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.master]
+init-hook = "import sys; sys.path.append('.')"
+source-roots = ["src"]
+ignore-patterns = ["^\\.venv"]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_gitignore = true
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+exclude = '\.venv'

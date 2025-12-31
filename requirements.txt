@@ -1,0 +1,10 @@
+PyGObject
+flake8
+isort
+mypy
+pylint
+vulture
+pydocstyle
+ruff
+pytest
+pytest-cov
