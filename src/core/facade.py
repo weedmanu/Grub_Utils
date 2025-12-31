@@ -109,6 +109,11 @@ class GrubFacade:
         """Get current configuration entries."""
         return self._service.entries
 
+    @entries.setter
+    def entries(self, value: dict[str, str]) -> None:
+        """Set configuration entries."""
+        self._service.entries = value
+
     @property
     def menu_entries(self) -> list[dict]:
         """Get menu entries."""

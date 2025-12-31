@@ -216,7 +216,8 @@ class GrubApp(Gtk.Application):
         if not theme:
             config.pop("GRUB_THEME", None)
 
-        if bg or theme:
+        # Force gfxterm if background, theme, or custom colors are used
+        if bg or theme or config.get("GRUB_COLOR_NORMAL") or config.get("GRUB_COLOR_HIGHLIGHT"):
             config["GRUB_TERMINAL_OUTPUT"] = "gfxterm"
 
         return config
@@ -326,7 +327,9 @@ class GrubApp(Gtk.Application):
             self._build_ui()
 
     def on_preview_clicked(self, _button: Gtk.Button) -> None:
-        """Affiche un aperçu de la configuration avant sauvegarde.
+        """Affiche un aperçu de la configuration GRUB.
+
+        Montre la configuration actuelle, ou les modifications si elles existent.
 
         Args:
             _button: Bouton cliqué
@@ -336,13 +339,16 @@ class GrubApp(Gtk.Application):
             current_config = self.facade.entries
             modified_config = self._collect_ui_configuration()
 
-            if current_config == modified_config:
-                self.show_toast("Aucun changement à prévisualiser.")
-                return
+            # Determine if there are changes
+            has_changes = current_config != modified_config
+            
+            # Use modified config if changes exist, otherwise show current state
+            display_config = modified_config if has_changes else current_config
+            title = "Aperçu des modifications" if has_changes else "Aperçu de la configuration actuelle"
 
             menu_entries = [
-                {"title": e.title, "linux": e.description}
-                for e in self.facade.get_menu_entries()
+                {"title": e.get("title", ""), "linux": e.get("linux", "")}
+                for e in self.facade.menu_entries
             ]
             
             # Get current hidden entries from UI widgets
@@ -352,9 +358,9 @@ class GrubApp(Gtk.Application):
 
             PreviewDialog(
                 self.win,
-                "Aperçu de la configuration",
+                title,
                 current_config,
-                modified_config,
+                display_config,
                 menu_entries,
                 hidden_entries
             )

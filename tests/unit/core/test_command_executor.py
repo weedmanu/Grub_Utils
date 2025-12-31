@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from src.core.command_executor import SecureCommandExecutor
+from src.core.security import SecurityError
 
 
 class TestSecureCommandExecutor:
@@ -273,3 +274,11 @@ class TestSecureCommandExecutor:
         # Verify
         assert success is False
         assert "Erreur système" in output
+
+    def test_execute_with_pkexec_security_error(self):
+        """Test execute_with_pkexec handles security validation failure."""
+        executor = SecureCommandExecutor()
+        with patch("src.core.security.InputSecurityValidator.validate_line", side_effect=SecurityError("Invalid command")):
+            success, output = executor.execute_with_pkexec(["invalid command"])
+            assert success is False
+            assert "Invalid command" in output

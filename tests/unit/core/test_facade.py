@@ -169,6 +169,12 @@ class TestGrubFacade:
         facade.hidden_entries = ["entry2", "entry3"]
         assert facade._service.hidden_entries == ["entry2", "entry3"]
 
+    def test_entries_setter(self, facade):
+        """Test assigning entries propagates to the service."""
+        new_entries = {"KEY": "VALUE"}
+        facade.entries = new_entries
+        assert facade._service.entries == new_entries
+
     def test_has_backups_true(self, facade):
         """Test has_backups when backups exist."""
         facade._service.backup_manager.get_latest_backup = Mock(return_value="/path/to/backup")

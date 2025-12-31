@@ -86,5 +86,5 @@ class TestInputSecurityValidator:
     def test_validate_file_path_restricted_dir(self):
         """Test validation with restricted directory."""
         with pytest.raises(SecurityError, match="not in allowed directories"):
-            InputSecurityValidator.validate_file_path("/home/user/file")
+            InputSecurityValidator.validate_file_path("/opt/malicious/file")
 

@@ -192,3 +192,35 @@ class TestGrubConfigGenerator:
         assert '#KEY1="new1"' in content
         assert 'KEY2="new2"' in content
         assert '#KEY3="new3"' in content
+
+    def test_generator_adds_export_for_colors(self, generator):
+        """Ensure generator prefixes color variables with export."""
+        entries = {
+            "GRUB_COLOR_NORMAL": "light-gray/black",
+            "GRUB_COLOR_HIGHLIGHT": "black/light-gray",
+            "GRUB_TIMEOUT": "5",
+        }
+        content = generator.generate(entries, [])
+        assert 'export GRUB_COLOR_NORMAL="light-gray/black"' in content
+        assert 'export GRUB_COLOR_HIGHLIGHT="black/light-gray"' in content
+        assert 'GRUB_TIMEOUT="5"' in content
+        assert 'export GRUB_TIMEOUT' not in content
+
+    def test_generator_preserves_existing_export(self, generator):
+        """Keep existing export prefix when present."""
+        entries = {"MY_CUSTOM_VAR": "value"}
+        content = generator.generate(entries, ['export MY_CUSTOM_VAR="old_value"'])
+        assert 'export MY_CUSTOM_VAR="value"' in content
+
+    def test_generator_handles_commented_export(self, generator):
+        """Uncomment and export variables that were commented out."""
+        entries = {"GRUB_COLOR_NORMAL": "white/black"}
+        content = generator.generate(entries, ['#export GRUB_COLOR_NORMAL="light-gray/black"'])
+        assert 'export GRUB_COLOR_NORMAL="white/black"' in content
+        assert '#export GRUB_COLOR_NORMAL' not in content
+
+    def test_generator_handles_hidden_export(self, generator):
+        """Support hiding exported variables when requested."""
+        entries = {"GRUB_COLOR_NORMAL": "white/black"}
+        content = generator.generate(entries, [], ["GRUB_COLOR_NORMAL"])
+        assert '#export GRUB_COLOR_NORMAL="white/black"' in content

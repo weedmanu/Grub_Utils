@@ -27,6 +27,9 @@ class GrubConfigGenerator:  # pylint: disable=too-few-public-methods
         """
         hidden_set = set(hidden_entries or [])
         new_lines = []
+        
+        # Keys that must be exported to be visible to scripts
+        KEYS_TO_EXPORT = {"GRUB_COLOR_NORMAL", "GRUB_COLOR_HIGHLIGHT"}
 
         for line in original_lines:
             stripped = line.strip()
@@ -44,12 +47,29 @@ class GrubConfigGenerator:  # pylint: disable=too-few-public-methods
             # Check if this line contains a key we need to update
             if "=" in stripped:
                 key_part = stripped.split("=")[0].strip()
-                clean_key = key_part.lstrip("#").strip()
+                
+                # Handle export prefix and comments
+                is_exported = False
+                clean_key = key_part
+                
+                # Remove leading #
+                if clean_key.startswith("#"):
+                    clean_key = clean_key.lstrip("#").strip()
+                
+                # Remove export
+                if clean_key.startswith("export "):
+                    clean_key = clean_key[7:].strip()
+                    is_exported = True
 
                 if clean_key in entries:
                     # Replace with new value
                     value = entries[clean_key]
-                    new_line = f'{clean_key}="{value}"'
+                    
+                    # Determine if we should export
+                    should_export = is_exported or clean_key in KEYS_TO_EXPORT
+                    prefix = "export " if should_export else ""
+                    
+                    new_line = f'{prefix}{clean_key}="{value}"'
 
                     # Hide entry if in hidden list
                     if clean_key in hidden_set:
@@ -65,7 +85,10 @@ class GrubConfigGenerator:  # pylint: disable=too-few-public-methods
         # Add any new entries that weren't in original file
         for key, value in entries.items():
             if not self._key_in_lines(key, original_lines):
-                new_line = f'{key}="{value}"'
+                should_export = key in KEYS_TO_EXPORT
+                prefix = "export " if should_export else ""
+                new_line = f'{prefix}{key}="{value}"'
+                
                 if key in hidden_set:
                     new_line = f"#{new_line}"
                 new_lines.append(new_line)
@@ -90,6 +113,20 @@ class GrubConfigGenerator:  # pylint: disable=too-few-public-methods
         """
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith(f"{key}=") or stripped.startswith(f"#{key}="):
+            
+            if "=" not in stripped:
+                continue
+                
+            key_part = stripped.split("=")[0].strip()
+            
+            # Normalize key part
+            if key_part.startswith("#"):
+                key_part = key_part.lstrip("#").strip()
+            
+            if key_part.startswith("export "):
+                key_part = key_part[7:].strip()
+                
+            if key_part == key:
                 return True
+                
         return False

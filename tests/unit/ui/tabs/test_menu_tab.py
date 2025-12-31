@@ -42,3 +42,18 @@ class TestMenuTab:
         # Verify Entry 1 (normal) does not have margin set (or 0)
         btn1 = buttons["Entry 1"]
         btn1.set_margin_start.assert_not_called()
+
+
+class TestMenuTabCoverage:
+    """Additional coverage for MenuTab hidden entries."""
+
+    def test_get_hidden_entries(self):
+        app = MagicMock()
+        app.facade.menu_entries = []
+        app.facade.hidden_entries = ["Hidden"]
+        tab = MenuTab(app)
+        mock_check = MagicMock()
+        mock_check.get_active.return_value = False
+        tab.check_buttons = {"New Hidden": mock_check}
+        hidden = tab.get_hidden_entries()
+        assert hidden == ["New Hidden"]

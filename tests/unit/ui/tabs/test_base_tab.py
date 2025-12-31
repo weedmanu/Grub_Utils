@@ -12,3 +12,9 @@ class TestBaseTab:
         assert tab.grid is not None
         # Verify margins set (MockWidget returns mocks, so we can't easily check values unless we spy)
         # But we can assume it runs.
+
+    def test_get_config_default(self):
+        """BaseTab.get_config should return an empty dict by default."""
+        app = MagicMock()
+        tab = BaseTab(app)
+        assert tab.get_config() == {}

@@ -4,6 +4,7 @@ from src.core.exceptions import GrubConfigError
 
 # The mocks in conftest.py should handle the imports
 from src.ui.app import GrubApp
+from src.ui.gtk_init import Gtk, GLib
 
 class TestGrubApp:
     @patch("src.ui.app.GrubFacade")
@@ -89,14 +90,16 @@ class TestGrubApp:
 
     @patch("src.ui.app.GrubFacade")
     def test_on_preview_clicked_no_changes(self, mock_facade_cls):
-        """Test preview when no changes were made."""
+        """Test preview when no changes were made shows current config."""
         app = GrubApp()
         app.facade.entries = {"KEY": "VALUE"}
+        app.facade.menu_entries = []
         
         with patch.object(app, "_collect_ui_configuration", return_value={"KEY": "VALUE"}):
-            with patch.object(app, "show_toast") as mock_toast:
+            with patch("src.ui.app.PreviewDialog") as mock_dialog:
                 app.on_preview_clicked(None)
-                mock_toast.assert_called_with("Aucun changement à prévisualiser.")
+                # Preview should still be shown with current config
+                mock_dialog.assert_called_once()
 
     @patch("src.ui.app.GrubFacade")
     def test_on_preview_clicked_with_changes(self, mock_facade_cls):
@@ -270,3 +273,283 @@ class TestGrubApp:
         
         assert config["EXISTING"] == "value"
         assert config["GRUB_DEFAULT"] == "0"
+
+
+class TestGrubAppCoverage:
+    """Additional coverage for GrubApp lifecycle and helpers."""
+
+    @patch("src.ui.app.GrubFacade")
+    def test_do_activate_load_failure(self, mock_facade_cls):
+        app = GrubApp()
+        app.facade.load_configuration.return_value = MagicMock(success=False, error_details="Load error")
+        with patch("src.ui.app.logger") as mock_logger, patch.object(app, "_build_ui") as mock_build:
+            app.do_activate()
+            mock_logger.error.assert_called_with("Failed to load: %s", "Load error")
+            mock_build.assert_called_once()
+
+    @patch("src.ui.app.GrubFacade")
+    def test_hide_toast_callback(self, mock_facade_cls):
+        app = GrubApp()
+        app.toast_revealer = MagicMock()
+        with patch("src.ui.app.GLib.timeout_add") as mock_timeout:
+            app.show_toast("message")
+            callback = mock_timeout.call_args[0][1]
+            result = callback()
+            app.toast_revealer.set_reveal_child.assert_called_with(False)
+            assert result is False
+
+    @patch("src.ui.app.GrubFacade")
+    def test_refresh_ui_with_win(self, mock_facade_cls):
+        app = GrubApp()
+        app.win = MagicMock()
+        app.facade.load_configuration.return_value = MagicMock(success=True)
+        with patch.object(app, "_build_ui") as mock_build:
+            app._refresh_ui()
+            mock_build.assert_called_once()
+
+    @patch("src.ui.app.GrubFacade")
+    def test_refresh_ui_load_failure(self, mock_facade_cls):
+        app = GrubApp()
+        app.facade.load_configuration.return_value = MagicMock(success=False, error_details="Refresh error")
+        with patch("src.ui.app.logger") as mock_logger:
+            app._refresh_ui()
+            mock_logger.error.assert_called_with("Failed to load: %s", "Refresh error")
+
+    @patch("src.ui.app.GrubFacade")
+    def test_on_file_dialog_response_success(self, mock_facade_cls):
+        app = GrubApp()
+        mock_entry = MagicMock()
+        mock_file = MagicMock()
+        mock_file.get_path.return_value = "/path/to/file"
+        mock_dialog = MagicMock()
+        mock_dialog.open_finish.return_value = mock_file
+        app._on_file_dialog_response(mock_dialog, MagicMock(), mock_entry)
+        mock_entry.set_text.assert_called_with("/path/to/file")
+
+
+class TestGrubAppCoverageExtended:
+    """Extended coverage for GrubApp edge cases."""
+
+    @pytest.fixture
+    def app(self):
+        with patch("src.ui.app.GrubFacade"), \
+             patch("src.ui.app.Adw.ApplicationWindow") if hasattr(Gtk, "ApplicationWindow") else patch("src.ui.app.Gtk.ApplicationWindow"):
+            app = GrubApp()
+            app.win = MagicMock()
+            app.facade = MagicMock()
+            app.facade.entries = {}
+            return app
+
+    def test_build_ui_no_adw(self):
+        with patch("src.ui.app.HAS_ADW", False), \
+             patch("src.ui.app.Gtk.ApplicationWindow") as MockWindow, \
+             patch("src.ui.app.Gtk.HeaderBar") as MockHeader:
+            app = GrubApp()
+            app._build_ui()
+            assert app.win is not None
+            assert MockHeader.called
+
+    def test_on_file_dialog_response_error(self, app):
+        dialog = MagicMock()
+        dialog.open_finish.side_effect = GLib.Error("Test error")
+        entry = MagicMock()
+        app._on_file_dialog_response(dialog, None, entry)
+        entry.set_text.assert_not_called()
+
+    def test_on_save_clicked_confirm(self, app):
+        with patch("src.ui.app.ConfirmDialog") as MockDialog:
+            app.on_save_clicked(None)
+            callback = MockDialog.call_args[0][1]
+            app._apply_configuration = MagicMock()
+            callback(True)
+            app._apply_configuration.assert_called_once()
+            app._apply_configuration.reset_mock()
+            callback(False)
+            app._apply_configuration.assert_not_called()
+
+    def test_collect_ui_configuration_savedefault_false(self, app):
+        app.facade.entries = {"GRUB_DEFAULT": "0", "GRUB_SAVEDEFAULT": "true"}
+        app.tabs = {}
+        config = app._collect_ui_configuration()
+        assert "GRUB_SAVEDEFAULT" not in config
+
+    def test_on_reset_clicked_no_backups_list(self, app):
+        app.facade.has_backups.return_value = True
+        app.facade.list_backups.return_value = []
+        app.show_toast = MagicMock()
+        app.on_reset_clicked(None)
+        app.show_toast.assert_called_with("Aucune sauvegarde disponible.")
+
+    def test_on_reset_clicked_exception(self, app):
+        app.facade.has_backups.side_effect = Exception("Test error")
+        app._show_error = MagicMock()
+        app.on_reset_clicked(None)
+        app._show_error.assert_called()
+
+    def test_apply_configuration_os_error(self, app):
+        app.facade.apply_changes.side_effect = OSError("Disk error")
+        app._show_error = MagicMock()
+        app._apply_configuration()
+        app._show_error.assert_called_with("Erreur d'accès", "Erreur d'accès au fichier : Disk error")
+
+    def test_apply_configuration_generic_exception(self, app):
+        app.facade.apply_changes.side_effect = Exception("Unknown error")
+        app._show_error = MagicMock()
+        app._apply_configuration()
+        app._show_error.assert_called_with("Erreur inattendue", "Une erreur inattendue s'est produite : Unknown error")
+
+
+class TestGrubAppCallbacks:
+    """Coverage for app callbacks using patched GTK/Adw stack."""
+
+    @pytest.fixture
+    def app(self):
+        app = MagicMock()
+        app.facade.entries = {}
+        app.facade.menu_entries = []
+        app.facade.hidden_entries = []
+        return app
+
+    def test_app_callbacks_coverage(self, app):
+        with patch("src.ui.app.Gtk") as mock_gtk, patch("src.ui.app.Adw") as mock_adw, patch("src.ui.app.GrubFacade") as MockFacade:
+            MockFacade.return_value = app.facade
+            gui = GrubApp()
+            gui.win = MagicMock()
+            entry = MagicMock()
+            gui.on_file_clicked(None, entry, "Test Title")
+            assert mock_gtk.FileDialog.called
+            assert mock_gtk.FileDialog.return_value.open.called
+            dialog = MagicMock()
+            file_obj = MagicMock()
+            file_obj.get_path.return_value = "/path/to/file"
+            dialog.open_finish.return_value = file_obj
+            gui._on_file_dialog_response(dialog, MagicMock(), entry)
+            entry.set_text.assert_called_with("/path/to/file")
+            with patch("src.ui.app.ConfirmDialog") as MockConfirm:
+                gui.on_save_clicked(None)
+                callback = MockConfirm.call_args[0][1]
+                callback(True)
+                assert app.facade.apply_changes.called
+                callback("yes")
+                assert app.facade.apply_changes.called
+            app.facade.has_backups.return_value = True
+            backup_mock = MagicMock()
+            backup_mock.path = "/path/to/backup"
+            app.facade.list_backups.return_value = [backup_mock]
+            with patch("src.ui.app.BackupSelectorDialog") as MockBackupSelector:
+                gui.on_reset_clicked(None)
+                callback = MockBackupSelector.call_args[0][2]
+                callback("/path/to/backup")
+                assert app.facade.restore_backup.called
+
+
+class TestGrubAppCoverageV2:
+    """Remaining app branches for full coverage."""
+
+    @pytest.fixture
+    def app(self):
+        with patch("src.ui.app.GrubApp._build_ui") as mock_build:
+            app = GrubApp()
+            app.facade = MagicMock()
+            app.win = MagicMock()
+            app.tabs = {}
+            app._build_ui = mock_build
+            app._build_ui_mock = mock_build
+            return app
+
+    def test_on_reset_clicked_list_backups_exception(self, app):
+        app.facade.has_backups.return_value = True
+        app.facade.list_backups.side_effect = Exception("List error")
+        with patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app.on_reset_clicked(None)
+            args = mock_error_dialog.call_args[0]
+            assert "Impossible de lister les sauvegardes" in args[1].message
+
+    def test_collect_ui_configuration_force_gfxterm(self, app):
+        app.facade.entries = {"GRUB_BACKGROUND": "/path/to/bg.png"}
+        app.tabs = {"general": MagicMock(get_config=MagicMock(return_value={}))}
+        config = app._collect_ui_configuration()
+        assert config.get("GRUB_TERMINAL_OUTPUT") == "gfxterm"
+
+    def test_collect_ui_configuration_sets_save_default(self, app):
+        app.facade.entries = {"GRUB_DEFAULT": "saved"}
+        app.tabs = {}
+        config = app._collect_ui_configuration()
+        assert config["GRUB_SAVEDEFAULT"] == "true"
+
+    def test_restore_backup_generic_exception(self, app):
+        app.facade.restore_backup.side_effect = Exception("Generic error")
+        with patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app._restore_backup("backup_path")
+            assert mock_error_dialog.called
+
+    def test_restore_backup_os_error(self, app):
+        app.facade.restore_backup.side_effect = OSError("Access denied")
+        with patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app._restore_backup("backup_path")
+            assert mock_error_dialog.called
+
+    def test_restore_backup_failure_shows_error(self, app):
+        app.facade.restore_backup.return_value = MagicMock(success=False)
+        app._show_error = MagicMock()
+        app._restore_backup("some_backup")
+        args = app._show_error.call_args[0]
+        assert args[0] == "Erreur de restauration"
+        assert "Impossible de restaurer la sauvegarde" in args[1]
+
+    def test_refresh_ui_load_failure_logging(self, app):
+        result = MagicMock(success=False, error_details="Load failed")
+        app.facade.load_configuration.return_value = result
+        with patch("src.ui.app.logger") as mock_logger:
+            app._refresh_ui()
+            mock_logger.error.assert_called_with("Failed to load: %s", "Load failed")
+
+    def test_on_preview_clicked_exception(self, app):
+        app.facade.entries = {}
+        with patch.object(app, "_collect_ui_configuration", side_effect=Exception("Preview error")), \
+             patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app.on_preview_clicked(None)
+            assert mock_error_dialog.called
+
+    def test_apply_configuration_exception(self, app):
+        app.facade.apply_changes.side_effect = Exception("Apply error")
+        with patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app._apply_configuration()
+            assert mock_error_dialog.called
+
+    def test_apply_configuration_success(self, app):
+        app.facade.apply_changes.return_value.success = True
+        app.show_toast = MagicMock()
+        with patch("src.ui.app.logger") as mock_logger:
+            app._apply_configuration()
+            app.show_toast.assert_called_once()
+            mock_logger.info.assert_called()
+
+    def test_apply_configuration_grub_config_error(self, app):
+        app.facade.apply_changes.side_effect = GrubConfigError("cfg")
+        with patch("src.ui.app.ErrorDialog") as mock_error_dialog:
+            app._apply_configuration()
+            assert mock_error_dialog.called
+
+    def test_refresh_ui_builds_when_window_present(self, app):
+        app.facade.load_configuration.return_value.success = True
+        app._refresh_ui()
+        app._build_ui_mock.assert_called_once()
+
+    def test_update_manager_from_ui_sets_hidden(self, app):
+        menu_tab = MagicMock()
+        menu_tab.get_hidden_entries.return_value = ["hidden"]
+        app.tabs = {"menu": menu_tab}
+        with patch.object(app, "_collect_ui_configuration", return_value={"KEY": "VAL"}):
+            app._update_manager_from_ui()
+        assert app.facade.entries == {"KEY": "VAL"}
+        assert app.facade.hidden_entries == ["hidden"]
+
+    def test_on_preview_clicked_success(self, app):
+        app.facade.entries = {"A": "1"}
+        app.facade.menu_entries = [{"title": "entry", "linux": "vmlinuz"}]
+        app.tabs = {"menu": MagicMock(get_hidden_entries=MagicMock(return_value=["h"]))}
+        with patch.object(app, "_collect_ui_configuration", return_value={"A": "2"}), \
+             patch("src.ui.app.PreviewDialog") as mock_preview:
+            app.on_preview_clicked(None)
+            mock_preview.assert_called_once()

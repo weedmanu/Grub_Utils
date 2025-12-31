@@ -75,6 +75,11 @@ mock_gtk.NaturalWrapMode = MagicMock()
 mock_gtk.NaturalWrapMode.WORD = 1
 mock_gtk.SelectionMode = MagicMock()
 mock_gtk.SelectionMode.SINGLE = 1
+mock_gtk.PolicyType = MagicMock()
+mock_gtk.PolicyType.NEVER = 0
+mock_gtk.PolicyType.AUTOMATIC = 1
+mock_gtk.PolicyType.ALWAYS = 2
+mock_gtk.STYLE_PROVIDER_PRIORITY_APPLICATION = 600
 
 # Setup Adw mocks
 mock_adw = MockLibrary()

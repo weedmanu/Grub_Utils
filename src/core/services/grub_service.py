@@ -14,7 +14,7 @@ from src.core.exceptions import (
     GrubServiceError,
 )
 from src.core.validator import GrubValidator
-from src.utils.config import GRUB_CFG_PATHS, GRUB_CONFIG_PATH
+from src.utils.config import GRUB_BACKGROUNDS_DIR, GRUB_CFG_PATHS, GRUB_CONFIG_PATH
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -81,6 +81,11 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
             return False, "Configuration not loaded"
 
         try:
+            # Copy background image to /boot/grub if needed
+            success, error = self._copy_background_image()
+            if not success:
+                return False, error
+
             # Validate configuration
             self.validator.validate_all(self.entries)
 
@@ -264,4 +269,50 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
 
         except (OSError, IOError) as e:
             logger.exception("Failed to apply hidden entries")
+            return False, str(e)
+
+    def _copy_background_image(self) -> tuple[bool, str]:
+        """Copy background image to /boot/grub/backgrounds if it's from user directory.
+
+        Returns:
+            Tuple of (success, error_message)
+
+        """
+        bg_path = self.entries.get("GRUB_BACKGROUND", "")
+        
+        if not bg_path:
+            return True, ""
+        
+        # If already in /boot/grub, no need to copy
+        if bg_path.startswith("/boot/grub/"):
+            return True, ""
+        
+        # If file doesn't exist, skip (validation will catch it later)
+        if not os.path.exists(bg_path):
+            return True, ""
+        
+        try:
+            # Get the filename
+            filename = os.path.basename(bg_path)
+            dest_path = os.path.join(GRUB_BACKGROUNDS_DIR, filename)
+            
+            # Create backgrounds directory if needed (with elevated privileges)
+            mkdir_cmd = f"mkdir -p {GRUB_BACKGROUNDS_DIR}"
+            success, error = self.executor.execute_with_pkexec([mkdir_cmd])
+            if not success:
+                return False, f"Failed to create backgrounds directory: {error}"
+            
+            # Copy the file with elevated privileges
+            success, error = self.executor.copy_file_privileged(bg_path, dest_path)
+            if not success:
+                return False, f"Failed to copy background image: {error}"
+            
+            # Update the entry to point to the new location
+            self.entries["GRUB_BACKGROUND"] = dest_path
+            logger.info("Background image copied to %s", dest_path)
+            
+            return True, ""
+            
+        except (OSError, IOError) as e:
+            logger.exception("Failed to copy background image")
             return False, str(e)

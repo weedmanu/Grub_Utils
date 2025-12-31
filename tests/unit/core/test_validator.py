@@ -1,7 +1,9 @@
 """Unit tests for GrubValidator."""
 
 import pytest
+from unittest.mock import patch
 
+from src.core.security import SecurityError
 from src.core.validator import GrubValidationError, GrubValidator
 
 
@@ -272,3 +274,27 @@ class TestGrubValidator:
         params = "custom_param=value"
         result = validator.validate_kernel_params(params)
         assert result == params
+
+    def test_validate_kernel_params_non_standard_warning_logger(self):
+        """Ensure logger is called for non-standard params when patched."""
+        with patch("src.core.validator.logger") as mock_logger:
+            GrubValidator.validate_kernel_params("custom_param")
+            mock_logger.warning.assert_called_with("Paramètre noyau non standard: %s", "custom_param")
+
+    def test_validate_all_unexpected_error_value(self):
+        """validate_all surfaces unexpected exceptions from validators."""
+        with patch("src.core.validator.GrubValidator.validate_timeout", side_effect=ValueError("Unexpected")):
+            with pytest.raises(GrubValidationError, match="Validation error: Unexpected"):
+                GrubValidator.validate_all({"GRUB_TIMEOUT": "5"})
+
+    def test_validate_file_path_security_error(self):
+        """SecurityError during file path validation should be wrapped."""
+        with patch("src.core.validator.InputSecurityValidator.validate_file_path", side_effect=SecurityError("Unsafe")):
+            with pytest.raises(GrubValidationError):
+                GrubValidator.validate_file_path("/unsafe/path", {".png"})
+
+    def test_validate_kernel_params_security_error(self):
+        """SecurityError during kernel params validation should be wrapped."""
+        with patch("src.core.validator.InputSecurityValidator.validate_kernel_params", side_effect=SecurityError("Unsafe")):
+            with pytest.raises(GrubValidationError):
+                GrubValidator.validate_kernel_params("unsafe param")

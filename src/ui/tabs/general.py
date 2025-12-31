@@ -3,6 +3,18 @@
 from src.ui.gtk_init import Gtk
 from src.ui.tabs.base import BaseTab
 
+# Valeurs de timeout prédéfinies
+TIMEOUT_OPTIONS = [
+    ("0", "0 sec (démarrage immédiat)"),
+    ("3", "3 secondes"),
+    ("5", "5 secondes (recommandé)"),
+    ("10", "10 secondes"),
+    ("15", "15 secondes"),
+    ("30", "30 secondes"),
+    ("60", "1 minute"),
+    ("-1", "Infini (attente manuelle)"),
+]
+
 
 class GeneralTab(BaseTab):
     """Classe pour l'onglet des paramètres généraux."""
@@ -29,17 +41,57 @@ class GeneralTab(BaseTab):
         )
         self.grid.attach(self.default_dropdown, 1, 0, 1, 1)
 
-        # Timeout
-        self.grid.attach(Gtk.Label(label="Délai (sec) :", xalign=0), 0, 1, 1, 1)
-        self.timeout_entry = Gtk.Entry(text=self.app.facade.entries.get("GRUB_TIMEOUT", "5"))
-        self.timeout_entry.set_tooltip_text(
-            "Temps d'attente en secondes avant de démarrer l'entrée par défaut. 0 = démarrage immédiat."
-        )
-        self.grid.attach(self.timeout_entry, 1, 1, 1, 1)
+        # Timeout - Liste déroulante
+        self.grid.attach(Gtk.Label(label="Délai avant démarrage :", xalign=0), 0, 1, 1, 1)
+        self._setup_timeout_dropdown()
 
         # Kernel params
         self.grid.attach(Gtk.Label(label="Paramètres noyau :", xalign=0), 0, 2, 1, 1)
         self._setup_kernel_dropdown()
+
+    def _setup_timeout_dropdown(self) -> None:
+        """Configure le menu déroulant du timeout."""
+        # Créer le modèle
+        self.timeout_model = Gtk.StringList()
+        for _, label in TIMEOUT_OPTIONS:
+            self.timeout_model.append(label)
+        
+        self.timeout_dropdown = Gtk.DropDown(model=self.timeout_model)
+        self.timeout_dropdown.set_tooltip_text(
+            "Temps d'attente avant de démarrer automatiquement l'entrée par défaut."
+        )
+        
+        # Sélectionner la valeur actuelle
+        current_timeout = self.app.facade.entries.get("GRUB_TIMEOUT", "5")
+        self._select_timeout(current_timeout)
+        
+        self.grid.attach(self.timeout_dropdown, 1, 1, 1, 1)
+
+    def _select_timeout(self, value: str) -> None:
+        """Sélectionne le timeout dans le dropdown.
+
+        Args:
+            value: Valeur de timeout en secondes
+
+        """
+        for idx, (timeout_value, _) in enumerate(TIMEOUT_OPTIONS):
+            if timeout_value == value:
+                self.timeout_dropdown.set_selected(idx)
+                return
+        # Si la valeur n'est pas dans la liste, sélectionner 5 secondes (recommandé)
+        self.timeout_dropdown.set_selected(2)
+
+    def _get_selected_timeout(self) -> str:
+        """Récupère le timeout sélectionné.
+
+        Returns:
+            str: Valeur de timeout en secondes
+
+        """
+        selected_idx = self.timeout_dropdown.get_selected()
+        if 0 <= selected_idx < len(TIMEOUT_OPTIONS):
+            return TIMEOUT_OPTIONS[selected_idx][0]
+        return "5"
 
     def _setup_kernel_dropdown(self) -> None:
         """Configure le menu déroulant des paramètres noyau."""
@@ -126,8 +178,8 @@ class GeneralTab(BaseTab):
             if selected_idx < len(self.entry_ids):
                 config["GRUB_DEFAULT"] = self.entry_ids[selected_idx]
 
-        if self.timeout_entry:
-            config["GRUB_TIMEOUT"] = self.timeout_entry.get_text()
+        # Récupérer le timeout depuis le dropdown
+        config["GRUB_TIMEOUT"] = self._get_selected_timeout()
 
         if self.kernel_dropdown:
             selected_idx = self.kernel_dropdown.get_selected()

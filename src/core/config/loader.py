@@ -71,6 +71,8 @@ class GrubConfigLoader:
             if "=" in line:
                 key, _, value = line.partition("=")
                 key = key.strip()
+                if key.startswith("export "):
+                    key = key[7:].strip()
                 value = value.strip().strip('"').strip("'")
                 entries[key] = value
 

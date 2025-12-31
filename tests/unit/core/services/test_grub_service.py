@@ -1,11 +1,12 @@
 """Tests for the GRUB service module."""
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, mock_open
 
 import pytest
 from src.core.exceptions import GrubConfigError, GrubServiceError
 from src.core.services.grub_service import GrubService
+from src.utils.config import GRUB_BACKGROUNDS_DIR
 
 
 class TestGrubService:
@@ -203,3 +204,190 @@ class TestGrubService:
         success = service.restore_backup()
 
         assert success is False
+
+
+class TestGrubServiceCoverage:
+    """Additional coverage scenarios for GrubService."""
+
+    @pytest.fixture
+    def service(self):
+        """Create a GrubService instance with mocked dependencies."""
+        with patch("src.core.services.grub_service.GrubConfigLoader"), \
+             patch("src.core.services.grub_service.GrubMenuParser"), \
+             patch("src.core.services.grub_service.GrubConfigGenerator"), \
+             patch("src.core.services.grub_service.GrubValidator"), \
+             patch("src.core.services.grub_service.BackupManager"), \
+             patch("src.core.services.grub_service.SecureCommandExecutor"):
+            service = GrubService("/tmp/grub")
+            service.loader.load.return_value = ({}, [])
+            service.parser.parse_menu_entries.return_value = []
+            return service
+
+    def test_load_os_error(self, service):
+        """Test load handles OSError."""
+        service.loader.load.side_effect = OSError("Read error")
+        with pytest.raises(GrubServiceError, match="Load failed"):
+            service.load()
+
+    def test_copy_background_image_no_path(self, service):
+        """Test _copy_background_image with no path set."""
+        service.entries = {}
+        success, error = service._copy_background_image()
+        assert success is True
+        assert error == ""
+
+    def test_copy_background_image_already_in_boot(self, service):
+        """Test _copy_background_image with path already in /boot/grub."""
+        service.entries = {"GRUB_BACKGROUND": "/boot/grub/image.png"}
+        success, error = service._copy_background_image()
+        assert success is True
+        assert error == ""
+
+    def test_copy_background_image_not_exists(self, service):
+        """Test _copy_background_image with non-existent file."""
+        service.entries = {"GRUB_BACKGROUND": "/home/user/image.png"}
+        with patch("os.path.exists", return_value=False):
+            success, error = service._copy_background_image()
+            assert success is True
+            assert error == ""
+
+    def test_copy_background_image_mkdir_fail(self, service):
+        """Test _copy_background_image fails when mkdir fails."""
+        service.entries = {"GRUB_BACKGROUND": "/home/user/image.png"}
+        with patch("os.path.exists", return_value=True):
+            service.executor.execute_with_pkexec.return_value = (False, "Permission denied")
+            success, error = service._copy_background_image()
+            assert success is False
+            assert "Failed to create backgrounds directory" in error
+
+    def test_copy_background_image_copy_fail(self, service):
+        """Test _copy_background_image fails when copy fails."""
+        service.entries = {"GRUB_BACKGROUND": "/home/user/image.png"}
+        with patch("os.path.exists", return_value=True):
+            service.executor.execute_with_pkexec.return_value = (True, "")
+            service.executor.copy_file_privileged.return_value = (False, "Copy failed")
+            success, error = service._copy_background_image()
+            assert success is False
+            assert "Failed to copy background image" in error
+
+    def test_copy_background_image_success(self, service):
+        """Test _copy_background_image success."""
+        service.entries = {"GRUB_BACKGROUND": "/home/user/image.png"}
+        with patch("os.path.exists", return_value=True):
+            service.executor.execute_with_pkexec.return_value = (True, "")
+            service.executor.copy_file_privileged.return_value = (True, "")
+            success, error = service._copy_background_image()
+            assert success is True
+            assert service.entries["GRUB_BACKGROUND"] == os.path.join(GRUB_BACKGROUNDS_DIR, "image.png")
+
+    def test_copy_background_image_exception(self, service):
+        """Test _copy_background_image handles exception."""
+        service.entries = {"GRUB_BACKGROUND": "/home/user/image.png"}
+        with patch("os.path.exists", return_value=True):
+            service.executor.execute_with_pkexec.side_effect = OSError("Disk error")
+            success, error = service._copy_background_image()
+            assert success is False
+            assert "Disk error" in error
+
+    def test_apply_hidden_entries_no_entries(self, service):
+        """Test _apply_hidden_entries with no hidden entries."""
+        service.hidden_entries = []
+        success, error = service._apply_hidden_entries()
+        assert success is True
+
+    def test_apply_hidden_entries_no_cfg(self, service):
+        """Test _apply_hidden_entries when grub.cfg not found."""
+        service.hidden_entries = ["Entry 1"]
+        with patch("os.path.exists", return_value=False):
+            success, error = service._apply_hidden_entries()
+            assert success is True
+
+    def test_apply_hidden_entries_success(self, service):
+        """Test _apply_hidden_entries success."""
+        service.hidden_entries = ["Hidden Entry"]
+        grub_cfg_content = """
+menuentry 'Visible Entry' {
+    set root='hd0,gpt1'
+}
+menuentry 'Hidden Entry' {
+    set root='hd0,gpt2'
+}
+submenu 'Submenu' {
+    menuentry 'Inner' {
+    }
+}
+"""
+        with patch("os.path.exists", return_value=True), \
+             patch("builtins.open", mock_open(read_data=grub_cfg_content)), \
+             patch("tempfile.NamedTemporaryFile") as mock_temp, \
+             patch("os.unlink"):
+            mock_temp.return_value.__enter__.return_value.name = "/tmp/temp.cfg"
+            service.executor.copy_file_privileged.return_value = (True, "")
+            success, error = service._apply_hidden_entries()
+            assert success is True
+            assert service.executor.copy_file_privileged.called
+
+    def test_apply_hidden_entries_copy_fail(self, service):
+        """Test _apply_hidden_entries fails when copy fails."""
+        service.hidden_entries = ["Hidden Entry"]
+        with patch("os.path.exists", return_value=True), \
+             patch("builtins.open", mock_open(read_data="menuentry 'Hidden Entry' {}")), \
+             patch("tempfile.NamedTemporaryFile"), \
+             patch("os.unlink"):
+            service.executor.copy_file_privileged.return_value = (False, "Copy failed")
+            success, error = service._apply_hidden_entries()
+            assert success is False
+            assert "Failed to apply hidden entries" in error
+
+    def test_apply_hidden_entries_exception(self, service):
+        """Test _apply_hidden_entries handles exception."""
+        service.hidden_entries = ["Hidden Entry"]
+        with patch("os.path.exists", return_value=True), \
+             patch("builtins.open", side_effect=IOError("Read error")):
+            success, error = service._apply_hidden_entries()
+            assert success is False
+            assert "Read error" in error
+
+    def test_save_and_apply_hidden_entries_fail(self, service):
+        """Test save_and_apply fails when hidden entries application fails."""
+        service._loaded = True
+        service.entries = {}
+        service.hidden_entries = ["Hidden"]
+        service._copy_background_image = MagicMock(return_value=(True, ""))
+        service.validator.validate_all = MagicMock()
+        service.backup_manager.create_backup.return_value = "/backup/path"
+        service.generator.generate.return_value = "config"
+        service._write_config = MagicMock(return_value=(True, ""))
+        service._update_grub = MagicMock(return_value=(True, ""))
+        service._apply_hidden_entries = MagicMock(return_value=(False, "Hidden fail"))
+        success, error = service.save_and_apply()
+        assert success is False
+        assert "Hidden fail" in error
+        service.backup_manager.restore_backup.assert_called_with("/backup/path")
+
+    def test_save_and_apply_copy_background_short_circuit(self, service):
+        """Test save_and_apply stops early when background copy fails."""
+        service._loaded = True
+        service.entries = {"GRUB_BACKGROUND": "/tmp/img.png"}
+        service._copy_background_image = MagicMock(return_value=(False, "bg fail"))
+
+        success, error = service.save_and_apply()
+
+        assert success is False
+        assert "bg fail" in error
+
+    def test_save_and_apply_copy_background_fail(self):
+        """save_and_apply should surface copy errors raised by helper."""
+        with patch("src.core.services.grub_service.GrubConfigLoader"), \
+             patch("src.core.services.grub_service.GrubMenuParser"), \
+             patch("src.core.services.grub_service.GrubConfigGenerator"), \
+             patch("src.core.services.grub_service.GrubValidator"), \
+             patch("src.core.services.grub_service.BackupManager"), \
+             patch("src.core.services.grub_service.SecureCommandExecutor"):
+            service = GrubService()
+            service._loaded = True
+            service.entries = {"GRUB_BACKGROUND": "/path/to/bg.png"}
+            with patch.object(service, "_copy_background_image", side_effect=OSError("Copy fail")):
+                success, error = service.save_and_apply()
+                assert success is False
+                assert "Copy fail" in error

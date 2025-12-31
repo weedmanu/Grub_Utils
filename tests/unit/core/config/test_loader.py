@@ -151,3 +151,15 @@ class TestGrubConfigLoader:
         assert line_texts[0].startswith('GRUB_DEFAULT')
         assert line_texts[1].startswith('GRUB_TIMEOUT')
         assert line_texts[2].startswith('#')
+
+    def test_loader_strips_export(self, tmp_path):
+        """Loader should remove leading 'export ' from keys."""
+        config_file = tmp_path / "grub"
+        config_file.write_text('export GRUB_COLOR_NORMAL="light-gray/black"\nGRUB_TIMEOUT="5"\n')
+
+        loader = GrubConfigLoader(str(config_file))
+        entries, _ = loader.load()
+
+        assert entries["GRUB_COLOR_NORMAL"] == "light-gray/black"
+        assert "export GRUB_COLOR_NORMAL" not in entries
+        assert entries["GRUB_TIMEOUT"] == "5"

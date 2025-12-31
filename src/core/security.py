@@ -115,8 +115,17 @@ class InputSecurityValidator:
         if path.startswith("~"):
             raise SecurityError("Tilde expansion not allowed")
 
-        # Vérifier que le chemin n'essaie pas d'accéder hors de /boot ou /etc
-        if not path.startswith(("/etc/", "/boot/", "/tmp/", "/var/")):
+        # Répertoires autorisés pour les fichiers GRUB (config, images, thèmes)
+        allowed_prefixes = (
+            "/etc/",
+            "/boot/",
+            "/tmp/",
+            "/var/",
+            "/usr/share/",      # Thèmes système
+            "/home/",           # Images utilisateur
+        )
+        
+        if not path.startswith(allowed_prefixes):
             raise SecurityError(f"Path {path} not in allowed directories")
 
         return path
