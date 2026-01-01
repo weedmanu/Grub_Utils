@@ -6,6 +6,7 @@ import re
 from src.core.exceptions import GrubValidationError
 from src.core.security import InputSecurityValidator, SecurityError
 from src.utils.config import (
+    ALLOWED_GRUB_COLOR_NAMES,
     ALLOWED_IMAGE_EXTENSIONS,
     ALLOWED_THEME_EXTENSIONS,
     GRUB_TIMEOUT_MAX,
@@ -161,7 +162,7 @@ class GrubValidator:
         try:
             InputSecurityValidator.validate_file_path(file_path)
         except SecurityError as e:
-            raise GrubValidationError(f"Security error: {e}")
+            raise GrubValidationError(f"Security error: {e}") from e
 
         # Vérifier que le fichier existe
         if not os.path.exists(file_path):
@@ -204,7 +205,7 @@ class GrubValidator:
         try:
             InputSecurityValidator.validate_kernel_params(params_str)
         except SecurityError as e:
-            raise GrubValidationError(f"Security error: {e}")
+            raise GrubValidationError(f"Security error: {e}") from e
 
         # Diviser en paramètres individuels
         params = params_str.split()
@@ -225,7 +226,39 @@ class GrubValidator:
         return params_str
 
     @staticmethod
-    def validate_all(entries: dict[str, str]) -> None:
+    def validate_color_pair(value: str, key: str) -> str:
+        """Validate GRUB color pair in the form "fg/bg".
+
+        Args:
+            value: Raw value from configuration (ex: "light-gray/black")
+            key:   Name of the GRUB variable for error context
+
+        Returns:
+            Normalized "fg/bg" string if valid
+
+        Raises:
+            GrubValidationError: If format or color names are invalid
+
+        """
+        if not value:
+            raise GrubValidationError(f"{key} ne doit pas être vide")
+
+        if "/" not in value:
+            raise GrubValidationError(f"{key} doit être au format texte/fond (ex: light-gray/black)")
+
+        fg, bg = (part.strip() for part in value.split("/", 1))
+
+        for color, role in ((fg, "texte"), (bg, "fond")):
+            if color not in ALLOWED_GRUB_COLOR_NAMES:
+                allowed = ", ".join(sorted(ALLOWED_GRUB_COLOR_NAMES))
+                raise GrubValidationError(
+                    f"Couleur {role} invalide pour {key}: {color}. Couleurs autorisées: {allowed}"
+                )
+
+        return f"{fg}/{bg}"
+
+    @staticmethod
+    def validate_all(entries: dict[str, str]) -> None:  # noqa: C901
         """Validate all GRUB entries.
 
         Args:
@@ -246,9 +279,7 @@ class GrubValidator:
 
             # Valider l'image de fond
             if "GRUB_BACKGROUND" in entries:
-                validated_path = GrubValidator.validate_file_path(
-                    entries["GRUB_BACKGROUND"], ALLOWED_IMAGE_EXTENSIONS
-                )
+                validated_path = GrubValidator.validate_file_path(entries["GRUB_BACKGROUND"], ALLOWED_IMAGE_EXTENSIONS)
                 if validated_path is None:
                     del entries["GRUB_BACKGROUND"]
                 else:
@@ -256,9 +287,7 @@ class GrubValidator:
 
             # Valider le thème
             if "GRUB_THEME" in entries:
-                validated_path = GrubValidator.validate_file_path(
-                    entries["GRUB_THEME"], ALLOWED_THEME_EXTENSIONS
-                )
+                validated_path = GrubValidator.validate_file_path(entries["GRUB_THEME"], ALLOWED_THEME_EXTENSIONS)
                 if validated_path is None:
                     del entries["GRUB_THEME"]
                 else:
@@ -270,8 +299,17 @@ class GrubValidator:
                     entries["GRUB_CMDLINE_LINUX_DEFAULT"]
                 )
 
-        except GrubValidationError:
-            raise  # Re-raise the specific validation error
+            # Valider les couleurs (palette GRUB limitée)
+            if "GRUB_COLOR_NORMAL" in entries:
+                entries["GRUB_COLOR_NORMAL"] = GrubValidator.validate_color_pair(
+                    entries["GRUB_COLOR_NORMAL"], "GRUB_COLOR_NORMAL"
+                )
+
+            if "GRUB_COLOR_HIGHLIGHT" in entries:
+                entries["GRUB_COLOR_HIGHLIGHT"] = GrubValidator.validate_color_pair(
+                    entries["GRUB_COLOR_HIGHLIGHT"], "GRUB_COLOR_HIGHLIGHT"
+                )
+
         except (KeyError, ValueError, TypeError) as e:
             logger.exception("Unexpected error during validation")
             raise GrubValidationError(f"Validation error: {e}") from e

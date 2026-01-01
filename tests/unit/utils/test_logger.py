@@ -4,7 +4,6 @@ import logging
 import os
 from unittest.mock import MagicMock, mock_open, patch
 
-import pytest
 from src.utils.logger import get_log_path, get_logger, setup_logging
 
 
@@ -25,9 +24,9 @@ class TestLogger:
         """Test fallback to user path when system path is not writable."""
         # Simulate permission error on system path
         mock_file.side_effect = PermissionError("Permission denied")
-        
+
         path = get_log_path()
-        
+
         expected_path = os.path.expanduser("~/.local/share/grub-manager/app.log")
         assert path == expected_path
         # Should have tried system path first, then user path
@@ -47,12 +46,10 @@ class TestLogger:
         mock_get_path.return_value = "/tmp/test.log"
         mock_root = MagicMock()
         mock_get_logger.return_value = mock_root
-        
+
         setup_logging(debug=True)
-        
+
         mock_get_logger.assert_called_with("grub_manager")
         mock_root.setLevel.assert_called_with(logging.DEBUG)
-        mock_handler.assert_called_with(
-            "/tmp/test.log", maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8"
-        )
+        mock_handler.assert_called_with("/tmp/test.log", maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8")
         assert mock_root.addHandler.call_count == 2  # File + Console

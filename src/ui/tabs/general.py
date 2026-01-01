@@ -7,7 +7,7 @@ from src.ui.tabs.base import BaseTab
 TIMEOUT_OPTIONS = [
     ("0", "0 sec (démarrage immédiat)"),
     ("3", "3 secondes"),
-    ("5", "5 secondes (recommandé)"),
+    ("5", "5 secondes"),
     ("10", "10 secondes"),
     ("15", "15 secondes"),
     ("30", "30 secondes"),
@@ -24,7 +24,7 @@ class GeneralTab(BaseTab):
         super().__init__(app)
 
         # Default Entry
-        self.grid.attach(Gtk.Label(label="Entrée par défaut :", xalign=0), 0, 0, 1, 1)
+        self.grid.attach(Gtk.Label(label="Entrée :", xalign=0), 0, 0, 1, 1)
         flat_entries = self._get_flat_menu_entries()
         self.entry_ids = ["0", "saved"] + [str(i) for i in range(len(flat_entries))]
         self.entry_labels = [
@@ -32,13 +32,9 @@ class GeneralTab(BaseTab):
             "Dernière utilisée (saved)",
         ] + flat_entries
         self.default_dropdown = Gtk.DropDown.new_from_strings(self.entry_labels)
-        self.default_dropdown.set_tooltip_text(
-            "Sélectionnez l'entrée de menu qui sera démarrée par défaut au lancement de GRUB."
-        )
+
         curr = self.app.facade.entries.get("GRUB_DEFAULT", "0")
-        self.default_dropdown.set_selected(
-            self.entry_ids.index(curr) if curr in self.entry_ids else 0
-        )
+        self.default_dropdown.set_selected(self.entry_ids.index(curr) if curr in self.entry_ids else 0)
         self.grid.attach(self.default_dropdown, 1, 0, 1, 1)
 
         # Timeout - Liste déroulante
@@ -49,22 +45,48 @@ class GeneralTab(BaseTab):
         self.grid.attach(Gtk.Label(label="Paramètres noyau :", xalign=0), 0, 2, 1, 1)
         self._setup_kernel_dropdown()
 
+        # Zone d'information dédiée
+        info_frame = Gtk.Frame(label="Informations")
+        info_frame.set_margin_top(20)
+
+        info_box = self.create_info_box()
+        info_frame.set_child(info_box)
+
+        # Labels de description
+        self.default_desc_label = Gtk.Label(xalign=0, wrap=True)
+        info_box.append(self.default_desc_label)
+
+        self.timeout_desc_label = Gtk.Label(xalign=0, wrap=True)
+        info_box.append(self.timeout_desc_label)
+
+        self.kernel_desc_label = Gtk.Label(xalign=0, wrap=True)
+        info_box.append(self.kernel_desc_label)
+
+        self.append(info_frame)
+
+        # Initialisation des descriptions
+        self.default_dropdown.connect("notify::selected", self._update_default_desc)
+        self._update_default_desc(self.default_dropdown, None)
+
+        self.timeout_dropdown.connect("notify::selected", self._update_timeout_desc)
+        self._update_timeout_desc(self.timeout_dropdown, None)
+
+        self.kernel_dropdown.connect("notify::selected", self._update_kernel_desc)
+        self._update_kernel_desc(self.kernel_dropdown, None)
+
     def _setup_timeout_dropdown(self) -> None:
         """Configure le menu déroulant du timeout."""
         # Créer le modèle
         self.timeout_model = Gtk.StringList()
         for _, label in TIMEOUT_OPTIONS:
             self.timeout_model.append(label)
-        
+
         self.timeout_dropdown = Gtk.DropDown(model=self.timeout_model)
-        self.timeout_dropdown.set_tooltip_text(
-            "Temps d'attente avant de démarrer automatiquement l'entrée par défaut."
-        )
-        
+
         # Sélectionner la valeur actuelle
         current_timeout = self.app.facade.entries.get("GRUB_TIMEOUT", "5")
         self._select_timeout(current_timeout)
-        
+
         self.grid.attach(self.timeout_dropdown, 1, 1, 1, 1)
 
     def _select_timeout(self, value: str) -> None:
@@ -115,20 +137,29 @@ class GeneralTab(BaseTab):
 
         display_opts = [opt if opt else "(aucun)" for opt in self.kernel_options]
         self.kernel_dropdown = Gtk.DropDown.new_from_strings(display_opts)
-        self.kernel_dropdown.set_tooltip_text(
-            "Paramètres passés au noyau Linux au démarrage. "
-            "'quiet splash' est recommandé pour la plupart des utilisateurs."
-        )
+
         factory = Gtk.SignalListItemFactory()
         factory.connect("setup", self.on_dropdown_setup)
         factory.connect("bind", self.on_dropdown_bind)
         self.kernel_dropdown.set_list_factory(factory)
-        self.kernel_dropdown.connect("notify::selected", self.update_dropdown_tooltip)
-        self.kernel_dropdown.set_selected(
-            self.kernel_options.index(curr) if curr in self.kernel_options else 0
-        )
-        self.update_dropdown_tooltip(self.kernel_dropdown, None)
+
+        self.kernel_dropdown.set_selected(self.kernel_options.index(curr) if curr in self.kernel_options else 0)
         self.grid.attach(self.kernel_dropdown, 1, 2, 1, 1)
+
+    def restore_defaults(self):
+        """Restaure les valeurs par défaut."""
+        # GRUB_DEFAULT -> 0
+        if "0" in self.entry_ids:
+            self.default_dropdown.set_selected(self.entry_ids.index("0"))
+
+        # GRUB_TIMEOUT -> 5
+        self._select_timeout("5")
+
+        # GRUB_CMDLINE_LINUX_DEFAULT -> quiet splash
+        if "quiet splash" in self.kernel_options:
+            self.kernel_dropdown.set_selected(self.kernel_options.index("quiet splash"))
+
+        self.app.show_toast("Valeurs par défaut restaurées")
 
     def _get_flat_menu_entries(self):
         """Get flat list of menu entry titles.
@@ -154,15 +185,45 @@ class GeneralTab(BaseTab):
         label = list_item.get_child()
         text = string_obj.get_string()
         label.set_text(text)
-        orig_text = text if text != "(aucun)" else ""
-        label.set_tooltip_text(self.kernel_descriptions.get(orig_text, "Paramètres personnalisés"))
 
-    def update_dropdown_tooltip(self, dropdown, _pspec):
-        """Met à jour la bulle d'aide du menu déroulant."""
+        key = text if text != "(aucun)" else ""
+        if hasattr(self, "kernel_descriptions") and key in self.kernel_descriptions:
+            label.set_tooltip_text(self.kernel_descriptions[key])
+
+    def _update_default_desc(self, dropdown, _pspec):
+        """Met à jour la description de l'entrée par défaut."""
+        idx = dropdown.get_selected()
+        if idx < len(self.entry_ids):
+            entry_id = self.entry_ids[idx]
+            if entry_id == "0":
+                text = "Démarre automatiquement la première entrée de la liste."
+                text += " (recommandé)"
+            elif entry_id == "saved":
+                text = "Démarre la dernière entrée choisie lors du précédent démarrage."
+            else:
+                text = "Démarre spécifiquement cette entrée."
+            self.default_desc_label.set_markup(f"<b>Entrée :</b> {text}")
+
+    def _update_timeout_desc(self, _dropdown, _pspec) -> None:
+        """Met à jour la description du timeout."""
+        val = self._get_selected_timeout()
+        if val == "0":
+            text = "Le menu ne s'affiche pas (démarrage immédiat)."
+        elif val == "-1":
+            text = "Le menu reste affiché jusqu'à validation manuelle."
+        else:
+            text = f"Le menu s'affiche pendant {val} secondes avant de démarrer."
+            if val == "5":
+                text += " (recommandé)"
+        self.timeout_desc_label.set_markup(f"<b>Délai :</b> {text}")
+
+    def _update_kernel_desc(self, dropdown, _pspec):
+        """Met à jour la description des paramètres noyau."""
         idx = dropdown.get_selected()
         if 0 <= idx < len(self.kernel_options):
             opt = self.kernel_options[idx]
-            dropdown.set_tooltip_text(self.kernel_descriptions.get(opt, "Paramètres personnalisés"))
+            text = self.kernel_descriptions.get(opt, "Paramètres personnalisés")
+            self.kernel_desc_label.set_markup(f"<b>Noyau :</b> {text}")
 
     def get_config(self) -> dict[str, str]:
         """Récupère la configuration de l'onglet.
@@ -172,7 +233,7 @@ class GeneralTab(BaseTab):
 
         """
         config = {}
-        
+
         if self.default_dropdown:
             selected_idx = self.default_dropdown.get_selected()
             if selected_idx < len(self.entry_ids):

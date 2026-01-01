@@ -33,8 +33,8 @@ class SecureCommandExecutor:
 
         # Valider les commandes avant exécution
         try:
-            for cmd in commands:
-                InputSecurityValidator.validate_line(cmd)
+            for command_str in commands:
+                InputSecurityValidator.validate_line(command_str)
         except SecurityError as e:
             logger.error("Security validation failed: %s", e)
             return False, str(e)
@@ -119,5 +119,3 @@ class SecureCommandExecutor:
         """
         commands = [f"cp '{source}' '{destination}'"]
         return self.execute_with_pkexec(commands)
-
-

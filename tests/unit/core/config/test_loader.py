@@ -1,9 +1,5 @@
 """Tests for the configuration loader module."""
 
-import os
-from pathlib import Path
-from unittest.mock import mock_open, patch
-
 import pytest
 
 from src.core.config.loader import GrubConfigLoader
@@ -21,9 +17,9 @@ class TestGrubConfigLoader:
         config_file.write_text(
             'GRUB_DEFAULT="0"\n'
             'GRUB_TIMEOUT="5"\n'
-            '# Comment line\n'
+            "# Comment line\n"
             'GRUB_CMDLINE_LINUX="quiet splash"\n'
-            '\n'
+            "\n"
             '#GRUB_DISABLED_LINUX_UUID="true"\n'
         )
         return str(config_file)
@@ -51,7 +47,7 @@ class TestGrubConfigLoader:
         assert entries["GRUB_DEFAULT"] == "0"
         assert entries["GRUB_TIMEOUT"] == "5"
         assert entries["GRUB_CMDLINE_LINUX"] == "quiet splash"
-        
+
         # Commented lines should not be in entries
         assert "GRUB_DISABLED_LINUX_UUID" not in entries
 
@@ -62,7 +58,7 @@ class TestGrubConfigLoader:
     def test_load_file_not_found(self):
         """Test loading when file doesn't exist."""
         loader = GrubConfigLoader("/nonexistent/grub")
-        
+
         with pytest.raises(GrubConfigError, match="Configuration file not found"):
             loader.load()
 
@@ -118,7 +114,7 @@ class TestGrubConfigLoader:
         """Test parsing entries with complex values."""
         lines = [
             'GRUB_CMDLINE_LINUX="quiet splash acpi_osi=Linux"',
-            'GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`',
+            "GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`",
             'GRUB_TERMINAL="console serial"',
         ]
 
@@ -128,14 +124,11 @@ class TestGrubConfigLoader:
         assert "lsb_release" in entries["GRUB_DISTRIBUTOR"]
         assert entries["GRUB_TERMINAL"] == "console serial"
 
-
-
-
     def test_load_empty_file(self, tmp_path):
         """Test loading an empty configuration file."""
         config_file = tmp_path / "grub"
         config_file.write_text("")
-        
+
         loader = GrubConfigLoader(str(config_file))
         entries, lines = loader.load()
 
@@ -148,9 +141,9 @@ class TestGrubConfigLoader:
 
         # Verify lines are in original order
         line_texts = [line.strip() for line in lines]
-        assert line_texts[0].startswith('GRUB_DEFAULT')
-        assert line_texts[1].startswith('GRUB_TIMEOUT')
-        assert line_texts[2].startswith('#')
+        assert line_texts[0].startswith("GRUB_DEFAULT")
+        assert line_texts[1].startswith("GRUB_TIMEOUT")
+        assert line_texts[2].startswith("#")
 
     def test_loader_strips_export(self, tmp_path):
         """Loader should remove leading 'export ' from keys."""

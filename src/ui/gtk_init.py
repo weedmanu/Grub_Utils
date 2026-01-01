@@ -21,6 +21,6 @@ try:
 except ImportError:
     HAS_ADW = False
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib, Gtk  # noqa: E402
 
 __all__ = ["Gtk", "GLib", "Adw", "HAS_ADW"]

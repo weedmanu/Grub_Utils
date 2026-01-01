@@ -19,25 +19,24 @@ class BackupSelectorDialog(BaseDialog):
             on_select_callback: Callback function(backup_path or None)
 
         """
-        super().__init__(parent, "Sélectionner une sauvegarde")
+        super().__init__(parent, "Sélectionner une sauvegarde", (500, 400))
         self.backups = backups
         self.on_select_callback = on_select_callback
-        self.selected_backup = None
+        self.selected_backup: str | None = None
 
         self._build_content()
-        self.dialog.present()
+        self.present()
 
     def _build_content(self):
         """Build dialog content with backup list."""
-        content = self.dialog.get_content_area()
-        content.set_spacing(12)
+        main_box = self.create_main_box()
 
         # Info label
         info_label = Gtk.Label(
             label="Choisissez la sauvegarde à restaurer :",
             xalign=0,
         )
-        content.append(info_label)
+        main_box.append(info_label)
 
         # Scrolled window for backup list
         scrolled = Gtk.ScrolledWindow(
@@ -46,32 +45,61 @@ class BackupSelectorDialog(BaseDialog):
             min_content_height=200,
             min_content_width=400,
         )
-        content.append(scrolled)
+        main_box.append(scrolled)
 
         # List box
-        listbox = Gtk.ListBox(selection_mode=Gtk.SelectionMode.SINGLE)
-        listbox.add_css_class("boxed-list")
-        scrolled.set_child(listbox)
+        self.listbox = Gtk.ListBox(selection_mode=Gtk.SelectionMode.SINGLE)
+        self.listbox.add_css_class("boxed-list")
+        scrolled.set_child(self.listbox)
 
         # Add backups to list
         for backup_path in self.backups:
             row = self._create_backup_row(backup_path)
-            listbox.append(row)
+            self.listbox.append(row)
 
         # Select first item by default
         if self.backups:
-            listbox.select_row(listbox.get_row_at_index(0))
+            self.listbox.select_row(self.listbox.get_row_at_index(0))
             self.selected_backup = self.backups[0]
 
         # Connect selection changed
-        listbox.connect("row-selected", self._on_row_selected)
+        self.listbox.connect("row-selected", self._on_row_selected)
 
-        # Buttons
-        self.dialog.add_button("Annuler", Gtk.ResponseType.CANCEL)
-        restore_btn = self.dialog.add_button("Restaurer", Gtk.ResponseType.OK)
+        # Buttons box
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        button_box.set_halign(Gtk.Align.END)
+        button_box.set_margin_top(10)
+
+        cancel_btn = Gtk.Button(label="Annuler")
+        cancel_btn.connect("clicked", lambda _btn: self._on_cancel())
+        button_box.append(cancel_btn)
+
+        restore_btn = Gtk.Button(label="Restaurer")
         restore_btn.add_css_class("suggested-action")
+        restore_btn.connect("clicked", lambda _btn: self._on_restore())
+        button_box.append(restore_btn)
 
-        self.dialog.connect("response", self._on_response)
+        main_box.append(button_box)
+
+        self.set_child(main_box)
+
+    def _on_row_selected(self, _listbox, row) -> None:
+        """Handle row selection."""
+        if row:
+            index = row.get_index()
+            self.selected_backup = self.backups[index]
+
+    def _on_cancel(self):
+        """Handle cancel button."""
+        if self.on_select_callback:
+            self.on_select_callback(None)
+        self.close()
+
+    def _on_restore(self):
+        """Handle restore button."""
+        if self.on_select_callback:
+            self.on_select_callback(self.selected_backup)
+        self.close()
 
     def _create_backup_row(self, backup_path: str) -> Gtk.ListBoxRow:
         """Create a row for a backup.
@@ -84,7 +112,14 @@ class BackupSelectorDialog(BaseDialog):
 
         """
         row = Gtk.ListBoxRow()
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4, margin_top=8, margin_bottom=8, margin_start=12, margin_end=12)
+        box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=4,
+            margin_top=8,
+            margin_bottom=8,
+            margin_start=12,
+            margin_end=12,
+        )
 
         # Filename
         filename = os.path.basename(backup_path)
@@ -109,31 +144,3 @@ class BackupSelectorDialog(BaseDialog):
 
         row.set_child(box)
         return row
-
-    def _on_row_selected(self, listbox, row):
-        """Handle row selection.
-
-        Args:
-            listbox: ListBox widget
-            row: Selected row
-
-        """
-        if row:
-            index = row.get_index()
-            if 0 <= index < len(self.backups):
-                self.selected_backup = self.backups[index]
-
-    def _on_response(self, dialog, response):
-        """Handle dialog response.
-
-        Args:
-            dialog: Dialog widget
-            response: Response type
-
-        """
-        if response == Gtk.ResponseType.OK and self.selected_backup:
-            self.on_select_callback(self.selected_backup)
-        else:
-            self.on_select_callback(None)
-
-        dialog.close()

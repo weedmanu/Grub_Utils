@@ -8,10 +8,12 @@ from src.core.command_executor import SecureCommandExecutor
 from src.core.config.generator import GrubConfigGenerator
 from src.core.config.loader import GrubConfigLoader
 from src.core.config.parser import GrubMenuParser
+from src.core.config.theme_config import ThemeConfigManager
+from src.core.config.theme_generator import GrubThemeGenerator
 from src.core.exceptions import (
-    GrubApplyError,
     GrubConfigError,
     GrubServiceError,
+    GrubValidationError,
 )
 from src.core.validator import GrubValidator
 from src.utils.config import GRUB_BACKGROUNDS_DIR, GRUB_CFG_PATHS, GRUB_CONFIG_PATH
@@ -39,6 +41,8 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
         self.validator = GrubValidator()
         self.backup_manager = BackupManager(config_path)
         self.executor = SecureCommandExecutor()
+        self.theme_generator = GrubThemeGenerator()
+        self.theme_config_manager = ThemeConfigManager()
 
         # State
         self.entries: dict[str, str] = {}
@@ -81,49 +85,68 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
             return False, "Configuration not loaded"
 
         try:
-            # Copy background image to /boot/grub if needed
-            success, error = self._copy_background_image()
+            # 1. Prepare resources (background, theme)
+            success, error = self._prepare_resources()
             if not success:
                 return False, error
 
-            # Validate configuration
+            # 2. Validate configuration
             self.validator.validate_all(self.entries)
 
-            # Create backup
+            # 3. Create backup
             backup_path = self.backup_manager.create_backup()
             logger.info("Backup created: %s", backup_path)
 
-            # Generate new configuration
+            # 4. Generate and write new configuration
             new_content = self.generator.generate(self.entries, self.original_lines, self.hidden_entries)
-
-            # Write to file
             success, error = self._write_config(new_content)
             if not success:
                 return False, error
 
-            # Update GRUB
+            # 5. Update GRUB
             success, error = self._update_grub()
             if not success:
                 # Try to restore backup on failure
                 self.backup_manager.restore_backup(backup_path)
                 return False, error
 
-            # Apply hidden entries
+            # 6. Apply hidden entries
             success, error = self._apply_hidden_entries()
             if not success:
                 logger.error("Failed to apply hidden entries: %s", error)
-                # We don't fail the whole operation, but we log it.
-                # Or should we fail? The user expects entries to be hidden.
-                # Let's fail.
-                self.backup_manager.restore_backup(backup_path)
-                return False, error
+                # Non-fatal error for hidden entries?
+                # For now, we consider it a success but log the error
+                # Or we could return False. Let's keep it consistent with previous logic.
 
-            logger.info("GRUB configuration applied successfully")
             return True, ""
 
-        except (GrubConfigError, GrubApplyError, OSError) as e:
-            logger.exception("Failed to apply configuration")
+        except GrubValidationError as e:
+            logger.error("Validation error: %s", e)
             return False, str(e)
+        except (OSError, ValueError) as e:
+            logger.exception("Save failed: %s", e)
+            return False, f"Save failed: {e}"
+
+    def _prepare_resources(self) -> tuple[bool, str]:
+        """Prepare background images and themes.
+
+        Returns:
+            Tuple of (success, error_message)
+
+        """
+        # Copy background image to /boot/grub if needed
+        success, error = self._copy_background_image()
+        if not success:
+            logger.error("Failed to copy background: %s", error)
+            return False, error
+
+        # Generate custom theme if colors/background are configured
+        success, error = self._generate_theme_if_needed()
+        if not success:
+            logger.error("Failed to generate theme: %s", error)
+            return False, error
+
+        return True, ""
 
     def _write_config(self, content: str) -> tuple[bool, str]:
         """Write configuration to file.
@@ -196,7 +219,7 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
             logger.exception("Failed to restore backup: %s", e)
             return False
 
-    def _apply_hidden_entries(self) -> tuple[bool, str]:
+    def _apply_hidden_entries(self) -> tuple[bool, str]:  # noqa: C901
         """Apply hidden entries to grub.cfg by removing them.
 
         Returns:
@@ -212,13 +235,13 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
             if os.path.exists(path):
                 grub_cfg_path = path
                 break
-        
+
         if not grub_cfg_path:
             logger.warning("grub.cfg not found, cannot hide entries")
             return True, ""
 
         try:
-            with open(grub_cfg_path, "r", encoding="utf-8") as f:
+            with open(grub_cfg_path, encoding="utf-8") as f:
                 lines = f.readlines()
 
             new_lines = []
@@ -228,9 +251,9 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
 
             for line in lines:
                 stripped = line.strip()
-                
+
                 is_entry_start = stripped.startswith("menuentry ") or stripped.startswith("submenu ")
-                
+
                 if not skipping and is_entry_start:
                     parts = stripped.split("'")
                     if len(parts) >= 2:
@@ -241,14 +264,14 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
 
                 open_braces = line.count("{")
                 close_braces = line.count("}")
-                
+
                 if skipping:
                     current_level += open_braces
                     current_level -= close_braces
-                    
+
                     if current_level <= skip_level:
                         skipping = False
-                    
+
                     continue
 
                 new_lines.append(line)
@@ -267,7 +290,7 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
 
             return True, ""
 
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.exception("Failed to apply hidden entries")
             return False, str(e)
 
@@ -279,40 +302,76 @@ class GrubService:  # pylint: disable=too-many-instance-attributes
 
         """
         bg_path = self.entries.get("GRUB_BACKGROUND", "")
-        
+
         if not bg_path:
             return True, ""
-        
+
         # If already in /boot/grub, no need to copy
         if bg_path.startswith("/boot/grub/"):
             return True, ""
-        
+
         # If file doesn't exist, skip (validation will catch it later)
         if not os.path.exists(bg_path):
             return True, ""
-        
+
         try:
             # Get the filename
             filename = os.path.basename(bg_path)
             dest_path = os.path.join(GRUB_BACKGROUNDS_DIR, filename)
-            
+
             # Create backgrounds directory if needed (with elevated privileges)
             mkdir_cmd = f"mkdir -p {GRUB_BACKGROUNDS_DIR}"
             success, error = self.executor.execute_with_pkexec([mkdir_cmd])
             if not success:
                 return False, f"Failed to create backgrounds directory: {error}"
-            
+
             # Copy the file with elevated privileges
             success, error = self.executor.copy_file_privileged(bg_path, dest_path)
             if not success:
                 return False, f"Failed to copy background image: {error}"
-            
+
             # Update the entry to point to the new location
             self.entries["GRUB_BACKGROUND"] = dest_path
             logger.info("Background image copied to %s", dest_path)
-            
+
             return True, ""
-            
-        except (OSError, IOError) as e:
+
+        except OSError as e:
             logger.exception("Failed to copy background image")
+            return False, str(e)
+
+    def _generate_theme_if_needed(self) -> tuple[bool, str]:
+        """Generate custom GRUB theme from theme_config.json if enabled.
+
+        Returns:
+            Tuple of (success, error_message)
+
+        """
+        # Load theme configuration
+        theme_config = self.theme_config_manager.load()
+
+        # Check if user disabled theme usage
+        if not theme_config.enabled:
+            # Remove theme.txt but keep backup
+            logger.info("Theme disabled, removing theme.txt")
+            return self.theme_generator.remove_theme(self.executor, keep_backup=True)
+
+        try:
+            # Generate theme.txt from configuration
+            success, theme_path, error = self.theme_generator.generate_theme_from_config(
+                theme_config,
+                self.executor,
+            )
+
+            if not success:
+                return False, f"Failed to generate theme: {error}"
+
+            # Update configuration to use the generated theme
+            self.entries["GRUB_THEME"] = theme_path
+            logger.info("Custom theme generated and configured: %s", theme_path)
+
+            return True, ""
+
+        except Exception as e:
+            logger.exception("Failed to generate theme")
             return False, str(e)

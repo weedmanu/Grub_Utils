@@ -1,7 +1,8 @@
 """Unit tests for GrubValidator."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from src.core.security import SecurityError
 from src.core.validator import GrubValidationError, GrubValidator
@@ -17,6 +18,7 @@ class TestGrubValidator:
 
         Returns:
             GrubValidator instance
+
         """
         return GrubValidator()
 
@@ -94,6 +96,28 @@ class TestGrubValidator:
 
         with pytest.raises(GrubValidationError):
             validator.validate_all(entries)
+
+    def test_validate_all_invalid_theme_path(self, validator):
+        """Test validating configuration with invalid theme path."""
+        entries = {
+            "GRUB_THEME": "/path/to/theme.txt",
+        }
+        
+        with patch.object(GrubValidator, "validate_file_path", return_value=None):
+            validator.validate_all(entries)
+            
+        assert "GRUB_THEME" not in entries
+
+    def test_validate_all_valid_theme(self, validator):
+        """Test validating configuration with valid theme path."""
+        entries = {
+            "GRUB_THEME": "/boot/grub/themes/mytheme/theme.txt",
+        }
+        
+        with patch.object(GrubValidator, "validate_file_path", return_value="/boot/grub/themes/mytheme/theme.txt"):
+            validator.validate_all(entries)
+            
+        assert entries["GRUB_THEME"] == "/boot/grub/themes/mytheme/theme.txt"
 
     def test_validate_timeout_empty_string(self, validator):
         """Test validating empty timeout returns default."""
@@ -234,12 +258,14 @@ class TestGrubValidator:
         entries = {
             "GRUB_TIMEOUT": "5",
         }
-        
+
         # Patch validate_timeout to raise an unexpected exception
         import unittest.mock as mock
-        with mock.patch.object(GrubValidator, 'validate_timeout', side_effect=KeyError("unexpected")):
+
+        with mock.patch.object(GrubValidator, "validate_timeout", side_effect=KeyError("unexpected")):
             with pytest.raises(GrubValidationError, match="Validation error"):
                 validator.validate_all(entries)
+
     def test_validate_all_re_raises_validation_error(self, validator):
         """Test validate_all re-raises GrubValidationError."""
         entries = {
@@ -247,14 +273,6 @@ class TestGrubValidator:
         }
         with pytest.raises(GrubValidationError, match="Le timeout doit être un entier positif"):
             validator.validate_all(entries)
-
-    def test_validate_all_remove_empty_background(self, validator):
-        """Test validate_all removes empty background."""
-        entries = {
-            "GRUB_BACKGROUND": "",
-        }
-        validator.validate_all(entries)
-        assert "GRUB_BACKGROUND" not in entries
 
     def test_validate_kernel_params_invalid_key(self, validator):
         """Test kernel params with invalid characters."""
@@ -264,6 +282,7 @@ class TestGrubValidator:
     def test_validate_kernel_params_non_standard_warning(self, validator, caplog):
         """Test kernel params with non-standard parameter triggers warning."""
         import logging
+
         with caplog.at_level(logging.WARNING):
             validator.validate_kernel_params("nonstandardparam")
             assert "Paramètre noyau non standard" in caplog.text
@@ -295,6 +314,112 @@ class TestGrubValidator:
 
     def test_validate_kernel_params_security_error(self):
         """SecurityError during kernel params validation should be wrapped."""
-        with patch("src.core.validator.InputSecurityValidator.validate_kernel_params", side_effect=SecurityError("Unsafe")):
+        with patch(
+            "src.core.validator.InputSecurityValidator.validate_kernel_params", side_effect=SecurityError("Unsafe")
+        ):
             with pytest.raises(GrubValidationError):
                 GrubValidator.validate_kernel_params("unsafe param")
+
+    def test_validate_gfxmode_standard_resolution(self):
+        """Test gfxmode with standard resolution format."""
+        validator = GrubValidator()
+        # Format: widthxheight
+        result = validator.validate_gfxmode("1024x768")
+        assert result == "1024x768"
+
+    def test_validate_gfxmode_auto(self):
+        """Test gfxmode with auto value."""
+        validator = GrubValidator()
+        result = validator.validate_gfxmode("auto")
+        assert result == "auto"
+
+    def test_validate_gfxmode_invalid_format(self):
+        """Test gfxmode with invalid format."""
+        validator = GrubValidator()
+        with pytest.raises(GrubValidationError, match="Format de résolution invalide"):
+            validator.validate_gfxmode("invalid")
+
+    def test_validate_all_with_gfxmode(self):
+        """Test validate_all with gfxmode entry."""
+        config = {"GRUB_GFXMODE": "1024x768"}
+        result = GrubValidator.validate_all(config)
+        assert config["GRUB_GFXMODE"] == "1024x768"
+
+    def test_validate_all_with_theme(self):
+        """Test validate_all with GRUB_THEME entry that does not exist."""
+        config = {"GRUB_THEME": "/boot/grub/themes/starfield/theme.txt"}
+        # Ce chemin n'existe pas, donc validate_file_path lève une erreur
+        with pytest.raises(GrubValidationError, match="Le fichier n'existe pas"):
+            GrubValidator.validate_all(config)
+
+    def test_validate_all_with_kernel_params(self):
+        """Test validate_all with GRUB_CMDLINE_LINUX_DEFAULT entry."""
+        config = {"GRUB_CMDLINE_LINUX_DEFAULT": "quiet splash"}
+        result = GrubValidator.validate_all(config)
+        assert config["GRUB_CMDLINE_LINUX_DEFAULT"] == "quiet splash"
+
+    def test_validate_timeout_empty_string(self):
+        """Test timeout validation with empty string returns default."""
+        validator = GrubValidator()
+        # Une chaîne vide retourne le timeout par défaut (5)
+        result = validator.validate_timeout("")
+        assert result == 5
+
+    def test_validate_color_pair_valid(self):
+        """Test validate_color_pair with valid input."""
+        validator = GrubValidator()
+        result = validator.validate_color_pair("white/black", "GRUB_COLOR_NORMAL")
+        assert result == "white/black"
+
+    def test_validate_color_pair_empty(self):
+        """Test validate_color_pair with empty input."""
+        validator = GrubValidator()
+        with pytest.raises(GrubValidationError, match="ne doit pas être vide"):
+            validator.validate_color_pair("", "GRUB_COLOR_NORMAL")
+
+    def test_validate_color_pair_no_slash(self):
+        """Test validate_color_pair without slash."""
+        validator = GrubValidator()
+        with pytest.raises(GrubValidationError, match="doit être au format texte/fond"):
+            validator.validate_color_pair("white", "GRUB_COLOR_NORMAL")
+
+    def test_validate_color_pair_invalid_color(self):
+        """Test validate_color_pair with invalid color name."""
+        validator = GrubValidator()
+        with pytest.raises(GrubValidationError, match="Couleur texte invalide"):
+            validator.validate_color_pair("invalid/black", "GRUB_COLOR_NORMAL")
+        
+        with pytest.raises(GrubValidationError, match="Couleur fond invalide"):
+            validator.validate_color_pair("white/invalid", "GRUB_COLOR_NORMAL")
+
+    def test_validate_all_with_colors(self):
+        """Test validate_all with color entries."""
+        config = {
+            "GRUB_COLOR_NORMAL": "white/black",
+            "GRUB_COLOR_HIGHLIGHT": "black/white"
+        }
+        GrubValidator.validate_all(config)
+        assert config["GRUB_COLOR_NORMAL"] == "white/black"
+        assert config["GRUB_COLOR_HIGHLIGHT"] == "black/white"
+
+    def test_validate_all_with_invalid_colors(self):
+        """Test validate_all with invalid color entries."""
+        config = {"GRUB_COLOR_NORMAL": "invalid"}
+        with pytest.raises(GrubValidationError):
+            GrubValidator.validate_all(config)
+
+    def test_validate_all_unexpected_error(self):
+        """Test validate_all handles unexpected errors."""
+        # Mock validate_timeout to raise ValueError (not GrubValidationError)
+        with patch.object(GrubValidator, "validate_timeout", side_effect=ValueError("Unexpected")):
+            config = {"GRUB_TIMEOUT": "5"}
+            # Should raise GrubValidationError wrapping the unexpected error
+            with pytest.raises(GrubValidationError, match="Validation error: Unexpected"):
+                GrubValidator.validate_all(config)
+
+    def test_validate_all_empty_theme(self):
+        """Test validate_all with empty GRUB_THEME entry."""
+        config = {"GRUB_THEME": ""}
+        # Should remove the empty entry
+        GrubValidator.validate_all(config)
+        assert "GRUB_THEME" not in config

@@ -5,7 +5,6 @@ import pytest
 from src.core.dtos import BackupInfoDTO, OperationResultDTO
 
 
-
 @pytest.mark.unit
 class TestBackupInfoDTO:
     """Test suite for BackupInfoDTO."""

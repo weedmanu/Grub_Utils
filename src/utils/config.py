@@ -90,6 +90,185 @@ GRUB_COLOR_TO_HEX = {
     "white": "#ffffff",
 }
 
+# Ensemble des noms de couleurs GRUB autorisés (palette VGA de base)
+ALLOWED_GRUB_COLOR_NAMES = frozenset(GRUB_COLOR_TO_HEX.keys())
+
+# ============================================================================
+# PARAMÈTRES DE STYLE AVANCÉS - MENU BOOT
+# ============================================================================
+
+# Positionnement du menu (pourcentages ou pixels)
+GRUB_MENU_POSITIONS = [
+    ("10%", "Gauche 10%"),
+    ("15%", "Gauche 15%"),
+    ("20%", "Gauche 20%"),
+    ("25%", "Gauche 25%"),
+    ("30%", "Gauche 30%"),
+]
+
+GRUB_MENU_TOPS = [
+    ("15%", "Haut 15%"),
+    ("20%", "Haut 20%"),
+    ("25%", "Haut 25%"),
+    ("30%", "Haut 30%"),
+]
+
+# Dimensions du menu
+GRUB_MENU_WIDTHS = [
+    ("60%", "60% (Étroit)"),
+    ("70%", "70%"),
+    ("80%", "80% (Normal)"),
+    ("85%", "85%"),
+    ("90%", "90% (Large)"),
+]
+
+GRUB_MENU_HEIGHTS = [
+    ("40%", "40% (Compact)"),
+    ("50%", "50%"),
+    ("60%", "60% (Normal)"),
+    ("70%", "70%"),
+    ("80%", "80% (Haut)"),
+]
+
+# Dimensions des éléments du menu
+GRUB_ITEM_HEIGHTS = [
+    ("20", "Compact (20px)"),
+    ("24", "Normal (24px)"),
+    ("28", "Moyen (28px)"),
+    ("32", "Large (32px)"),
+    ("36", "Très large (36px)"),
+]
+
+# Espacement entre les éléments
+GRUB_ITEM_SPACINGS = [
+    ("2", "Minimal (2px)"),
+    ("4", "Comprimé (4px)"),
+    ("6", "Normal (6px)"),
+    ("8", "Spacieux (8px)"),
+    ("10", "Aéré (10px)"),
+]
+
+# Padding interne des éléments
+GRUB_ITEM_PADDINGS = [
+    ("5", "Minimal (5px)"),
+    ("10", "Normal (10px)"),
+    ("15", "Moyen (15px)"),
+    ("20", "Généreux (20px)"),
+    ("25", "Large (25px)"),
+]
+
+# Positions de label (pourcentages ou pixels)
+GRUB_LABEL_LEFTS = [
+    ("0%", "Extrême gauche (0%)"),
+    ("5%", "Gauche (5%)"),
+    ("10%", "Gauche 10%"),
+    ("15%", "Gauche 15%"),
+    ("20%", "Gauche 20%"),
+]
+
+GRUB_LABEL_TOPS = [
+    ("1%", "Très haut (1%)"),
+    ("2%", "Haut (2%)"),
+    ("5%", "Haut 5%"),
+    ("10%", "Haut 10%"),
+    ("15%", "Haut 15%"),
+]
+
+# Position de la barre de progression (pourcentages ou pixels)
+GRUB_PROGRESS_LEFTS = [
+    ("5%", "Gauche 5%"),
+    ("10%", "Gauche 10%"),
+    ("15%", "Gauche 15%"),
+    ("20%", "Gauche 20%"),
+]
+
+GRUB_PROGRESS_BOTTOMS = [
+    ("5%", "Bas 5%"),
+    ("8%", "Bas 8%"),
+    ("10%", "Bas (10%)"),
+    ("12%", "Bas 12%"),
+    ("15%", "Bas 15%"),
+    ("90%", "Haut (90%)"),
+]
+
+# Dimensions de la barre de progression
+GRUB_PROGRESS_WIDTHS = [
+    ("60%", "60% (Étroite)"),
+    ("70%", "70%"),
+    ("80%", "80% (Normal)"),
+    ("85%", "85%"),
+    ("90%", "90% (Large)"),
+]
+
+GRUB_PROGRESS_HEIGHTS = [
+    ("8", "Petit (8px)"),
+    ("10", "Normal (10px)"),
+    ("12", "Moyen (12px)"),
+    ("14", "Grand (14px)"),
+    ("16", "Très grand (16px)"),
+]
+
+# Espacement des icônes
+GRUB_ICON_SPACINGS = [
+    ("5", "Minimal (5px)"),
+    ("8", "Compact (8px)"),
+    ("10", "Normal (10px)"),
+    ("12", "Spacieux (12px)"),
+    ("15", "Aéré (15px)"),
+]
+
+# Couleurs pour la barre de progression (couleurs GRUB disponibles)
+GRUB_PROGRESS_COLORS = [
+    ("black", "Noir"),
+    ("blue", "Bleu"),
+    ("green", "Vert"),
+    ("cyan", "Cyan"),
+    ("red", "Rouge"),
+    ("magenta", "Magenta"),
+    ("brown", "Marron"),
+    ("light-gray", "Gris clair"),
+    ("dark-gray", "Gris foncé"),
+    ("light-blue", "Bleu clair"),
+    ("light-green", "Vert clair"),
+    ("light-cyan", "Cyan clair"),
+    ("light-red", "Rouge clair"),
+    ("light-magenta", "Magenta clair"),
+    ("yellow", "Jaune"),
+    ("white", "Blanc"),
+]
+
+# Tailles de police (en pixels)
+# ⚠️ IMPORTANT: GRUB utilise uniquement la police "unicode" précompilée en .pf2
+# Les tailles sont des suggestions de taille d'affichage
+GRUB_FONT_SIZES = [
+    ("10", "Très petit (10px)"),
+    ("12", "Petit (12px)"),
+    ("14", "Normal (14px)"),
+    ("16", "Grand (16px)"),
+    ("18", "Très grand (18px)"),
+    ("20", "Extra large (20px)"),
+]
+
+# Activation/désactivation du thème
+GRUB_USE_THEME_OPTIONS = [
+    ("true", "Activé"),
+    ("false", "Désactivé"),
+]
+
+# Familles de polices GRUB
+# ⚠️ IMPORTANT: GRUB en mode gfxmenu supporte UNIQUEMENT "unicode"
+# C'est la seule police précompilée disponible en format .pf2
+GRUB_FONTS = [
+    ("unicode", "Unicode (seule police supportée par GRUB)"),
+]
+
+# Styles de texte
+# NOTE: Les styles (bold, italic) ne sont pas supportés par GRUB
+# GRUB ne peut pas combiner les styles de texte dans les thèmes
+GRUB_FONT_STYLES = [
+    ("regular", "Régulier"),
+]
+
 
 def grub_color_to_hex(color_name: str) -> str:
     """Convertit un nom de couleur GRUB en valeur hexadécimale.
@@ -102,3 +281,25 @@ def grub_color_to_hex(color_name: str) -> str:
 
     """
     return GRUB_COLOR_TO_HEX.get(color_name.lower(), "#aaaaaa")
+
+
+def parse_grub_color_pair(color_string: str) -> tuple[str, str]:
+    """Parse une paire de couleurs GRUB au format "fg/bg".
+
+    Args:
+        color_string: Couleurs au format "fg/bg" ou couleur unique
+
+    Returns:
+        tuple[str, str]: (couleur_premier_plan, couleur_arriere_plan)
+
+    Examples:
+        >>> parse_grub_color_pair("white/black")
+        ('white', 'black')
+        >>> parse_grub_color_pair("light-gray")
+        ('light-gray', 'black')
+
+    """
+    if "/" in color_string:
+        fg, bg = color_string.split("/", 1)
+        return fg.strip(), bg.strip()
+    return color_string.strip(), "black"

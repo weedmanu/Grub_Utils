@@ -7,7 +7,7 @@ from src.ui.dialogs.text_view_utils import create_monospace_text_view
 from src.ui.gtk_init import Gtk
 
 
-@dataclass
+@dataclass(frozen=True)
 class ErrorOptions:
     """Configuration options for error dialog."""
 

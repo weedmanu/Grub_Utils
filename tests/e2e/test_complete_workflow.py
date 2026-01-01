@@ -19,6 +19,7 @@ class TestCompleteWorkflow:
 
         Yields:
             Dictionary with paths to test files
+
         """
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
@@ -26,9 +27,7 @@ class TestCompleteWorkflow:
             # Create config file
             config_file = tmp_path / "grub"
             config_file.write_text(
-                'GRUB_DEFAULT="0"\n'
-                'GRUB_TIMEOUT="5"\n'
-                'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"\n'
+                'GRUB_DEFAULT="0"\n' 'GRUB_TIMEOUT="5"\n' 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"\n'
             )
 
             # Create backup directory
@@ -41,11 +40,8 @@ class TestCompleteWorkflow:
                 "tmp_path": tmp_path,
             }
 
-    def test_scenario_modify_timeout_and_restore(
-        self, test_environment, mocker
-    ):
-        """
-        Scenario: User modifies timeout, applies, then restores backup.
+    def test_scenario_modify_timeout_and_restore(self, test_environment, mocker):
+        """Scenario: User modifies timeout, applies, then restores backup.
 
         Steps:
         1. Load configuration
@@ -65,9 +61,7 @@ class TestCompleteWorkflow:
         )
 
         # Mock system commands
-        mocker.patch.object(
-            facade._service, "save_and_apply", return_value=(True, "")
-        )
+        mocker.patch.object(facade._service, "save_and_apply", return_value=(True, ""))
 
         # Step 1: Load
         result = facade.load_configuration()
@@ -84,14 +78,14 @@ class TestCompleteWorkflow:
 
         # Step 4: List backups
         backups = facade.list_backups()
+        assert backups is not None
         # Note: In real scenario, backup would be created
 
         # Step 5: Restore (would restore in real scenario)
         # Step 6: Verify (would verify in real scenario)
 
     def test_scenario_invalid_configuration_rejected(self, test_environment, mocker):
-        """
-        Scenario: User tries to apply invalid configuration.
+        """Scenario: User tries to apply invalid configuration.
 
         Steps:
         1. Load configuration
@@ -119,9 +113,7 @@ class TestCompleteWorkflow:
 
         from src.core.exceptions import GrubServiceError
 
-        facade._service.save_and_apply = Mock(
-            side_effect=GrubServiceError("Validation failed")
-        )
+        facade._service.save_and_apply = Mock(side_effect=GrubServiceError("Validation failed"))
 
         result = facade.apply_changes()
         assert result.success is False

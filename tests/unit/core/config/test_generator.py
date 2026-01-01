@@ -1,6 +1,7 @@
 """Tests for the configuration generator module."""
 
 import pytest
+
 from src.core.config.generator import GrubConfigGenerator
 
 
@@ -14,17 +15,11 @@ class TestGrubConfigGenerator:
 
     def test_generate_update_existing(self, generator):
         """Test updating existing configuration keys."""
-        original_lines = [
-            "GRUB_TIMEOUT=5",
-            "GRUB_DEFAULT=0"
-        ]
-        entries = {
-            "GRUB_TIMEOUT": "10",
-            "GRUB_DEFAULT": "saved"
-        }
-        
+        original_lines = ["GRUB_TIMEOUT=5", "GRUB_DEFAULT=0"]
+        entries = {"GRUB_TIMEOUT": "10", "GRUB_DEFAULT": "saved"}
+
         content = generator.generate(entries, original_lines)
-        
+
         assert 'GRUB_TIMEOUT="10"' in content
         assert 'GRUB_DEFAULT="saved"' in content
         assert "GRUB_TIMEOUT=5" not in content
@@ -32,28 +27,20 @@ class TestGrubConfigGenerator:
     def test_generate_add_new(self, generator):
         """Test adding new configuration keys."""
         original_lines = ["GRUB_TIMEOUT=5"]
-        entries = {
-            "GRUB_TIMEOUT": "5",
-            "GRUB_THEME": "/boot/grub/themes/starfield/theme.txt"
-        }
-        
+        entries = {"GRUB_TIMEOUT": "5", "GRUB_THEME": "/boot/grub/themes/starfield/theme.txt"}
+
         content = generator.generate(entries, original_lines)
-        
+
         assert 'GRUB_TIMEOUT="5"' in content
         assert 'GRUB_THEME="/boot/grub/themes/starfield/theme.txt"' in content
 
     def test_generate_preserve_structure(self, generator):
         """Test preserving comments and empty lines."""
-        original_lines = [
-            "# This is a comment",
-            "",
-            "GRUB_TIMEOUT=5",
-            "# Another comment"
-        ]
+        original_lines = ["# This is a comment", "", "GRUB_TIMEOUT=5", "# Another comment"]
         entries = {"GRUB_TIMEOUT": "10"}
-        
+
         content = generator.generate(entries, original_lines)
-        
+
         lines = content.splitlines()
         assert lines[0] == "# This is a comment"
         assert lines[1] == ""
@@ -65,9 +52,9 @@ class TestGrubConfigGenerator:
         original_lines = ["GRUB_TIMEOUT=5"]
         entries = {"GRUB_TIMEOUT": "5"}
         hidden = ["GRUB_TIMEOUT"]
-        
+
         content = generator.generate(entries, original_lines, hidden_entries=hidden)
-        
+
         assert '#GRUB_TIMEOUT="5"' in content
 
     def test_generate_new_hidden_entry(self, generator):
@@ -75,9 +62,9 @@ class TestGrubConfigGenerator:
         original_lines = []
         entries = {"GRUB_HIDDEN_TIMEOUT": "0"}
         hidden = ["GRUB_HIDDEN_TIMEOUT"]
-        
+
         content = generator.generate(entries, original_lines, hidden_entries=hidden)
-        
+
         assert '#GRUB_HIDDEN_TIMEOUT="0"' in content
 
     def test_generate_mixed_content(self, generator):
@@ -86,15 +73,12 @@ class TestGrubConfigGenerator:
             "# Header",
             "GRUB_TIMEOUT=5",
             "GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`",
-            ""
+            "",
         ]
-        entries = {
-            "GRUB_TIMEOUT": "10",
-            "GRUB_CMDLINE_LINUX": "quiet splash"
-        }
-        
+        entries = {"GRUB_TIMEOUT": "10", "GRUB_CMDLINE_LINUX": "quiet splash"}
+
         content = generator.generate(entries, original_lines)
-        
+
         assert "# Header" in content
         assert 'GRUB_TIMEOUT="10"' in content
         assert "GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`" in content
@@ -104,9 +88,9 @@ class TestGrubConfigGenerator:
         """Test detection of commented keys."""
         original_lines = ["#GRUB_TIMEOUT=5"]
         entries = {"GRUB_TIMEOUT": "10"}
-        
+
         content = generator.generate(entries, original_lines)
-        
+
         # Should update the commented line instead of appending
         assert 'GRUB_TIMEOUT="10"' in content
         assert content.count("GRUB_TIMEOUT") == 1
@@ -115,9 +99,9 @@ class TestGrubConfigGenerator:
         """Test generation with empty entries."""
         original_lines = ["GRUB_TIMEOUT=5", "# Comment"]
         entries = {}
-        
+
         content = generator.generate(entries, original_lines)
-        
+
         # Should keep original lines unchanged
         assert "GRUB_TIMEOUT=5" in content
         assert "# Comment" in content
@@ -130,10 +114,10 @@ class TestGrubConfigGenerator:
             "GRUB_TIMEOUT=5",
         ]
         entries = {"GRUB_TIMEOUT": "10"}
-        
+
         content = generator.generate(entries, original_lines)
         lines = content.splitlines()
-        
+
         assert lines[0] == "# This is a header comment"
         assert lines[1] == "## Another comment"
         assert lines[2] == 'GRUB_TIMEOUT="10"'
@@ -146,9 +130,9 @@ class TestGrubConfigGenerator:
             "GRUB_DEFAULT=0",
         ]
         entries = {"GRUB_TIMEOUT": "10", "GRUB_DEFAULT": "saved"}
-        
+
         content = generator.generate(entries, original_lines)
-        
+
         assert 'GRUB_TIMEOUT="10"' in content
         assert 'GRUB_DEFAULT="saved"' in content
         assert "Some random text without equals" in content
@@ -160,7 +144,7 @@ class TestGrubConfigGenerator:
             "#GRUB_DISABLED=true",
             "# Comment",
         ]
-        
+
         assert generator._key_in_lines("GRUB_TIMEOUT", lines) is True
         assert generator._key_in_lines("GRUB_DISABLED", lines) is True
         assert generator._key_in_lines("NONEXISTENT", lines) is False
@@ -174,9 +158,9 @@ class TestGrubConfigGenerator:
             "NEW_KEY2": "value2",
             "NEW_KEY3": "value3",
         }
-        
+
         content = generator.generate(entries, original_lines)
-        
+
         assert 'NEW_KEY1="value1"' in content
         assert 'NEW_KEY2="value2"' in content
         assert 'NEW_KEY3="value3"' in content
@@ -186,9 +170,9 @@ class TestGrubConfigGenerator:
         original_lines = ["KEY1=value1", "KEY2=value2"]
         entries = {"KEY1": "new1", "KEY2": "new2", "KEY3": "new3"}
         hidden = ["KEY1", "KEY3"]
-        
+
         content = generator.generate(entries, original_lines, hidden_entries=hidden)
-        
+
         assert '#KEY1="new1"' in content
         assert 'KEY2="new2"' in content
         assert '#KEY3="new3"' in content
@@ -204,7 +188,7 @@ class TestGrubConfigGenerator:
         assert 'export GRUB_COLOR_NORMAL="light-gray/black"' in content
         assert 'export GRUB_COLOR_HIGHLIGHT="black/light-gray"' in content
         assert 'GRUB_TIMEOUT="5"' in content
-        assert 'export GRUB_TIMEOUT' not in content
+        assert "export GRUB_TIMEOUT" not in content
 
     def test_generator_preserves_existing_export(self, generator):
         """Keep existing export prefix when present."""
@@ -217,7 +201,7 @@ class TestGrubConfigGenerator:
         entries = {"GRUB_COLOR_NORMAL": "white/black"}
         content = generator.generate(entries, ['#export GRUB_COLOR_NORMAL="light-gray/black"'])
         assert 'export GRUB_COLOR_NORMAL="white/black"' in content
-        assert '#export GRUB_COLOR_NORMAL' not in content
+        assert "#export GRUB_COLOR_NORMAL" not in content
 
     def test_generator_handles_hidden_export(self, generator):
         """Support hiding exported variables when requested."""

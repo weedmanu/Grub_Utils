@@ -1,10 +1,13 @@
 """GRUB Configuration preview dialog with realistic visual representation."""
 
+from src.core.dtos import PreviewConfigDTO
 from src.ui.gtk_init import Gtk
 from src.utils.config import (
+    ALLOWED_GRUB_COLOR_NAMES,
     PREVIEW_WINDOW_HEIGHT,
     PREVIEW_WINDOW_WIDTH,
     grub_color_to_hex,
+    parse_grub_color_pair,
 )
 
 
@@ -15,20 +18,14 @@ class PreviewDialog(Gtk.Window):
         self,
         parent: Gtk.Window,
         title: str,
-        old_config: dict[str, str],
-        new_config: dict[str, str],
-        menu_entries: list[dict] | None = None,
-        hidden_entries: list[str] | None = None,
+        config: PreviewConfigDTO,
     ) -> None:
         """Initialize preview dialog.
 
         Args:
             parent: Parent window
             title: Dialog title
-            old_config: Current GRUB configuration
-            new_config: New GRUB configuration after changes
-            menu_entries: List of available menu entries
-            hidden_entries: List of hidden menu entries
+            config: Preview configuration DTO with old/new configs and entries
 
         """
         super().__init__(title=title)
@@ -37,9 +34,11 @@ class PreviewDialog(Gtk.Window):
         self.set_default_size(PREVIEW_WINDOW_WIDTH, PREVIEW_WINDOW_HEIGHT)
 
         # Store configs for comparison
-        self._old_config = old_config
-        self._new_config = new_config
-        self._has_changes = old_config != new_config
+        self._old_config = config.old_config
+        self._new_config = config.new_config
+        self._has_changes = config.has_changes
+        self._menu_entries = config.menu_entries or []
+        self._hidden_entries = config.hidden_entries or []
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         main_box.set_margin_top(12)
@@ -52,13 +51,13 @@ class PreviewDialog(Gtk.Window):
         main_box.append(header_box)
 
         # Main preview area - the boot screen simulation
-        preview_frame = self._create_boot_screen(new_config, menu_entries, hidden_entries)
+        preview_frame = self._create_boot_screen(self._new_config, self._menu_entries, self._hidden_entries)
         preview_frame.set_vexpand(True)
         main_box.append(preview_frame)
 
         # Changes summary (only if there are changes)
         if self._has_changes:
-            summary_frame = self._create_summary_frame(old_config, new_config)
+            summary_frame = self._create_summary_frame(self._old_config, self._new_config)
             main_box.append(summary_frame)
         else:
             info_label = Gtk.Label(label="ℹ️ Aperçu de la configuration actuelle (aucune modification)")
@@ -131,28 +130,31 @@ class PreviewDialog(Gtk.Window):
 
         # Outer container for proper styling
         outer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        
+
         # Extraire les couleurs de la configuration GRUB
         normal_colors = config.get("GRUB_COLOR_NORMAL", "light-gray/black")
         highlight_colors = config.get("GRUB_COLOR_HIGHLIGHT", "black/light-gray")
-        
+
         # Parser les couleurs (format: "texte/fond")
-        if "/" in normal_colors:
-            normal_fg, normal_bg = normal_colors.split("/", 1)
-        else:
-            normal_fg, normal_bg = "light-gray", "black"
-            
-        if "/" in highlight_colors:
-            highlight_fg, highlight_bg = highlight_colors.split("/", 1)
-        else:
-            highlight_fg, highlight_bg = "black", "light-gray"
-        
+        normal_fg, normal_bg = parse_grub_color_pair(normal_colors)
+        highlight_fg, highlight_bg = parse_grub_color_pair(highlight_colors)
+
+        # Valider et fallback aux couleurs par défaut si invalides
+        if normal_fg not in ALLOWED_GRUB_COLOR_NAMES:
+            normal_fg = "light-gray"
+        if normal_bg not in ALLOWED_GRUB_COLOR_NAMES:
+            normal_bg = "black"
+        if highlight_fg not in ALLOWED_GRUB_COLOR_NAMES:
+            highlight_fg = "black"
+        if highlight_bg not in ALLOWED_GRUB_COLOR_NAMES:
+            highlight_bg = "light-gray"
+
         # Convertir en hexadécimal
         normal_fg_hex = grub_color_to_hex(normal_fg)
         normal_bg_hex = grub_color_to_hex(normal_bg)
         highlight_fg_hex = grub_color_to_hex(highlight_fg)
         highlight_bg_hex = grub_color_to_hex(highlight_bg)
-        
+
         # Add comprehensive CSS for realistic GRUB appearance with dynamic colors
         css_provider = Gtk.CssProvider()
         css_content = f"""
@@ -183,16 +185,18 @@ class PreviewDialog(Gtk.Window):
                 background-color: {normal_bg_hex};
                 font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
                 font-size: 14px;
-                padding: 2px 10px;
+                padding: 4px 10px;
                 margin: 0;
+                min-height: 22px;
             }}
             .grub-entry-selected {{
                 background-color: {highlight_bg_hex};
                 color: {highlight_fg_hex};
                 font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
                 font-size: 14px;
-                padding: 2px 10px;
+                padding: 4px 10px;
                 margin: 0;
+                min-height: 22px;
             }}
             .grub-footer {{
                 color: {normal_fg_hex};
@@ -221,6 +225,7 @@ class PreviewDialog(Gtk.Window):
         menu_border.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         menu_border.get_style_context().add_class("grub-menu-border")
         menu_border.set_halign(Gtk.Align.CENTER)
+        menu_border.set_size_request(700, -1)  # Set minimum width for menu to prevent text cutting
 
         # Menu title bar (gray bar at top)
         distro_name = "GNU GRUB"
@@ -248,7 +253,7 @@ class PreviewDialog(Gtk.Window):
         # Help text at bottom (centered like real GRUB)
         help_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         help_box.set_halign(Gtk.Align.CENTER)
-        
+
         help1 = Gtk.Label(label="Use the ↑ and ↓ keys to select which entry is highlighted.")
         help1.set_halign(Gtk.Align.CENTER)
         help1.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -321,29 +326,32 @@ class PreviewDialog(Gtk.Window):
         # Limit display to reasonable number
         max_visible = 8
         visible_entries = entries[:max_visible]
-        
+
         for idx, name in enumerate(visible_entries):
             is_selected = idx == default_idx
-            
-            # Truncate long names like real GRUB does
-            display_name = name if len(name) <= 60 else name[:57] + "..."
-            
+
+            # Display name without truncation - let GTK handle wrapping/sizing
+            display_name = name
+
             # Create entry row with proper GRUB styling
             entry_text = f"  {display_name}  "
             label = Gtk.Label(label=entry_text)
             label.set_halign(Gtk.Align.FILL)
             label.set_xalign(0.0)
-            
+            label.set_wrap(True)
+            label.set_natural_wrap_mode(Gtk.NaturalWrapMode.WORD)
+            label.set_max_width_chars(80)
+
             if css_provider:
                 label.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-            
+
             if is_selected:
                 label.get_style_context().add_class("grub-entry-selected")
             else:
                 label.get_style_context().add_class("grub-entry")
-            
+
             box.append(label)
-        
+
         # Show indicator if more entries exist
         if len(entries) > max_visible:
             more_label = Gtk.Label(label=f"  ... ({len(entries) - max_visible} more entries)  ")
@@ -358,7 +366,7 @@ class PreviewDialog(Gtk.Window):
     def _add_status_info(
         box: Gtk.Box,
         timeout: str,
-        gfxmode: str,
+        _gfxmode: str,
         css_provider: Gtk.CssProvider | None = None,
     ) -> None:
         """Add status information at bottom of screen.
@@ -377,16 +385,14 @@ class PreviewDialog(Gtk.Window):
         try:
             timeout_int = int(timeout)
             if timeout_int > 0:
-                timeout_msg = Gtk.Label(
-                    label=f"The highlighted entry will be executed automatically in {timeout}s."
-                )
+                timeout_msg = Gtk.Label(label=f"The highlighted entry will be executed automatically in {timeout}s.")
             elif timeout_int == 0:
                 timeout_msg = Gtk.Label(label="Démarrage instantané configuré (timeout=0)")
             else:
                 timeout_msg = Gtk.Label(label="Menu affiché indéfiniment (timeout=-1)")
         except ValueError:
             timeout_msg = Gtk.Label(label=f"Timeout: {timeout}")
-        
+
         timeout_msg.set_halign(Gtk.Align.CENTER)
         if css_provider:
             timeout_msg.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -436,7 +442,7 @@ class PreviewDialog(Gtk.Window):
                 row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
                 icon = Gtk.Label(label="➕")
                 row.append(icon)
-                label = Gtk.Label(label=f"{key} = \"{new_value}\"")
+                label = Gtk.Label(label=f'{key} = "{new_value}"')
                 label.set_halign(Gtk.Align.START)
                 label.get_style_context().add_class("success")
                 row.append(label)
@@ -448,7 +454,7 @@ class PreviewDialog(Gtk.Window):
                 row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
                 icon = Gtk.Label(label="➖")
                 row.append(icon)
-                label = Gtk.Label(label=f"{key} (était: \"{old_value}\")")
+                label = Gtk.Label(label=f'{key} (était: "{old_value}")')
                 label.set_halign(Gtk.Align.START)
                 label.get_style_context().add_class("error")
                 row.append(label)
@@ -458,7 +464,7 @@ class PreviewDialog(Gtk.Window):
                 # Modified
                 changes_count["modified"] += 1
                 row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-                
+
                 header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
                 icon = Gtk.Label(label="✏️")
                 header.append(icon)
@@ -468,12 +474,12 @@ class PreviewDialog(Gtk.Window):
                 header.append(key_label)
                 row.append(header)
 
-                old_label = Gtk.Label(label=f"    ⊖ \"{old_value}\"")
+                old_label = Gtk.Label(label=f'    ⊖ "{old_value}"')
                 old_label.set_halign(Gtk.Align.START)
                 old_label.get_style_context().add_class("dim-label")
                 row.append(old_label)
 
-                new_label = Gtk.Label(label=f"    ⊕ \"{new_value}\"")
+                new_label = Gtk.Label(label=f'    ⊕ "{new_value}"')
                 new_label.set_halign(Gtk.Align.START)
                 new_label.get_style_context().add_class("accent")
                 row.append(new_label)
@@ -490,7 +496,7 @@ class PreviewDialog(Gtk.Window):
                 summary_text.append(f"{changes_count['modified']} modifié(s)")
             if changes_count["removed"]:
                 summary_text.append(f"{changes_count['removed']} supprimé(s)")
-            
+
             header_label = Gtk.Label(label=f"📋 {total} changement(s): {', '.join(summary_text)}")
             header_label.set_halign(Gtk.Align.START)
             header_label.get_style_context().add_class("caption")

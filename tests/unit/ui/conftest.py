@@ -1,25 +1,33 @@
 import sys
 from unittest.mock import MagicMock
 
+
 # Base class for mocked Gtk widgets to avoid MagicMock inheritance issues
 class MockWidget:
     def __init__(self, *args, **kwargs):
+        """Initialize widget mock storage."""
         self._mocks = {}
+
     def __getattr__(self, name):
+        """Return a cached or new MagicMock for any attribute access."""
         if name in self._mocks:
             return self._mocks[name]
-        
+
         if name == "get_selected":
-            res = lambda: 0
+            def res():
+                return 0
         elif name == "get_buffer":
-            res = lambda: MagicMock()
+            def res():
+                return MagicMock()
         else:
             res = MagicMock()
-        
+
         self._mocks[name] = res
         return res
+
     def connect(self, *args, **kwargs):
         return 0
+
     @classmethod
     def new_from_strings(cls, *args, **kwargs):
         return MockWidget()
@@ -28,14 +36,16 @@ class MockWidget:
     def new_for_filename(cls, *args, **kwargs):
         return MockWidget()
 
+
 class MockApplication:
     def __init__(self, application_id=None, flags=0, **kwargs):
+        """Initialize application mock with identifiers and flags."""
         self.application_id = application_id
         self.flags = flags
-    
+
     def connect(self, signal, handler):
         return 0
-    
+
     def run(self, args):
         return 0
 
@@ -48,11 +58,14 @@ class MockApplication:
     def set_accels_for_action(self, action, accels):
         pass
 
+
 class MockLibrary(MagicMock):
     def __getattr__(self, name):
+        """Return MockWidget for class-like attributes, else default behavior."""
         if name[0].isupper():
             return MockWidget
         return super().__getattr__(name)
+
 
 mock_gtk = MockLibrary()
 mock_gtk.Application = MockApplication

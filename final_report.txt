@@ -1,0 +1,1192 @@
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Nettoyage                                                       ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Suppression des caches et fichiers temporaires...[0m
+[0;32m✔ Nettoyage terminé.[0m
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Vérification des dépendances                                    ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;32m✔ Toutes les dépendances sont installées.[0m
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Formatage (Black)                                               ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Black...[0m
+error: cannot format /home/manu/Documents/GitHub/Grub_utils/src/core/services/grub_service.py: Cannot parse for target version Python 3.12: 149:0:                 self.backup_manager.restore_backup(backup_path)
+reformatted /home/manu/Documents/GitHub/Grub_utils/src/core/facade.py
+reformatted /home/manu/Documents/GitHub/Grub_utils/src/ui/app.py
+reformatted /home/manu/Documents/GitHub/Grub_utils/src/ui/tabs/appearance/tab.py
+
+Oh no! 💥 💔 💥
+3 files reformatted, 39 files left unchanged, 1 file failed to reformat.
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Code Mort (Vulture)                                             ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Vulture (Confiance > 65%)...[0m
+src/core/services/grub_service.py:149: unexpected indent at "self.backup_manager.restore_backup(backup_path)"
+src/ui/tabs/appearance/tab.py:305: unreachable code after 'return' (100% confidence)
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Docstrings (Pydocstyle)                                         ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Pydocstyle...[0m
+WARNING: Error in file src/core/services/grub_service.py: Cannot parse file.
+1
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Linting (Flake8)                                                ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Flake8...[0m
+src/core/services/grub_service.py:149:17: E999 IndentationError: unexpected indent
+src/ui/app.py:465:5: F811 redefinition of unused 'show_toast' from line 175
+src/ui/tabs/appearance/tab.py:311:65: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:316:66: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:321:66: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:326:66: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:331:9: F821 undefined name 'notebook'
+src/ui/tabs/appearance/tab.py:361:68: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:366:67: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:371:73: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:387:13: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:389:26: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:397:13: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:399:26: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:405:9: F821 undefined name 'notebook'
+src/ui/tabs/appearance/tab.py:423:63: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:428:68: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:433:66: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:438:71: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:443:64: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:448:69: F821 undefined name 'pkg'
+src/ui/tabs/appearance/tab.py:453:9: F821 undefined name 'notebook'
+src/ui/tabs/appearance/tab.py:455:21: F821 undefined name 'notebook'
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Imports (Isort)                                                 ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Isort...[0m
+Fixing /home/manu/Documents/GitHub/Grub_utils/src/core/facade.py
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Typage Statique (Mypy)                                          ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Mypy...[0m
+src/core/services/grub_service.py:149: error: Unexpected indent  [syntax]
+Found 1 error in 1 file (errors prevented further checking)
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Linting (Ruff)                                                  ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Ruff...[0m
+warning: `incorrect-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `incorrect-blank-line-before-class`.
+warning: `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
+W293 Blank line contains whitespace
+   --> src/core/services/grub_service.py:117:1
+    |
+115 |                 # For now, we consider it a success but log the error
+116 |                 # Or we could return False. Let's keep it consistent with previous logic.
+117 |                 
+    | ^^^^^^^^^^^^^^^^
+118 |             return True, ""
+    |
+help: Remove whitespace from blank line
+
+W293 Blank line contains whitespace
+   --> src/core/services/grub_service.py:129:1
+    |
+127 |     def _prepare_resources(self) -> bool:
+128 |         """Prepare background images and themes.
+129 |         
+    | ^^^^^^^^
+130 |         Returns:
+131 |             True if successful, False otherwise.
+    |
+help: Remove whitespace from blank line
+
+W293 Blank line contains whitespace
+   --> src/core/services/grub_service.py:144:1
+    |
+142 |             logger.error("Failed to generate theme: %s", error)
+143 |             return False
+144 |             
+    | ^^^^^^^^^^^^
+145 |         return True
+146 |                 # We don't fail the whole operation, but we log it.
+    |
+help: Remove whitespace from blank line
+
+invalid-syntax: Unexpected indentation
+   --> src/core/services/grub_service.py:149:1
+    |
+147 |                 # Or should we fail? The user expects entries to be hidden.
+148 |                 # Let's fail.
+149 |                 self.backup_manager.restore_backup(backup_path)
+    | ^^^^^^^^^^^^^^^^
+150 |                 return False, error
+    |
+
+invalid-syntax: unindent does not match any outer indentation level
+   --> src/core/services/grub_service.py:152:1
+    |
+150 |                 return False, error
+151 |
+152 |             logger.info("GRUB configuration applied successfully")
+    | ^^^^^^^^^^^^
+153 |             return True, ""
+    |
+
+invalid-syntax: Unexpected indentation
+   --> src/core/services/grub_service.py:153:1
+    |
+152 |             logger.info("GRUB configuration applied successfully")
+153 |             return True, ""
+    | ^^^^^^^^^^^^
+154 |
+155 |         except (GrubConfigError, GrubApplyError, OSError) as e:
+    |
+
+invalid-syntax: Expected a statement
+   --> src/core/services/grub_service.py:155:9
+    |
+153 |             return True, ""
+154 |
+155 |         except (GrubConfigError, GrubApplyError, OSError) as e:
+    |         ^^^^^^
+156 |             logger.exception("Failed to apply configuration")
+157 |             return False, str(e)
+    |
+
+invalid-syntax: Expected a statement
+   --> src/core/services/grub_service.py:155:59
+    |
+153 |             return True, ""
+154 |
+155 |         except (GrubConfigError, GrubApplyError, OSError) as e:
+    |                                                           ^^
+156 |             logger.exception("Failed to apply configuration")
+157 |             return False, str(e)
+    |
+
+invalid-syntax: Expected an expression
+   --> src/core/services/grub_service.py:155:64
+    |
+153 |             return True, ""
+154 |
+155 |         except (GrubConfigError, GrubApplyError, OSError) as e:
+    |                                                                ^
+156 |             logger.exception("Failed to apply configuration")
+157 |             return False, str(e)
+    |
+
+invalid-syntax: Unexpected indentation
+   --> src/core/services/grub_service.py:156:1
+    |
+155 |         except (GrubConfigError, GrubApplyError, OSError) as e:
+156 |             logger.exception("Failed to apply configuration")
+    | ^^^^^^^^^^^^
+157 |             return False, str(e)
+    |
+
+invalid-syntax: Expected a statement
+   --> src/core/services/grub_service.py:159:5
+    |
+157 |             return False, str(e)
+158 |
+159 |     def _write_config(self, content: str) -> tuple[bool, str]:
+    |     ^
+160 |         """Write configuration to file.
+    |
+
+invalid-syntax: Expected a statement
+   --> src/core/services/grub_service.py:384:1
+    |
+382 |             logger.exception("Failed to generate theme")
+383 |             return False, str(e)
+    |                                 ^
+    |
+
+F811 Redefinition of unused `show_toast` from line 175
+   --> src/ui/app.py:465:9
+    |
+463 |             self._show_error("Erreur inattendue", f"Une erreur inattendue s'est produite : {e}")
+464 |
+465 |     def show_toast(self, message: str) -> None:
+    |         ^^^^^^^^^^ `show_toast` redefined here
+466 |         """Affiche une notification toast.
+    |
+   ::: src/ui/app.py:175:9
+    |
+173 |         self.overlay.add_overlay(self.toast_revealer)
+174 |
+175 |     def show_toast(self, message: str, timeout: int = TOAST_TIMEOUT):
+    |         ---------- previous definition of `show_toast` here
+176 |         """Affiche une notification toast.
+    |
+help: Remove definition: `show_toast`
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:311:65
+    |
+310 |         middle_grid.attach(Gtk.Label(label="Hauteur (px) :", xalign=0), 0, row, 1, 1)
+311 |         self.item_height_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_ITEM_HEIGHTS, "36")
+    |                                                                 ^^^
+312 |         middle_grid.attach(self.item_height_dropdown, 1, row, 1, 1)
+313 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:316:66
+    |
+315 |         middle_grid.attach(Gtk.Label(label="Espacement (px) :", xalign=0), 0, row, 1, 1)
+316 |         self.item_spacing_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_ITEM_SPACINGS, "5")
+    |                                                                  ^^^
+317 |         middle_grid.attach(self.item_spacing_dropdown, 1, row, 1, 1)
+318 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:321:66
+    |
+320 |         middle_grid.attach(Gtk.Label(label="Rembourrage (px) :", xalign=0), 0, row, 1, 1)
+321 |         self.item_padding_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_ITEM_PADDINGS, "10")
+    |                                                                  ^^^
+322 |         middle_grid.attach(self.item_padding_dropdown, 1, row, 1, 1)
+323 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:326:66
+    |
+325 |         middle_grid.attach(Gtk.Label(label="Espacement icône (px) :", xalign=0), 0, row, 1, 1)
+326 |         self.icon_spacing_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_ICON_SPACINGS, "10")
+    |                                                                  ^^^
+327 |         middle_grid.attach(self.icon_spacing_dropdown, 1, row, 1, 1)
+328 |         row += 1
+    |
+
+F821 Undefined name `notebook`
+   --> src/ui/tabs/appearance/tab.py:331:9
+    |
+330 |         page2_box.append(middle_grid)
+331 |         notebook.append_page(page2_box, Gtk.Label(label="Disposition Menu"))
+    |         ^^^^^^^^
+332 |
+333 |         # ===== Page 3: Textes (Titre/Label + Progress) =====
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:361:68
+    |
+360 |         text_grid.attach(Gtk.Label(label="Label left (%) :", xalign=0), 0, row, 1, 1)
+361 |         self.label_left_dropdown = create_percentage_dropdown(Gtk, pkg.GRUB_LABEL_LEFTS, "5%")
+    |                                                                    ^^^
+362 |         text_grid.attach(self.label_left_dropdown, 1, row, 1, 1)
+363 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:366:67
+    |
+365 |         text_grid.attach(Gtk.Label(label="Label top (%) :", xalign=0), 0, row, 1, 1)
+366 |         self.label_top_dropdown = create_percentage_dropdown(Gtk, pkg.GRUB_LABEL_TOPS, "2%")
+    |                                                                   ^^^
+367 |         text_grid.attach(self.label_top_dropdown, 1, row, 1, 1)
+368 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:371:73
+    |
+370 |         text_grid.attach(Gtk.Label(label="Progress bottom (%) :", xalign=0), 0, row, 1, 1)
+371 |         self.progress_bottom_dropdown = create_percentage_dropdown(Gtk, pkg.GRUB_PROGRESS_BOTTOMS, "10%")
+    |                                                                         ^^^
+372 |         text_grid.attach(self.progress_bottom_dropdown, 1, row, 1, 1)
+373 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:387:13
+    |
+385 |         self.progress_border_dropdown = create_color_dropdown(
+386 |             Gtk,
+387 |             pkg.GRUB_PROGRESS_COLORS,
+    |             ^^^
+388 |             "white",
+389 |             color_to_hex=pkg.GRUB_COLOR_TO_HEX,
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:389:26
+    |
+387 |             pkg.GRUB_PROGRESS_COLORS,
+388 |             "white",
+389 |             color_to_hex=pkg.GRUB_COLOR_TO_HEX,
+    |                          ^^^
+390 |         )
+391 |         text_grid.attach(self.progress_border_dropdown, 1, row, 1, 1)
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:397:13
+    |
+395 |         self.progress_bar_dropdown = create_color_dropdown(
+396 |             Gtk,
+397 |             pkg.GRUB_PROGRESS_COLORS,
+    |             ^^^
+398 |             "light-gray",
+399 |             color_to_hex=pkg.GRUB_COLOR_TO_HEX,
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:399:26
+    |
+397 |             pkg.GRUB_PROGRESS_COLORS,
+398 |             "light-gray",
+399 |             color_to_hex=pkg.GRUB_COLOR_TO_HEX,
+    |                          ^^^
+400 |         )
+401 |         text_grid.attach(self.progress_bar_dropdown, 1, row, 1, 1)
+    |
+
+F821 Undefined name `notebook`
+   --> src/ui/tabs/appearance/tab.py:405:9
+    |
+404 |         page3_box.append(text_grid)
+405 |         notebook.append_page(page3_box, Gtk.Label(label="Textes"))
+    |         ^^^^^^^^
+406 |
+407 |         # ===== Page 4: Polices =====
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:423:63
+    |
+422 |         font_grid.attach(Gtk.Label(label="Police item :", xalign=0), 0, row, 1, 1)
+423 |         self.font_item_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONTS, "DejaVu Sans")
+    |                                                               ^^^
+424 |         font_grid.attach(self.font_item_dropdown, 1, row, 1, 1)
+425 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:428:68
+    |
+427 |         font_grid.attach(Gtk.Label(label="Taille item (pt) :", xalign=0), 0, row, 1, 1)
+428 |         self.font_size_item_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONT_SIZES, "16")
+    |                                                                    ^^^
+429 |         font_grid.attach(self.font_size_item_dropdown, 1, row, 1, 1)
+430 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:433:66
+    |
+432 |         font_grid.attach(Gtk.Label(label="Police item sel. :", xalign=0), 0, row, 1, 1)
+433 |         self.font_item_hl_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONTS, "DejaVu Sans")
+    |                                                                  ^^^
+434 |         font_grid.attach(self.font_item_hl_dropdown, 1, row, 1, 1)
+435 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:438:71
+    |
+437 |         font_grid.attach(Gtk.Label(label="Taille item sel. (pt) :", xalign=0), 0, row, 1, 1)
+438 |         self.font_size_item_hl_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONT_SIZES, "16")
+    |                                                                       ^^^
+439 |         font_grid.attach(self.font_size_item_hl_dropdown, 1, row, 1, 1)
+440 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:443:64
+    |
+442 |         font_grid.attach(Gtk.Label(label="Police label :", xalign=0), 0, row, 1, 1)
+443 |         self.font_label_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONTS, "DejaVu Sans")
+    |                                                                ^^^
+444 |         font_grid.attach(self.font_label_dropdown, 1, row, 1, 1)
+445 |         row += 1
+    |
+
+F821 Undefined name `pkg`
+   --> src/ui/tabs/appearance/tab.py:448:69
+    |
+447 |         font_grid.attach(Gtk.Label(label="Taille label (pt) :", xalign=0), 0, row, 1, 1)
+448 |         self.font_size_label_dropdown = create_simple_dropdown(Gtk, pkg.GRUB_FONT_SIZES, "12")
+    |                                                                     ^^^
+449 |         font_grid.attach(self.font_size_label_dropdown, 1, row, 1, 1)
+450 |         row += 1
+    |
+
+F821 Undefined name `notebook`
+   --> src/ui/tabs/appearance/tab.py:453:9
+    |
+452 |         page4_box.append(font_grid)
+453 |         notebook.append_page(page4_box, Gtk.Label(label="Polices"))
+    |         ^^^^^^^^
+454 |
+455 |         self.append(notebook)
+    |
+
+F821 Undefined name `notebook`
+   --> src/ui/tabs/appearance/tab.py:455:21
+    |
+453 |         notebook.append_page(page4_box, Gtk.Label(label="Polices"))
+454 |
+455 |         self.append(notebook)
+    |                     ^^^^^^^^
+456 |
+457 |         self._load_current_colors()
+    |
+
+Found 38 errors (4 fixed, 34 remaining).
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Qualité (Pylint)                                                ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Pylint (Objectif: 10/10)...[0m
+************* Module core.services.grub_service
+src/core/services/grub_service.py:149:16: E0001: Parsing failed: 'unexpected indent (core.services.grub_service, line 149)' (syntax-error)
+************* Module ui.app
+src/ui/app.py:60:13: W0511: TODO: Exposer create_original_backup_if_needed dans GrubFacade (fixme)
+src/ui/app.py:20:0: R0902: Too many instance attributes (12/7) (too-many-instance-attributes)
+src/ui/app.py:41:4: W0221: Number of parameters was 2 in 'Application.run' and is now 2 in overriding 'GrubApp.run' method (arguments-differ)
+src/ui/app.py:41:4: W0221: Variadics removed in overriding 'GrubApp.run' method (arguments-differ)
+src/ui/app.py:465:4: E0102: method already defined line 175 (function-redefined)
+************* Module ui.tabs.backup
+src/ui/tabs/backup.py:31:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+src/ui/tabs/backup.py:190:23: W0718: Catching too general exception Exception (broad-exception-caught)
+src/ui/tabs/backup.py:224:23: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module ui.tabs.general
+src/ui/tabs/general.py:19:0: R0902: Too many instance attributes (11/7) (too-many-instance-attributes)
+src/ui/tabs/general.py:211:35: W0613: Unused argument 'dropdown' (unused-argument)
+************* Module ui.tabs.base
+src/ui/tabs/base.py:33:33: W0613: Unused argument 'action' (unused-argument)
+************* Module ui.tabs.appearance.theme
+src/ui/tabs/appearance/theme.py:96:11: W0718: Catching too general exception Exception (broad-exception-caught)
+src/ui/tabs/appearance/theme.py:12:0: R0912: Too many branches (27/12) (too-many-branches)
+src/ui/tabs/appearance/theme.py:12:0: R0915: Too many statements (72/50) (too-many-statements)
+************* Module ui.tabs.appearance.tab
+src/ui/tabs/appearance/tab.py:35:0: R0902: Too many instance attributes (72/7) (too-many-instance-attributes)
+src/ui/tabs/appearance/tab.py:38:4: R0915: Too many statements (67/50) (too-many-statements)
+src/ui/tabs/appearance/tab.py:305:8: W0101: Unreachable code (unreachable)
+src/ui/tabs/appearance/tab.py:311:64: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:316:65: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:321:65: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:326:65: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:331:8: E0602: Undefined variable 'notebook' (undefined-variable)
+src/ui/tabs/appearance/tab.py:361:67: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:366:66: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:371:72: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:387:12: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:389:25: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:397:12: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:399:25: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:405:8: E0602: Undefined variable 'notebook' (undefined-variable)
+src/ui/tabs/appearance/tab.py:423:62: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:428:67: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:433:65: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:438:70: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:443:63: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:448:68: E0602: Undefined variable 'pkg' (undefined-variable)
+src/ui/tabs/appearance/tab.py:453:8: E0602: Undefined variable 'notebook' (undefined-variable)
+src/ui/tabs/appearance/tab.py:455:20: E0602: Undefined variable 'notebook' (undefined-variable)
+src/ui/tabs/appearance/tab.py:261:4: R0915: Too many statements (144/50) (too-many-statements)
+src/ui/tabs/appearance/tab.py:479:31: E1101: Instance of 'AppearanceTab' has no 'normal_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:484:31: E1101: Instance of 'AppearanceTab' has no 'highlight_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:487:4: R0914: Too many local variables (21/15) (too-many-locals)
+src/ui/tabs/appearance/tab.py:487:4: R0915: Too many statements (56/50) (too-many-statements)
+src/ui/tabs/appearance/tab.py:665:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/ui/tabs/appearance/tab.py:623:28: W0212: Access to a protected member _generate_theme_content of a client class (protected-access)
+src/ui/tabs/appearance/tab.py:683:44: E1101: Instance of 'AppearanceTab' has no 'normal_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:687:47: E1101: Instance of 'AppearanceTab' has no 'highlight_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:730:8: E1101: Instance of 'AppearanceTab' has no 'normal_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:732:8: E1101: Instance of 'AppearanceTab' has no 'highlight_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:760:27: E1101: Instance of 'AppearanceTab' has no 'normal_text_dropdown' member (no-member)
+src/ui/tabs/appearance/tab.py:762:27: E1101: Instance of 'AppearanceTab' has no 'highlight_text_dropdown' member (no-member)
+************* Module ui.dialogs.backup_selector_dialog
+src/ui/dialogs/backup_selector_dialog.py:86:31: W0613: Unused argument 'listbox' (unused-argument)
+************* Module ui.dialogs.preview_dialog
+src/ui/dialogs/preview_dialog.py:14:4: R0913: Too many arguments (7/5) (too-many-arguments)
+src/ui/dialogs/preview_dialog.py:14:4: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
+src/ui/dialogs/preview_dialog.py:111:4: R0914: Too many local variables (29/15) (too-many-locals)
+src/ui/dialogs/preview_dialog.py:111:4: R0915: Too many statements (67/50) (too-many-statements)
+src/ui/dialogs/preview_dialog.py:283:4: R0914: Too many local variables (20/15) (too-many-locals)
+src/ui/dialogs/preview_dialog.py:367:8: W0613: Unused argument 'gfxmode' (unused-argument)
+src/ui/dialogs/preview_dialog.py:403:4: R0914: Too many local variables (20/15) (too-many-locals)
+src/ui/dialogs/preview_dialog.py:403:4: R0915: Too many statements (73/50) (too-many-statements)
+************* Module core.facade
+src/core/facade.py:8:0: E0001: Cannot import 'src.core.services.grub_service' due to 'unexpected indent (src.core.services.grub_service, line 149)' (syntax-error)
+src/core/facade.py:8:0: E0611: No name 'grub_service' in module 'src.core.services' (no-name-in-module)
+************* Module core.setup
+src/core/setup.py:11:0: E0001: Cannot import 'src.core.services.grub_service' due to 'unexpected indent (src.core.services.grub_service, line 149)' (syntax-error)
+src/core/setup.py:11:0: E0611: No name 'grub_service' in module 'src.core.services' (no-name-in-module)
+************* Module core.config.generator
+src/core/config/generator.py:11:4: R0914: Too many local variables (17/15) (too-many-locals)
+src/core/config/generator.py:32:8: C0103: Variable name "KEYS_TO_EXPORT" doesn't conform to snake_case naming style (invalid-name)
+src/core/config/generator.py:11:4: R0912: Too many branches (13/12) (too-many-branches)
+************* Module core.config.theme_generator
+src/core/config/theme_generator.py:189:4: R0914: Too many local variables (26/15) (too-many-locals)
+src/core/config/theme_generator.py:318:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_generator.py:323:4: R0913: Too many arguments (27/5) (too-many-arguments)
+src/core/config/theme_generator.py:323:4: R0917: Too many positional arguments (27/5) (too-many-positional-arguments)
+src/core/config/theme_generator.py:323:4: R0914: Too many local variables (32/15) (too-many-locals)
+src/core/config/theme_generator.py:323:4: R0915: Too many statements (51/50) (too-many-statements)
+src/core/config/theme_generator.py:328:8: W0613: Unused argument 'highlight_bg' (unused-argument)
+src/core/config/theme_generator.py:330:8: W0613: Unused argument 'gfxmode' (unused-argument)
+src/core/config/theme_generator.py:455:4: R0914: Too many local variables (17/15) (too-many-locals)
+src/core/config/theme_generator.py:550:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module core.config.theme_manager
+src/core/config/theme_manager.py:119:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:109:20: C0415: Import outside toplevel (shutil) (import-outside-toplevel)
+src/core/config/theme_manager.py:171:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:182:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:233:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:219:12: C0415: Import outside toplevel (shutil) (import-outside-toplevel)
+src/core/config/theme_manager.py:247:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:258:15: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:303:19: W0718: Catching too general exception Exception (broad-exception-caught)
+src/core/config/theme_manager.py:418:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module core.config.loader
+src/core/config/loader.py:12:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module main
+main.py:1:0: R0801: Similar lines in 2 files
+==core.config.theme_generator:[254:265]
+==ui.dialogs.preview_dialog:[139:150]
+        if "/" in normal_colors:
+            normal_fg, normal_bg = normal_colors.split("/", 1)
+        else:
+            normal_fg, normal_bg = "light-gray", "black"
+
+        if "/" in highlight_colors:
+            highlight_fg, highlight_bg = highlight_colors.split("/", 1)
+        else:
+            highlight_fg, highlight_bg = "black", "light-gray"
+
+        # Convertir en hexadécimal (duplicate-code)
+main.py:1:0: R0801: Similar lines in 2 files
+==ui.tabs.backup:[74:83]
+==ui.tabs.general:[49:59]
+        info_frame.set_margin_top(20)
+
+        info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        info_box.set_margin_top(10)
+        info_box.set_margin_bottom(10)
+        info_box.set_margin_start(10)
+        info_box.set_margin_end(10)
+        info_frame.set_child(info_box)
+ (duplicate-code)
+main.py:1:0: R0401: Cyclic import (ui.tabs.appearance -> ui.tabs.appearance.tab) (cyclic-import)
+
+------------------------------------------------------------------
+Your code has been rated at 9.20/10 (previous run: 9.73/10, -0.53)
+
+
+[0;35m[1m╔═══════════════════════════════════════════════════════════════════╗[0m
+[0;35m[1m║   Tests & Couverture (Pytest)                                     ║[0m
+[0;35m[1m╚═══════════════════════════════════════════════════════════════════╝[0m
+[0;36m➜ Exécution de Pytest (Objectif couverture: 100%)...[0m
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /home/manu/Documents/GitHub/Grub_utils/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/manu/Documents/GitHub/Grub_utils
+configfile: pytest.ini
+testpaths: tests
+plugins: mock-3.15.1, cov-7.0.0, xdist-3.8.0
+created: 8/8 workers
+8 workers [305 items]
+
+scheduling tests via LoadScheduling
+
+tests/integration/test_di_integration.py::TestContainerWithGTKIntegration::test_gtk_application_can_access_facade 
+tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_di_container_provides_all_services 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_handles_hidden_export 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_empty_file 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_creates_directory 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_empty_entries 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_empty 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_read_error 
+[gw2] [  0%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_empty_entries 
+[gw3] [  0%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_handles_hidden_export 
+[gw0] [  0%] PASSED tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_di_container_provides_all_services 
+[gw4] [  1%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_empty_file 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_preserves_line_order 
+[gw5] [  1%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_read_error 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_extract_linux_path_no_match 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_init_default_path 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_comment_only_lines 
+[gw2] [  1%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_comment_only_lines 
+[gw3] [  2%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_init_default_path 
+[gw6] [  2%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_creates_directory 
+[gw7] [  2%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_empty 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_success 
+tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_multiple_operations_with_shared_container_state 
+[gw0] [  3%] PASSED tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_multiple_operations_with_shared_container_state 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_init_custom_path 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_config_not_found 
+[gw4] [  3%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_preserves_line_order 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_loader_strips_export 
+[gw5] [  3%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_extract_linux_path_no_match 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_empty_file 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_line_without_equals 
+[gw2] [  4%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_line_without_equals 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_key_in_lines_method 
+[gw2] [  4%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_key_in_lines_method 
+[gw3] [  4%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_init_custom_path 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_success 
+[gw4] [  5%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_loader_strips_export 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_auto_detect 
+[gw6] [  5%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_config_not_found 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_empty 
+tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_theme_mode_persistence_through_container 
+[gw0] [  5%] PASSED tests/integration/test_di_integration.py::TestThemeManagerIntegration::test_theme_mode_persistence_through_container 
+tests/integration/test_di_integration.py::TestFacadeWithDIContainer::test_facade_configured_in_container 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_multiple_new_entries 
+[gw4] [  6%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_auto_detect 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_not_found 
+[gw3] [  6%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_success 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_file_not_found 
+[gw6] [  6%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_empty 
+[gw0] [  7%] PASSED tests/integration/test_di_integration.py::TestFacadeWithDIContainer::test_facade_configured_in_container 
+tests/integration/test_di_integration.py::TestFacadeWithDIContainer::test_facade_load_configuration_via_container 
+[gw7] [  7%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_success 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_latest 
+[gw5] [  7%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_empty_file 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_complex_menuentry 
+[gw4] [  8%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_not_found 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_explicit_path 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_sorted_by_date 
+[gw0] [  8%] PASSED tests/integration/test_di_integration.py::TestFacadeWithDIContainer::test_facade_load_configuration_via_container 
+tests/integration/test_di_integration.py::TestBackupIntegration::test_backup_manager_initialization 
+[gw3] [  8%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_file_not_found 
+[gw5] [  9%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_complex_menuentry 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_nested_braces 
+[gw4] [  9%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_init_explicit_path 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_read_error 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_simple 
+[gw0] [  9%] PASSED tests/integration/test_di_integration.py::TestBackupIntegration::test_backup_manager_initialization 
+tests/integration/test_di_integration.py::TestBackupIntegration::test_backup_restoration_workflow 
+[gw3] [ 10%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_load_read_error 
+[gw1] [ 10%] PASSED tests/integration/test_di_integration.py::TestContainerWithGTKIntegration::test_gtk_application_can_access_facade 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_various_formats 
+[gw5] [ 10%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_nested_braces 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_find_grub_cfg_first_location 
+[gw0] [ 11%] PASSED tests/integration/test_di_integration.py::TestBackupIntegration::test_backup_restoration_workflow 
+tests/integration/test_di_integration.py::TestContainerStartupSequence::test_full_application_startup 
+tests/integration/test_di_integration.py::TestContainerWithGTKIntegration::test_multiple_tabs_share_container_state 
+[gw3] [ 11%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_various_formats 
+[gw1] [ 11%] PASSED tests/integration/test_di_integration.py::TestContainerWithGTKIntegration::test_multiple_tabs_share_container_state 
+[gw5] [ 12%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_find_grub_cfg_first_location 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_empty_lines 
+[gw0] [ 12%] PASSED tests/integration/test_di_integration.py::TestContainerStartupSequence::test_full_application_startup 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_update_existing 
+[gw4] [ 12%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_simple 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_submenu 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_extract_linux_path_with_match 
+tests/integration/test_di_integration.py::TestContainerStartupSequence::test_service_availability_after_startup 
+[gw3] [ 13%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_empty_lines 
+[gw1] [ 13%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_update_existing 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_add_new 
+[gw5] [ 13%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_extract_linux_path_with_match 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_multiple_submenus 
+[gw0] [ 14%] PASSED tests/integration/test_di_integration.py::TestContainerStartupSequence::test_service_availability_after_startup 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_security_error 
+tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_complex_values 
+[gw2] [ 14%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_multiple_new_entries 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_hide_multiple_entries 
+[gw1] [ 14%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_add_new 
+[gw2] [ 15%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_hide_multiple_entries 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_preserve_structure 
+[gw3] [ 15%] PASSED tests/unit/core/config/test_loader.py::TestGrubConfigLoader::test_parse_entries_complex_values 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_already_exists 
+[gw1] [ 15%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_preserve_structure 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_hide_entries 
+[gw0] [ 16%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_security_error 
+tests/unit/core/test_dtos.py::TestBackupInfoDTO::test_create_backup_info 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_adds_export_for_colors 
+[gw2] [ 16%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_adds_export_for_colors 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_preserves_existing_export 
+[gw4] [ 16%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_submenu 
+tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_file_not_found 
+[gw2] [ 17%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_preserves_existing_export 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_handles_commented_export 
+[gw1] [ 17%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_hide_entries 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_new_hidden_entry 
+[gw3] [ 17%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_already_exists 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_creates_from_config 
+[gw0] [ 18%] PASSED tests/unit/core/test_dtos.py::TestBackupInfoDTO::test_create_backup_info 
+tests/unit/core/test_dtos.py::TestOperationResultDTO::test_successful_operation 
+[gw1] [ 18%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_new_hidden_entry 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_mixed_content 
+[gw3] [ 18%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_creates_from_config 
+[gw0] [ 19%] PASSED tests/unit/core/test_dtos.py::TestOperationResultDTO::test_successful_operation 
+tests/unit/core/test_dtos.py::TestOperationResultDTO::test_failed_operation_with_details 
+[gw4] [ 19%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_menu_entries_file_not_found 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_failure 
+[gw2] [ 19%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generator_handles_commented_export 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_with_os_error 
+[gw1] [ 20%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_generate_mixed_content 
+[gw0] [ 20%] PASSED tests/unit/core/test_dtos.py::TestOperationResultDTO::test_failed_operation_with_details 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_valid 
+[gw2] [ 20%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_with_os_error 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_legacy_search 
+[gw3] [ 20%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_legacy_search 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups_remove_error 
+[gw4] [ 21%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_failure 
+[gw0] [ 21%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_valid 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_config_not_found 
+[gw5] [ 21%] PASSED tests/unit/core/config/test_parser.py::TestGrubMenuParser::test_parse_multiple_submenus 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_success 
+[gw5] [ 22%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_success 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_valid 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_timeout 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_invalid_type 
+[gw5] [ 22%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_valid 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_empty 
+[gw4] [ 22%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_timeout 
+[gw3] [ 23%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_config_not_found 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_copy_legacy_fails 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_exception 
+[gw0] [ 23%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_invalid_type 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_too_long 
+[gw5] [ 23%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_empty 
+[gw0] [ 24%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_too_long 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_too_long 
+[gw3] [ 24%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_copy_legacy_fails 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_copy_config_fails 
+tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_key_in_lines_commented 
+[gw5] [ 24%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_too_long 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_invalid_format 
+[gw4] [ 25%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_exception 
+[gw1] [ 25%] PASSED tests/unit/core/config/test_generator.py::TestGrubConfigGenerator::test_key_in_lines_commented 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_empty 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_empty 
+[gw5] [ 25%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_parameter_name_invalid_format 
+[gw4] [ 26%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_empty 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_update_grub 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_kernel_params_valid 
+[gw1] [ 26%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_empty 
+[gw3] [ 26%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_original_backup_copy_config_fails 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_success_non_root 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_traversal 
+[gw5] [ 27%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_kernel_params_valid 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_kernel_params_dangerous 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_with_newlines 
+[gw1] [ 27%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_traversal 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_tilde 
+[gw5] [ 27%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_kernel_params_dangerous 
+[gw3] [ 28%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_success_non_root 
+[gw0] [ 28%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_line_with_newlines 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_auto 
+[gw1] [ 28%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_tilde 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_success_root 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_valid 
+tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_restricted_dir 
+[gw0] [ 29%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_auto 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_resolution 
+[gw5] [ 29%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_valid 
+[gw3] [ 29%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_with_pkexec_success_root 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_wrong_extension 
+[gw0] [ 30%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_resolution 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_invalid 
+[gw1] [ 30%] PASSED tests/unit/core/test_security.py::TestInputSecurityValidator::test_validate_file_path_restricted_dir 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_valid 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_invalid_theme_path 
+[gw3] [ 30%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_invalid_theme_path 
+[gw5] [ 31%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_wrong_extension 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_valid_theme 
+[gw0] [ 31%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_invalid 
+[gw1] [ 31%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_valid 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_invalid_range 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_valid 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_no_read_permission 
+[gw3] [ 32%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_valid_theme 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_empty_string 
+[gw0] [ 32%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_valid 
+[gw1] [ 32%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_invalid_range 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_dangerous 
+[gw3] [ 33%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_empty_string 
+[gw5] [ 33%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_no_read_permission 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_success 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_empty_string 
+[gw0] [ 33%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_dangerous 
+[gw4] [ 34%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_update_grub 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_valid 
+[gw3] [ 34%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_empty_string 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_copy_file_privileged 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_invalid_format 
+[gw5] [ 34%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_success 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_empty 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_empty 
+[gw0] [ 35%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_valid 
+[gw4] [ 35%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_copy_file_privileged 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_cleanup_fails 
+[gw3] [ 35%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_empty 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_not_exists 
+[gw5] [ 36%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_empty 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_with_values 
+[gw1] [ 36%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_timeout_invalid_format 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_unexpected_error 
+[gw5] [ 36%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_with_values 
+[gw3] [ 37%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_not_exists 
+[gw4] [ 37%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_cleanup_fails 
+tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_subprocess_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_invalid_timeout 
+[gw1] [ 37%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_unexpected_error 
+[gw2] [ 38%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups_remove_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_re_raises_validation_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_is_directory 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_invalid_path 
+[gw0] [ 38%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_invalid_timeout 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_unexpected_error_value 
+[gw5] [ 38%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_invalid_colors 
+[gw4] [ 39%] PASSED tests/unit/core/test_command_executor.py::TestSecureCommandExecutor::test_execute_subprocess_error 
+[gw3] [ 39%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_is_directory 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_invalid_chars 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_kernel_params 
+[gw1] [ 39%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_re_raises_validation_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_invalid_key 
+[gw5] [ 40%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_invalid_colors 
+[gw2] [ 40%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_invalid_path 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_includes_legacy 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_empty_theme 
+[gw4] [ 40%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_invalid_chars 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_background 
+[gw0] [ 40%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_unexpected_error_value 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_security_error 
+[gw5] [ 41%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_empty_theme 
+[gw1] [ 41%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_invalid_key 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard_warning 
+[gw4] [ 41%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_background 
+[gw2] [ 42%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_includes_legacy 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_os_error 
+[gw3] [ 42%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_kernel_params 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_valid 
+[gw3] [ 42%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_valid 
+tests/unit/test_di_container.py::TestContainerBasics::test_container_has_instance 
+[gw5] [ 43%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_container_has_instance 
+[gw1] [ 43%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard_warning 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_with_equals_allowed 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_remove_empty_background 
+[gw4] [ 43%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_remove_empty_background 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_theme 
+[gw0] [ 44%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_file_path_security_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_security_error 
+[gw0] [ 44%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_security_error 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_standard_resolution 
+[gw0] [ 44%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_standard_resolution 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_invalid_format 
+[gw2] [ 45%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_os_error 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups_successful_remove 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_empty 
+[gw3] [ 45%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_empty 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_no_slash 
+[gw3] [ 45%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_no_slash 
+[gw1] [ 46%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_with_equals_allowed 
+tests/unit/test_di_container.py::TestContainerBasics::test_register_singleton_service 
+[gw5] [ 46%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_register_singleton_service 
+[gw4] [ 46%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_theme 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_remove_empty_theme 
+[gw4] [ 47%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_remove_empty_theme 
+[gw0] [ 47%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_gfxmode_invalid_format 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_invalid_color 
+[gw3] [ 47%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_color_pair_invalid_color 
+tests/unit/test_di_container.py::TestContainerBasics::test_register_transient_service 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard_warning_logger 
+[gw5] [ 48%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_register_transient_service 
+[gw1] [ 48%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_kernel_params_non_standard_warning_logger 
+tests/unit/test_di_container.py::TestContainerBasics::test_register_with_factory_function 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_gfxmode 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_cmdline 
+tests/unit/test_di_container.py::TestContainerDependencyChain::test_circular_dependency_detection 
+[gw5] [ 48%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_register_with_factory_function 
+tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_colors 
+[gw0] [ 49%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_gfxmode 
+[gw4] [ 49%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_cmdline 
+tests/unit/test_di_container.py::TestContainerBasics::test_register_with_lambda_factory 
+tests/unit/test_di_container.py::TestContainerErrors::test_register_class_factory 
+[gw1] [ 49%] PASSED tests/unit/test_di_container.py::TestContainerDependencyChain::test_circular_dependency_detection 
+tests/unit/test_di_container.py::TestContainerDependencyChain::test_transitive_dependency 
+tests/unit/test_di_container.py::TestContainerErrors::test_container_clear_removes_all_services 
+[gw5] [ 50%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_register_with_lambda_factory 
+[gw3] [ 50%] PASSED tests/unit/core/test_validator.py::TestGrubValidator::test_validate_all_with_colors 
+[gw0] [ 50%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_register_class_factory 
+tests/unit/test_di_container.py::TestContainerBasics::test_resolve_nonexistent_service_raises_error 
+tests/unit/test_di_container.py::TestContainerErrors::test_register_none_service_raises_error 
+tests/unit/test_di_container.py::TestContainerErrors::test_resolve_logging_on_resolution 
+[gw1] [ 51%] PASSED tests/unit/test_di_container.py::TestContainerDependencyChain::test_transitive_dependency 
+[gw5] [ 51%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_resolve_nonexistent_service_raises_error 
+[gw0] [ 51%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_register_none_service_raises_error 
+[gw4] [ 52%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_container_clear_removes_all_services 
+tests/unit/test_di_container.py::TestContainerErrors::test_container_repr 
+tests/unit/test_di_container.py::TestContainerBasics::test_resolve_singleton_returns_same_instance 
+tests/unit/test_di_container.py::TestContainerErrors::test_register_transient_duplicate 
+tests/unit/test_di_container.py::TestContainerModules::test_clear_all_services 
+[gw1] [ 52%] PASSED tests/unit/test_di_container.py::TestContainerModules::test_clear_all_services 
+[gw5] [ 52%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_resolve_singleton_returns_same_instance 
+tests/unit/test_di_container.py::TestContainerModules::test_get_all_registered_services 
+[gw0] [ 53%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_register_transient_duplicate 
+tests/unit/test_di_container.py::TestContainerErrors::test_register_transient_none_factory 
+[gw4] [ 53%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_container_repr 
+tests/unit/test_di_container.py::TestContainerErrors::test_duplicate_registration_raises_error 
+[gw3] [ 53%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_resolve_logging_on_resolution 
+tests/unit/test_di_container.py::TestContainerErrors::test_resolve_same_singleton_twice_returns_same_instance 
+[gw1] [ 54%] PASSED tests/unit/test_di_container.py::TestContainerModules::test_get_all_registered_services 
+[gw4] [ 54%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_duplicate_registration_raises_error 
+tests/unit/test_di_container.py::TestContainerErrors::test_factory_returns_none 
+[gw0] [ 54%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_register_transient_none_factory 
+tests/unit/test_di_container.py::TestContainerBasics::test_resolve_transient_returns_new_instances 
+tests/unit/test_di_container.py::TestContainerIntegration::test_realistic_grub_configuration 
+[gw4] [ 55%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_factory_returns_none 
+tests/unit/test_di_container.py::TestContainerErrors::test_global_container_functions 
+tests/unit/test_di_container.py::TestContainerErrors::test_replace_service 
+[gw5] [ 55%] PASSED tests/unit/test_di_container.py::TestContainerBasics::test_resolve_transient_returns_new_instances 
+[gw4] [ 55%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_global_container_functions 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_activate_removes_theme 
+[gw0] [ 56%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_replace_service 
+[gw1] [ 56%] PASSED tests/unit/test_di_container.py::TestContainerIntegration::test_realistic_grub_configuration 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_is_available_no_theme 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_get_mode 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_deactivate_removes_theme 
+[gw5] [ 56%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_activate_removes_theme 
+[gw0] [ 57%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_is_available_no_theme 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_get_mode 
+[gw1] [ 57%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_deactivate_removes_theme 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_is_available_with_theme 
+[gw4] [ 57%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_get_mode 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_mode 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_get_theme_content 
+[gw5] [ 58%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_get_mode 
+[gw1] [ 58%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_mode 
+[gw4] [ 58%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_get_theme_content 
+[gw0] [ 59%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_is_available_with_theme 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_get_theme_content_none 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_theme_content 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_is_available_no_file 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_activate_copies_modified_theme 
+[gw5] [ 59%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_get_theme_content_none 
+[gw4] [ 59%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_is_available_no_file 
+[gw1] [ 60%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_theme_content 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_is_available_no_theme_file 
+[gw0] [ 60%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_activate_copies_modified_theme 
+tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_theme_content_no_file 
+[gw5] [ 60%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_is_available_no_theme_file 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_is_available_with_file 
+tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_activate_no_modified_theme 
+[gw1] [ 60%] PASSED tests/unit/test_theme_manager.py::TestCustomThemeProvider::test_get_theme_content_no_file 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_is_available_with_theme_file 
+tests/unit/test_theme_manager.py::TestThemeManager::test_activate_mode 
+[gw0] [ 61%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_activate_no_modified_theme 
+[gw4] [ 61%] PASSED tests/unit/test_theme_manager.py::TestCustomModifiedThemeProvider::test_is_available_with_file 
+tests/unit/test_theme_manager.py::TestThemeManager::test_write_theme_content_standard_fails 
+[gw1] [ 61%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_activate_mode 
+tests/unit/test_theme_manager.py::TestThemeManager::test_detect_custom_mode 
+tests/unit/test_theme_manager.py::TestThemeManager::test_get_available_modes_with_custom 
+[gw5] [ 62%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_is_available_with_theme_file 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_row_selected 
+[gw3] [ 62%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_resolve_same_singleton_twice_returns_same_instance 
+tests/unit/test_di_container.py::TestContainerErrors::test_resolve_transient_returns_different_instances 
+[gw4] [ 62%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_get_available_modes_with_custom 
+[gw1] [ 63%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_detect_custom_mode 
+tests/unit/test_theme_manager.py::TestThemeManager::test_get_current_mode 
+[gw0] [ 63%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_write_theme_content_standard_fails 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_init 
+[gw3] [ 63%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_resolve_transient_returns_different_instances 
+tests/unit/test_di_container.py::TestContainerErrors::test_resolve_with_exception_in_factory 
+tests/unit/test_theme_manager.py::TestThemeManager::test_detect_standard_mode 
+[gw1] [ 64%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_detect_standard_mode 
+[gw4] [ 64%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_get_current_mode 
+tests/unit/test_theme_manager.py::TestThemeManager::test_get_provider 
+[gw3] [ 64%] PASSED tests/unit/test_di_container.py::TestContainerErrors::test_resolve_with_exception_in_factory 
+[gw4] [ 65%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_get_provider 
+[gw5] [ 65%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_row_selected 
+tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_activate_no_theme_file 
+tests/unit/test_theme_manager.py::TestThemeManager::test_get_available_modes_standard 
+tests/unit/test_theme_manager.py::TestThemeManager::test_write_theme_content 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_cancel_with_callback 
+[gw0] [ 65%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_init 
+[gw4] [ 66%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_write_theme_content 
+[gw1] [ 66%] PASSED tests/unit/test_theme_manager.py::TestThemeManager::test_get_available_modes_standard 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_create_backup_row 
+[gw3] [ 66%] PASSED tests/unit/test_theme_manager.py::TestStandardThemeProvider::test_activate_no_theme_file 
+tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_init_no_dont_ask 
+tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_button_box 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_restore_without_callback 
+[gw2] [ 67%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups_successful_remove 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_open_fails 
+[gw1] [ 67%] PASSED tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_button_box 
+[gw2] [ 67%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_open_fails 
+tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_finalize_dialog 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_whitespace_only 
+[gw5] [ 68%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_cancel_with_callback 
+[gw4] [ 68%] PASSED tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_init_no_dont_ask 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_cancel_without_callback 
+tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_cancel 
+[gw3] [ 68%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_restore_without_callback 
+[gw1] [ 69%] PASSED tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_finalize_dialog 
+tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_init 
+[gw0] [ 69%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_create_backup_row 
+[gw2] [ 69%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_whitespace_only 
+tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_init 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_create_backup_row_os_error 
+tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_confirm_no_checkbox 
+[gw3] [ 70%] PASSED tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_init 
+tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_main_box 
+[gw4] [ 70%] PASSED tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_cancel 
+[gw5] [ 70%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_cancel_without_callback 
+tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_confirm 
+tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_restore_with_callback 
+[gw1] [ 71%] PASSED tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_init 
+[gw3] [ 71%] PASSED tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_main_box 
+tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_close_button 
+tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_message_label 
+[gw2] [ 71%] PASSED tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_confirm_no_checkbox 
+[gw0] [ 72%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_create_backup_row_os_error 
+tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_init_simple 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_boot_screen_invalid_default 
+[gw4] [ 72%] PASSED tests/unit/ui/dialogs/test_confirm_dialog.py::TestConfirmDialog::test_on_confirm 
+[gw3] [ 72%] PASSED tests/unit/ui/dialogs/test_base_dialog.py::TestBaseDialog::test_create_message_label 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_init_no_changes 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_add_menu_entries_styles_more_label 
+[gw2] [ 73%] PASSED tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_init_simple 
+tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_init_with_details 
+[gw1] [ 73%] PASSED tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_close_button 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_init 
+[gw2] [ 73%] PASSED tests/unit/ui/dialogs/test_error_dialog.py::TestErrorDialog::test_init_with_details 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_create_summary_frame_removed_entry 
+[gw5] [ 74%] PASSED tests/unit/ui/dialogs/test_backup_selector_dialog.py::TestBackupSelectorDialog::test_on_restore_with_callback 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_create_boot_screen_no_bg 
+[gw2] [ 74%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_create_summary_frame_removed_entry 
+[gw3] [ 74%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_add_menu_entries_styles_more_label 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_add_status_info_timeout_variants 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_add_status_info_value_error_branch 
+[gw4] [ 75%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_init_no_changes 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_color_fallbacks_without_slash 
+[gw2] [ 75%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_add_status_info_timeout_variants 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_create_boot_screen_invocation 
+[gw3] [ 75%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_add_status_info_value_error_branch 
+tests/unit/ui/dialogs/test_text_view_utils.py::test_create_monospace_text_view 
+[gw3] [ 76%] PASSED tests/unit/ui/dialogs/test_text_view_utils.py::test_create_monospace_text_view 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTab::test_init 
+[gw1] [ 76%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_init 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_boot_screen 
+[gw2] [ 76%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_create_boot_screen_invocation 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_add_menu_entries_more_than_max 
+[gw0] [ 77%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_boot_screen_invalid_default 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_summary_frame 
+[gw4] [ 77%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_color_fallbacks_without_slash 
+[gw5] [ 77%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_create_boot_screen_no_bg 
+[gw2] [ 78%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverageV2::test_add_menu_entries_more_than_max 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTab::test_on_preview_clicked_no_path 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_create_boot_screen_no_theme 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTabCoverage::test_select_resolution_not_found 
+[gw5] [ 78%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialogCoverage::test_create_boot_screen_no_theme 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTabCoverage::test_get_selected_resolution_invalid_index 
+[gw1] [ 78%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_boot_screen 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTabCoverage::test_get_color_value_invalid_index 
+[gw0] [ 79%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_create_summary_frame 
+tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_close_button 
+[gw0] [ 79%] PASSED tests/unit/ui/dialogs/test_preview_dialog.py::TestPreviewDialog::test_close_button 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTabCoverageV2::test_select_resolution_not_found 
+[gw7] [ 79%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_latest 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_no_backups 
+[gw7] [ 80%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_restore_backup_no_backups 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_init_creates_backup_directory 
+[gw7] [ 80%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_init_creates_backup_directory 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_legacy_backup_patterns 
+[gw7] [ 80%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_legacy_backup_patterns 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_not_readable 
+[gw7] [ 80%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_not_readable 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_corrupted_encoding 
+[gw7] [ 81%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_corrupted_encoding 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_with_copy_error 
+[gw7] [ 81%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_create_backup_with_copy_error 
+tests/unit/ui/tabs/test_appearance_tab.py::TestAppearanceTabCoverageV2::test_get_config_populates_colors_and_background 
+[gw6] [ 81%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_list_backups_sorted_by_date 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_get_latest_backup_exists 
+[gw6] [ 82%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_get_latest_backup_exists 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_get_latest_backup_none 
+[gw6] [ 82%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_get_latest_backup_none 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups 
+[gw6] [ 82%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_cleanup_old_backups 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_valid 
+[gw6] [ 83%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_valid 
+tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_not_found 
+[gw6] [ 83%] PASSED tests/unit/core/test_backup_manager.py::TestBackupManager::test_verify_backup_not_found 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_empty 
+[gw6] [ 83%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_empty 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_exception_handling 
+[gw6] [ 84%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_exception_handling 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_with_data 
+[gw6] [ 84%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_with_data 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_error 
+[gw6] [ 84%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_load_backups_error 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_row_selected 
+[gw6] [ 85%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_row_selected 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_refresh_clicked 
+[gw6] [ 85%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_refresh_clicked 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_no_selection 
+[gw6] [ 85%] PASSED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_no_selection 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_original_backup 
+[gw6] [ 86%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_original_backup 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_confirm_yes 
+[gw6] [ 86%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_confirm_yes 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_confirm_no 
+[gw6] [ 86%] PASSED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_confirm_no 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_error 
+[gw6] [ 87%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_delete_clicked_error 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_no_selection 
+[gw6] [ 87%] PASSED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_no_selection 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_success 
+[gw6] [ 87%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_success 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_failure 
+[gw6] [ 88%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_failure 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_exception 
+[gw6] [ 88%] FAILED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_on_restore_clicked_exception 
+tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_get_config 
+[gw6] [ 88%] PASSED tests/unit/ui/tabs/test_backup_tab.py::TestBackupTab::test_get_config 
+tests/unit/ui/tabs/test_base_tab.py::TestBaseTab::test_init 
+[gw6] [ 89%] PASSED tests/unit/ui/tabs/test_base_tab.py::TestBaseTab::test_init 
+tests/unit/ui/tabs/test_base_tab.py::TestBaseTab::test_get_config_default 
+[gw6] [ 89%] PASSED tests/unit/ui/tabs/test_base_tab.py::TestBaseTab::test_get_config_default 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_init 
+[gw6] [ 89%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_init 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_get_flat_menu_entries 
+[gw6] [ 90%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_get_flat_menu_entries 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_init_custom_kernel_param 
+[gw6] [ 90%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTab::test_init_custom_kernel_param 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverage::test_select_timeout_not_found 
+[gw6] [ 90%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverage::test_select_timeout_not_found 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverage::test_get_selected_timeout_invalid_index 
+[gw6] [ 91%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverage::test_get_selected_timeout_invalid_index 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_get_selected_timeout_invalid_index 
+[gw6] [ 91%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_get_selected_timeout_invalid_index 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_dropdown_callbacks 
+[gw6] [ 91%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_dropdown_callbacks 
+tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_get_config_collects_defaults 
+[gw6] [ 92%] PASSED tests/unit/ui/tabs/test_general_tab.py::TestGeneralTabCoverageV2::test_get_config_collects_defaults 
+tests/unit/ui/tabs/test_menu_tab.py::TestMenuTab::test_init 
+[gw6] [ 92%] PASSED tests/unit/ui/tabs/test_menu_tab.py::TestMenuTab::test_init 
+tests/unit/ui/tabs/test_menu_tab.py::TestMenuTab::test_render_menu_level_logic 
+[gw6] [ 92%] PASSED tests/unit/ui/tabs/test_menu_tab.py::TestMenuTab::test_render_menu_level_logic 
+tests/unit/ui/tabs/test_menu_tab.py::TestMenuTabCoverage::test_get_hidden_entries 
+[gw6] [ 93%] PASSED tests/unit/ui/tabs/test_menu_tab.py::TestMenuTabCoverage::test_get_hidden_entries 
+tests/unit/ui/test_gtk_init.py::test_gtk_init_adw_present 
+[gw6] [ 93%] PASSED tests/unit/ui/test_gtk_init.py::test_gtk_init_adw_present 
+tests/unit/ui/test_gtk_init.py::test_gtk_init_adw_missing 
+[gw6] [ 93%] PASSED tests/unit/ui/test_gtk_init.py::test_gtk_init_adw_missing 
+tests/unit/utils/test_config.py::test_grub_color_to_hex 
+[gw6] [ 94%] PASSED tests/unit/utils/test_config.py::test_grub_color_to_hex 
+tests/unit/utils/test_logger.py::TestLogger::test_get_log_path_system 
+[gw6] [ 94%] PASSED tests/unit/utils/test_logger.py::TestLogger::test_get_log_path_system 
+tests/unit/utils/test_logger.py::TestLogger::test_get_log_path_user_fallback 
+[gw6] [ 94%] PASSED tests/unit/utils/test_logger.py::TestLogger::test_get_log_path_user_fallback 
+tests/unit/utils/test_logger.py::TestLogger::test_get_logger 
+[gw6] [ 95%] PASSED tests/unit/utils/test_logger.py::TestLogger::test_get_logger 
+tests/unit/utils/test_logger.py::TestLogger::test_setup_logging 
+[gw6] [ 95%] PASSED tests/unit/utils/test_logger.py::TestLogger::test_setup_logging 

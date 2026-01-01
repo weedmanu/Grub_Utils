@@ -1,8 +1,8 @@
 """Pytest configuration and shared fixtures."""
 
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 from unittest.mock import Mock, patch
 
 import pytest
@@ -14,6 +14,7 @@ def temp_grub_config() -> Generator[Path, None, None]:
 
     Yields:
         Path to temporary config file
+
     """
     with tempfile.NamedTemporaryFile(mode="w", suffix=".conf", delete=False) as f:
         f.write('GRUB_DEFAULT="0"\n')
@@ -34,6 +35,7 @@ def sample_grub_entries() -> dict[str, str]:
 
     Returns:
         Dictionary of GRUB configuration key-value pairs
+
     """
     return {
         "GRUB_DEFAULT": "0",
@@ -51,6 +53,7 @@ def sample_menu_entries() -> list[dict]:
 
     Returns:
         List of menu entry dictionaries
+
     """
     return [
         {"title": "Ubuntu", "linux": "/vmlinuz-5.15.0", "submenu": False},
@@ -65,6 +68,7 @@ def temp_backup_dir() -> Generator[Path, None, None]:
 
     Yields:
         Path to temporary backup directory
+
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
@@ -79,6 +83,7 @@ def mock_grub_service(mocker):
 
     Returns:
         Mocked GrubService instance
+
     """
     from src.core.services.grub_service import GrubService
 
@@ -100,23 +105,18 @@ def mock_sudo_commands():
     This prevents password prompts during test execution.
     Tests can override this fixture if they need real command execution.
     """
-    with patch('subprocess.run') as mock_run, \
-         patch('subprocess.Popen') as mock_popen, \
-         patch('os.geteuid', return_value=0):  # Simulate root user
-        
+    with (
+        patch("subprocess.run") as mock_run,
+        patch("subprocess.Popen") as mock_popen,
+        patch("os.geteuid", return_value=0),
+    ):  # Simulate root user
+
         # Configure mock to return success by default
-        mock_run.return_value = Mock(
-            returncode=0,
-            stdout="Mock output",
-            stderr=""
-        )
-        
+        mock_run.return_value = Mock(returncode=0, stdout="Mock output", stderr="")
+
         mock_process = Mock()
         mock_process.communicate.return_value = (b"Mock output", b"")
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
-        
-        yield {
-            'run': mock_run,
-            'popen': mock_popen
-        }
+
+        yield {"run": mock_run, "popen": mock_popen}

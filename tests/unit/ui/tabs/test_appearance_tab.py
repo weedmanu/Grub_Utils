@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from src.ui.tabs.appearance import AppearanceTab
-from src.ui.gtk_init import Gtk
+
 
 class TestAppearanceTab:
     def test_init(self):
@@ -9,16 +11,16 @@ class TestAppearanceTab:
         app.facade.entries = {
             "GRUB_GFXMODE": "1920x1080",
             "GRUB_BACKGROUND": "/path/to/bg.png",
-            "GRUB_THEME": "/path/to/theme.txt"
+            "GRUB_THEME": "/path/to/theme.txt",
         }
-        
+
         tab = AppearanceTab(app)
-        
+
         assert tab is not None
         assert tab.gfxmode_entry is not None
         assert tab.background_entry is not None
         assert tab.theme_entry is not None
-        
+
         # Verify values set
         # Since Gtk.Entry is mocked, we can't check text property directly unless we spy.
         # But we can assume it works if no error.
@@ -27,10 +29,10 @@ class TestAppearanceTab:
         app = MagicMock()
         app.facade.entries = {}
         tab = AppearanceTab(app)
-        
+
         # Mock the entry text
         tab.background_entry.get_text.return_value = ""
-        
+
         with patch("src.ui.gtk_init.Gtk.Window") as mock_win:
             tab.on_preview_clicked(None)
             mock_win.assert_not_called()
@@ -39,17 +41,20 @@ class TestAppearanceTab:
         app = MagicMock()
         app.facade.entries = {}
         tab = AppearanceTab(app)
-        
+
         # Mock the entry text
         tab.background_entry.get_text.return_value = "/path/to/image.png"
-        
-        with patch("src.ui.gtk_init.Gtk.Window") as mock_win_cls,              patch("src.ui.gtk_init.Gtk.Picture.new_for_filename") as mock_pic_new:
-            
+
+        with (
+            patch("src.ui.gtk_init.Gtk.Window") as mock_win_cls,
+            patch("src.ui.gtk_init.Gtk.Picture.new_for_filename") as mock_pic_new,
+        ):
+
             mock_win = MagicMock()
             mock_win_cls.return_value = mock_win
-            
+
             tab.on_preview_clicked(None)
-            
+
             mock_win_cls.assert_called_once()
             mock_pic_new.assert_called_with("/path/to/image.png")
             mock_win.set_child.assert_called()
@@ -136,8 +141,10 @@ class TestAppearanceTabCoverageV2:
         """Preview should open window for valid background path."""
         tab.background_entry = MagicMock()
         tab.background_entry.get_text.return_value = "/path/to/image.png"
-        with patch("src.ui.tabs.appearance.Gtk.Window") as mock_window_cls, \
-             patch("src.ui.tabs.appearance.Gtk.Picture") as mock_picture_cls:
+        with (
+            patch("src.ui.tabs.appearance.Gtk.Window") as mock_window_cls,
+            patch("src.ui.tabs.appearance.Gtk.Picture") as mock_picture_cls,
+        ):
             mock_window = mock_window_cls.return_value
             mock_picture = mock_picture_cls.new_for_filename.return_value
             tab.on_preview_clicked(None)
@@ -155,8 +162,10 @@ class TestAppearanceTabCoverageV2:
         tab.normal_bg_dropdown = MagicMock(get_selected=MagicMock(return_value=0))
         tab.highlight_text_dropdown = MagicMock(get_selected=MagicMock(return_value=0))
         tab.highlight_bg_dropdown = MagicMock(get_selected=MagicMock(return_value=0))
-        with patch("src.ui.tabs.appearance.GRUB_RESOLUTIONS", [("auto", "auto")]), \
-             patch("src.ui.tabs.appearance.GRUB_COLORS", [("white", "White")]):
+        with (
+            patch("src.ui.tabs.appearance.GRUB_RESOLUTIONS", [("auto", "auto")]),
+            patch("src.ui.tabs.appearance.GRUB_COLORS", [("white", "White")]),
+        ):
             config = tab.get_config()
         assert config["GRUB_BACKGROUND"] == "/img.png"
         assert config["GRUB_GFXMODE"] == "auto"

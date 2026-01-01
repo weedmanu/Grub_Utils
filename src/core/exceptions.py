@@ -39,3 +39,15 @@ class GrubApplyError(GrubError):
 
 class GrubServiceError(GrubError):
     """Raised when service-level operations fail."""
+
+
+class GrubThemeError(GrubError):
+    """Raised when theme operations fail."""
+
+
+class GrubFileError(GrubError):
+    """Raised when file I/O operations fail."""
+
+
+class GrubParseError(GrubError):
+    """Raised when parsing configuration fails."""

@@ -30,6 +30,7 @@ class BackupManager:
         self.backup_dir = os.path.expanduser("~/.local/share/grub_manager/backups")
         os.makedirs(self.backup_dir, exist_ok=True)
         self.backup_pattern = os.path.join(self.backup_dir, "grub.bak.*")
+        self.original_backup_path = os.path.join(self.backup_dir, "grub.bak.original")
 
     def _legacy_backup_patterns(self) -> list[str]:
         """Retourne les patterns des anciens emplacements de sauvegarde.
@@ -44,6 +45,68 @@ class BackupManager:
             os.path.join(legacy_dir, "grub.bak"),
             os.path.join(legacy_dir, "grub.prime-backup"),
         ]
+
+    def create_original_backup_if_needed(self) -> bool:
+        """Crée le backup original si aucun backup original n'existe.
+
+        Cherche d'abord un backup existant dans plusieurs emplacements.
+        Si trouvé, le copie comme backup original. Sinon, crée un nouveau
+        backup à partir de la configuration actuelle.
+
+        Cette méthode doit être appelée au premier lancement de l'application
+        pour sauvegarder la configuration GRUB d'origine.
+
+        Returns:
+            bool: True si un backup original a été créé, False s'il existait déjà
+
+        Raises:
+            GrubBackupError: Si la création échoue
+
+        """
+        # Vérifier si un backup original existe déjà
+        if os.path.exists(self.original_backup_path):
+            logger.debug("Backup original existe déjà: %s", self.original_backup_path)
+            return False
+
+        # Chercher les backups existants dans plusieurs emplacements
+        legacy_dir = os.path.dirname(self.config_path)
+        potential_originals = [
+            os.path.join(legacy_dir, "grub.prime-backup"),
+            os.path.join(legacy_dir, "grub.bak"),
+            os.path.join(legacy_dir, ".bak"),
+            os.path.join(legacy_dir, ".backup"),
+            os.path.join(legacy_dir, "grub.bak.original"),
+        ]
+
+        # Chercher et copier un backup existant
+        for potential_path in potential_originals:
+            if os.path.exists(potential_path):
+                try:
+                    shutil.copy2(potential_path, self.original_backup_path)
+                    logger.info(
+                        "Backup original trouvé et copié de: %s -> %s", potential_path, self.original_backup_path
+                    )
+                    self._verify_backup(self.original_backup_path)
+                    return True
+                except OSError as e:
+                    logger.warning("Impossible de copier backup de %s: %s", potential_path, e)
+                    # Continuer vers le prochain chemin potentiel
+
+        # Créer un nouveau backup original à partir de la config actuelle
+        if not os.path.exists(self.config_path):
+            raise GrubBackupError(f"Fichier de configuration introuvable: {self.config_path}")
+
+        try:
+            shutil.copy2(self.config_path, self.original_backup_path)
+            logger.info("Backup original créé à partir de la configuration actuelle: %s", self.original_backup_path)
+
+            # Vérifier l'intégrité
+            self._verify_backup(self.original_backup_path)
+
+            return True
+        except OSError as e:
+            logger.error("Échec création backup original: %s", e)
+            raise GrubBackupError(f"Impossible de créer le backup original: {e}") from e
 
     def create_backup(self) -> str:
         """Crée une sauvegarde horodatée du fichier de configuration.
@@ -115,18 +178,40 @@ class BackupManager:
     def list_backups(self) -> list[str]:
         """List all available backups, sorted by date (most recent first).
 
+        The original backup (grub.prime-backup) is always listed first if it exists.
+
         Returns:
             List[str]: Liste des chemins de sauvegarde.
 
         """
         try:
             backups: list[str] = []
+
+            # Collecter tous les backups
             backups.extend(glob.glob(self.backup_pattern))
             for pattern in self._legacy_backup_patterns():
                 backups.extend(glob.glob(pattern))
-            # Trier par nom (contient le timestamp) pour éviter les problèmes avec copy2
-            backups.sort(reverse=True)
-            return backups
+
+            # Séparer le backup original des autres
+            original_backup = None
+            regular_backups = []
+
+            for backup in backups:
+                if backup.endswith("grub.prime-backup") or backup.endswith("grub.bak.original"):
+                    original_backup = backup
+                else:
+                    regular_backups.append(backup)
+
+            # Trier les backups réguliers par nom (contient le timestamp)
+            regular_backups.sort(reverse=True)
+
+            # Mettre le backup original en premier s'il existe
+            result = []
+            if original_backup:
+                result.append(original_backup)
+            result.extend(regular_backups)
+
+            return result
         except OSError:
             return []
 

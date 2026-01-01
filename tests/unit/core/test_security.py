@@ -1,6 +1,7 @@
 """Tests for the security module."""
 
 import pytest
+
 from src.core.security import InputSecurityValidator, SecurityError
 
 
@@ -31,7 +32,9 @@ class TestInputSecurityValidator:
     def test_validate_parameter_name_valid(self):
         """Test validation of valid parameter names."""
         assert InputSecurityValidator.validate_parameter_name("GRUB_TIMEOUT") == "GRUB_TIMEOUT"
-        assert InputSecurityValidator.validate_parameter_name("GRUB_CMDLINE_LINUX_DEFAULT") == "GRUB_CMDLINE_LINUX_DEFAULT"
+        assert (
+            InputSecurityValidator.validate_parameter_name("GRUB_CMDLINE_LINUX_DEFAULT") == "GRUB_CMDLINE_LINUX_DEFAULT"
+        )
 
     def test_validate_parameter_name_empty(self):
         """Test validation with empty parameter name."""
@@ -87,4 +90,3 @@ class TestInputSecurityValidator:
         """Test validation with restricted directory."""
         with pytest.raises(SecurityError, match="not in allowed directories"):
             InputSecurityValidator.validate_file_path("/opt/malicious/file")
-

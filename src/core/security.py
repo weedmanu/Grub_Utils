@@ -1,7 +1,30 @@
-"""Couche de sécurité - Validation d'entrées et prévention des injections."""
+"""Couche de sécurité - Validation d'entrées et prévention des injections.
+
+Ce module fournit une validation stricte contre les injections de commandes shell,
+la traversée de répertoires et autres vecteurs d'attaque communs. Utilisé par
+SecureCommandExecutor pour garantir que toutes les commandes système sont sûres.
+
+Classes:
+    SecurityError: Exception levée lors d'une validation échouée
+    InputSecurityValidator: Validateur d'entrées avec méthodes statiques
+
+Fonctions principales:
+    validate_line(): Valide une ligne de configuration (4096 char max, pas de métacaractères)
+    validate_parameter_name(): Valide un nom de paramètre GRUB (UPPER_CASE_ONLY)
+    validate_kernel_params(): Valide des paramètres kernel (pas de pipes/redirections)
+    validate_file_path(): Valide un chemin fichier (anti-traversée, répertoires autorisés)
+
+Usage:
+    from src.core.security import InputSecurityValidator, SecurityError
+
+    try:
+        safe_line = InputSecurityValidator.validate_line(user_input)
+        safe_path = InputSecurityValidator.validate_file_path(file_path)
+    except SecurityError as e:
+        logger.error("Validation failed: %s", e)
+"""
 
 import re
-from typing import Any
 
 
 class SecurityError(ValueError):
@@ -121,12 +144,11 @@ class InputSecurityValidator:
             "/boot/",
             "/tmp/",
             "/var/",
-            "/usr/share/",      # Thèmes système
-            "/home/",           # Images utilisateur
+            "/usr/share/",  # Thèmes système
+            "/home/",  # Images utilisateur
         )
-        
+
         if not path.startswith(allowed_prefixes):
             raise SecurityError(f"Path {path} not in allowed directories")
 
         return path
-

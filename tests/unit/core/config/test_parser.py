@@ -1,9 +1,9 @@
 """Tests for the menu parser module."""
 
-import os
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import pytest
+
 from src.core.config.parser import GrubMenuParser
 
 
@@ -14,16 +14,16 @@ class TestGrubMenuParser:
     def test_init_auto_detect(self, mock_exists):
         """Test initialization with auto-detection."""
         mock_exists.side_effect = [False, True]  # First path fails, second succeeds
-        
+
         parser = GrubMenuParser()
-        
+
         assert parser.grub_cfg_path == "/boot/grub2/grub.cfg"
 
     @patch("src.core.config.parser.os.path.exists")
     def test_init_not_found(self, mock_exists):
         """Test initialization when no file found."""
         mock_exists.return_value = False
-        
+
         with pytest.raises(FileNotFoundError):
             GrubMenuParser()
 
@@ -45,7 +45,7 @@ class TestGrubMenuParser:
         }
         """
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()
@@ -54,7 +54,7 @@ class TestGrubMenuParser:
         assert entries[0]["title"] == "Ubuntu"
         assert entries[0]["linux"] == "/boot/vmlinuz-5.15.0-generic"
         assert entries[0]["submenu"] is False
-        
+
         assert entries[1]["title"] == "Windows 10"
         assert entries[1]["linux"] == ""
         assert entries[1]["submenu"] is False
@@ -73,21 +73,21 @@ class TestGrubMenuParser:
         }
         """
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()
 
         assert len(entries) == 3
-        
+
         # Submenu entry
         assert entries[0]["title"] == "Advanced options for Ubuntu"
         assert entries[0]["submenu"] is True
-        
+
         # Nested entries
         assert entries[1]["title"] == "Ubuntu, with Linux 5.15.0-generic"
         assert entries[1]["submenu"] is True  # Currently parser marks nested as submenu=True based on flag
-        
+
         assert entries[2]["title"] == "Ubuntu, with Linux 5.15.0-generic (recovery mode)"
         assert entries[2]["submenu"] is True
 
@@ -95,17 +95,17 @@ class TestGrubMenuParser:
     def test_parse_menu_entries_file_not_found(self, mock_exists):
         """Test parsing when file doesn't exist."""
         mock_exists.return_value = False
-        
+
         parser = GrubMenuParser("/boot/grub/grub.cfg")
         entries = parser.parse_menu_entries()
-        
+
         assert entries == []
 
     @patch("src.core.config.parser.os.path.exists")
     def test_parse_menu_entries_read_error(self, mock_exists):
         """Test parsing with read error."""
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", side_effect=OSError("Read error")):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             with pytest.raises(OSError):
@@ -122,7 +122,7 @@ class TestGrubMenuParser:
         """Test parsing empty grub.cfg."""
         content = ""
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()
@@ -136,7 +136,7 @@ class TestGrubMenuParser:
     linux /boot/vmlinuz-5.15.0-76-generic root=UUID=12345
 }"""
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()
@@ -158,7 +158,7 @@ class TestGrubMenuParser:
         }
         """
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()
@@ -171,9 +171,9 @@ class TestGrubMenuParser:
     def test_find_grub_cfg_first_location(self, mock_exists):
         """Test finding grub.cfg in first location."""
         mock_exists.side_effect = [True, False]  # Found in first location
-        
+
         parser = GrubMenuParser()
-        
+
         assert parser.grub_cfg_path == "/boot/grub/grub.cfg"
         mock_exists.assert_called_once()
 
@@ -186,11 +186,11 @@ class TestGrubMenuParser:
             linux /boot/vmlinuz-test root=UUID=123
         }
         """
-        
+
         path = parser._extract_linux_path(content, "Test Entry")
         assert path == "/boot/vmlinuz-test"
 
-    @patch("src.core.config.parser.os.path.exists")  
+    @patch("src.core.config.parser.os.path.exists")
     def test_parse_multiple_submenus(self, mock_exists):
         """Test parsing multiple submenus."""
         content = """
@@ -209,7 +209,7 @@ class TestGrubMenuParser:
         }
         """
         mock_exists.return_value = True
-        
+
         with patch("builtins.open", mock_open(read_data=content)):
             parser = GrubMenuParser("/boot/grub/grub.cfg")
             entries = parser.parse_menu_entries()

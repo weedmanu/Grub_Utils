@@ -19,6 +19,12 @@ class MenuTab(BaseTab):
         self.check_buttons = {}
         self._render_menu_level(self.app.facade.menu_entries, self.menu_list)
 
+    def restore_defaults(self):
+        """Restaure les valeurs par défaut (tout afficher)."""
+        for check in self.check_buttons.values():
+            check.set_active(True)
+        self.app.show_toast("Toutes les entrées sont affichées")
+
     def _render_menu_level(self, items, container):
         """Rendu récursif des entrées et sous-menus.
 

@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
+from src.core.dtos import PreviewConfigDTO
 from src.ui.dialogs.preview_dialog import PreviewDialog
-from src.ui.gtk_init import Gtk
 
 
 def _fake_widget():
@@ -10,19 +12,21 @@ def _fake_widget():
     widget.get_style_context.return_value = MagicMock()
     return widget
 
+
 class TestPreviewDialog:
     def test_init(self):
         parent = MagicMock()
         old_config = {"KEY": "old"}
         new_config = {"KEY": "new"}
-        
-        dialog = PreviewDialog(parent, "Title", old_config, new_config)
-        
+        config = PreviewConfigDTO(old_config=old_config, new_config=new_config)
+
+        dialog = PreviewDialog(parent, "Title", config)
+
         assert dialog is not None
         # Verify structure
         # We can check if _create_boot_screen and _create_summary_frame were called
         # by spying or just trusting the init logic.
-        
+
     def test_create_boot_screen(self):
         parent = MagicMock()
         old_config = {}
@@ -30,15 +34,16 @@ class TestPreviewDialog:
             "GRUB_TIMEOUT": "10",
             "GRUB_GFXMODE": "1920x1080",
             "GRUB_DEFAULT": "0",
-            "GRUB_CMDLINE_LINUX": "quiet"
+            "GRUB_CMDLINE_LINUX": "quiet",
         }
-        
-        dialog = PreviewDialog(parent, "Title", old_config, new_config)
-        
+        config = PreviewConfigDTO(old_config=old_config, new_config=new_config)
+
+        dialog = PreviewDialog(parent, "Title", config)
+
         # _create_boot_screen is called in init.
         # We can verify the content if we can inspect the widget tree.
         # But with mocks, it's hard.
-        
+
         # Let's call it directly to verify it runs without error
         frame = dialog._create_boot_screen(new_config)
         assert frame is not None
@@ -46,48 +51,42 @@ class TestPreviewDialog:
     def test_create_boot_screen_invalid_default(self):
         parent = MagicMock()
         old_config = {}
-        new_config = {
-            "GRUB_DEFAULT": "invalid"
-        }
-        
-        dialog = PreviewDialog(parent, "Title", old_config, new_config)
+        new_config = {"GRUB_DEFAULT": "invalid"}
+        config = PreviewConfigDTO(old_config=old_config, new_config=new_config)
+
+        dialog = PreviewDialog(parent, "Title", config)
         frame = dialog._create_boot_screen(new_config)
         assert frame is not None
 
     def test_create_summary_frame(self):
         parent = MagicMock()
-        old_config = {
-            "MODIFIED": "old_val",
-            "REMOVED": "val",
-            "UNCHANGED": "val"
-        }
-        new_config = {
-            "MODIFIED": "new_val",
-            "ADDED": "val",
-            "UNCHANGED": "val"
-        }
-        
-        dialog = PreviewDialog(parent, "Title", old_config, new_config)
-        
+        old_config = {"MODIFIED": "old_val", "REMOVED": "val", "UNCHANGED": "val"}
+        new_config = {"MODIFIED": "new_val", "ADDED": "val", "UNCHANGED": "val"}
+        config = PreviewConfigDTO(old_config=old_config, new_config=new_config)
+
+        dialog = PreviewDialog(parent, "Title", config)
+
         frame = dialog._create_summary_frame(old_config, new_config)
         assert frame is not None
-        
+
         # We can't easily verify the content of the frame with mocks
         # unless we mock Gtk.Label and check calls.
-        
+
     def test_close_button(self):
         parent = MagicMock()
         old_config = {}
         new_config = {}
-        
+        config = PreviewConfigDTO(old_config=old_config, new_config=new_config)
+
         with patch("src.ui.gtk_init.Gtk.Button") as mock_button_cls:
             mock_btn = MagicMock()
             mock_button_cls.return_value = mock_btn
-            
-            dialog = PreviewDialog(parent, "Title", old_config, new_config)
-            
+
+            dialog = PreviewDialog(parent, "Title", config)
+
             # Find close button connect
             assert mock_btn.connect.called
+            assert dialog is not None
 
 
 class TestPreviewDialogCoverage:
@@ -99,16 +98,20 @@ class TestPreviewDialogCoverage:
 
     def test_init_no_changes(self, parent):
         """Init should handle identical configs without summary."""
-        config = {"KEY": "VALUE"}
+        config_dict = {"KEY": "VALUE"}
+        config = PreviewConfigDTO(old_config=config_dict, new_config=config_dict)
         with patch("src.ui.dialogs.preview_dialog.Gtk.Window"):
-            PreviewDialog(parent, "Title", config, config)
+            PreviewDialog(parent, "Title", config)
 
     def test_color_fallbacks_without_slash(self, parent):
         """Color parsing should fall back when missing slash."""
-        config = {"GRUB_COLOR_NORMAL": "strange", "GRUB_COLOR_HIGHLIGHT": "odd"}
+        config_dict = {"GRUB_COLOR_NORMAL": "strange", "GRUB_COLOR_HIGHLIGHT": "odd"}
+        config = PreviewConfigDTO(old_config={}, new_config=config_dict)
 
-        with patch("src.ui.dialogs.preview_dialog.grub_color_to_hex") as mock_hex, \
-             patch("src.ui.dialogs.preview_dialog.Gtk") as mock_gtk:
+        with (
+            patch("src.ui.dialogs.preview_dialog.grub_color_to_hex") as mock_hex,
+            patch("src.ui.dialogs.preview_dialog.Gtk") as mock_gtk,
+        ):
             mock_gtk.CssProvider.return_value = MagicMock()
             mock_gtk.Box.side_effect = lambda *a, **k: _fake_widget()
             mock_gtk.Frame.side_effect = lambda *a, **k: _fake_widget()
@@ -120,7 +123,7 @@ class TestPreviewDialogCoverage:
             dialog = PreviewDialog.__new__(PreviewDialog)
             dialog._add_status_info = MagicMock()
 
-            dialog._create_boot_screen(config, [], [])
+            dialog._create_boot_screen(config_dict, [], [])
 
             called_colors = [call.args[0] for call in mock_hex.call_args_list]
             assert "light-gray" in called_colors
@@ -128,15 +131,17 @@ class TestPreviewDialogCoverage:
 
     def test_create_boot_screen_no_bg(self, parent):
         """_create_boot_screen handles empty background value."""
-        config = {"GRUB_BACKGROUND": ""}
+        config_dict = {"GRUB_BACKGROUND": ""}
+        config = PreviewConfigDTO(old_config={}, new_config=config_dict)
         with patch("src.ui.dialogs.preview_dialog.Gtk.Window"):
-            PreviewDialog(parent, "Title", {}, config)
+            PreviewDialog(parent, "Title", config)
 
     def test_create_boot_screen_no_theme(self, parent):
         """_create_boot_screen handles empty theme value."""
-        config = {"GRUB_THEME": ""}
+        config_dict = {"GRUB_THEME": ""}
+        config = PreviewConfigDTO(old_config={}, new_config=config_dict)
         with patch("src.ui.dialogs.preview_dialog.Gtk.Window"):
-            PreviewDialog(parent, "Title", {}, config)
+            PreviewDialog(parent, "Title", config)
 
     def test_add_menu_entries_styles_more_label(self, parent):
         """Ensure extra entries label receives CSS provider."""

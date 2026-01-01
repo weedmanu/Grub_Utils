@@ -7,7 +7,7 @@ from src.ui.dialogs.base_dialog import BaseDialog
 from src.ui.gtk_init import Gtk
 
 
-@dataclass
+@dataclass(frozen=True)
 class ConfirmOptions:
     """Configuration options for confirmation dialog."""
 

@@ -1,10 +1,9 @@
 """Unit tests for GrubFacade."""
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
-from src.core.dtos import OperationResultDTO
 from src.core.facade import GrubFacade
 
 
@@ -18,6 +17,7 @@ class TestGrubFacade:
 
         Returns:
             GrubFacade instance
+
         """
         with patch("src.core.facade.GrubService") as mock_service_class:
             mock_service = Mock()
@@ -77,17 +77,13 @@ class TestGrubFacade:
 
     def test_list_backups(self, facade, tmp_path):
         """Test listing backups."""
-        import time
-
         # Create fake backup files
         backup1 = tmp_path / "grub.bak.001"
         backup2 = tmp_path / "grub.bak.002"
         backup1.write_text("config1")
         backup2.write_text("config2")
 
-        facade._service.backup_manager.list_backups = Mock(
-            return_value=[str(backup1), str(backup2)]
-        )
+        facade._service.backup_manager.list_backups = Mock(return_value=[str(backup1), str(backup2)])
 
         backups = facade.list_backups()
 

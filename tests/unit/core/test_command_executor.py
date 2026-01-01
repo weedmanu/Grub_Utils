@@ -1,10 +1,10 @@
 """Tests for the command executor module."""
 
-import os
 import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from src.core.command_executor import SecureCommandExecutor
 from src.core.security import SecurityError
 
@@ -37,7 +37,7 @@ class TestSecureCommandExecutor:
         # Setup mocks
         mock_exists.return_value = True
         mock_geteuid.return_value = 1000  # Non-root user
-        
+
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
@@ -75,7 +75,7 @@ class TestSecureCommandExecutor:
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
-        
+
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_run.return_value = mock_result
@@ -104,7 +104,7 @@ class TestSecureCommandExecutor:
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
-        
+
         mock_result = MagicMock()
         mock_result.returncode = 1
         mock_result.stderr = "Error message"
@@ -132,7 +132,7 @@ class TestSecureCommandExecutor:
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
-        
+
         mock_run.side_effect = subprocess.TimeoutExpired(cmd=["pkexec"], timeout=10)
 
         # Execute
@@ -157,7 +157,7 @@ class TestSecureCommandExecutor:
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
-        
+
         mock_run.side_effect = OSError("System error")
 
         # Execute
@@ -178,9 +178,9 @@ class TestSecureCommandExecutor:
     def test_update_grub(self, mock_execute, executor):
         """Test update_grub method."""
         mock_execute.return_value = (True, "")
-        
+
         success, output = executor.update_grub()
-        
+
         assert success is True
         mock_execute.assert_called_once()
         commands = mock_execute.call_args[0][0]
@@ -190,9 +190,9 @@ class TestSecureCommandExecutor:
     def test_copy_file_privileged(self, mock_execute, executor):
         """Test copy_file_privileged method."""
         mock_execute.return_value = (True, "")
-        
+
         success, output = executor.copy_file_privileged("/src", "/dst")
-        
+
         assert success is True
         mock_execute.assert_called_once()
         commands = mock_execute.call_args[0][0]
@@ -218,7 +218,7 @@ class TestSecureCommandExecutor:
         # Setup mocks
         mock_exists.return_value = True
         mock_geteuid.return_value = 1000
-        
+
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
@@ -227,7 +227,7 @@ class TestSecureCommandExecutor:
         mock_result.returncode = 0
         mock_result.stderr = ""
         mock_run.return_value = mock_result
-        
+
         # Make unlink fail
         mock_unlink.side_effect = OSError("Permission denied")
 
@@ -259,11 +259,11 @@ class TestSecureCommandExecutor:
         # Setup mocks
         mock_exists.return_value = True
         mock_geteuid.return_value = 1000
-        
+
         mock_file = MagicMock()
         mock_file.name = "/tmp/script.sh"
         mock_tempfile.return_value.__enter__.return_value = mock_file
-        
+
         # Raise SubprocessError
         mock_run.side_effect = subprocess.SubprocessError("Process error")
 
@@ -278,7 +278,9 @@ class TestSecureCommandExecutor:
     def test_execute_with_pkexec_security_error(self):
         """Test execute_with_pkexec handles security validation failure."""
         executor = SecureCommandExecutor()
-        with patch("src.core.security.InputSecurityValidator.validate_line", side_effect=SecurityError("Invalid command")):
+        with patch(
+            "src.core.security.InputSecurityValidator.validate_line", side_effect=SecurityError("Invalid command")
+        ):
             success, output = executor.execute_with_pkexec(["invalid command"])
             assert success is False
             assert "Invalid command" in output

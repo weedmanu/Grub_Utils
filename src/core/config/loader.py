@@ -77,4 +77,3 @@ class GrubConfigLoader:
                 entries[key] = value
 
         return entries
-

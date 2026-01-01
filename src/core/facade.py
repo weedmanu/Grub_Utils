@@ -2,6 +2,7 @@
 
 import os
 
+from src.core.config.loader import GrubConfigLoader
 from src.core.dtos import BackupInfoDTO, OperationResultDTO
 from src.core.exceptions import GrubConfigError, GrubServiceError
 from src.core.services.grub_service import GrubService
@@ -39,6 +40,20 @@ class GrubFacade:
             logger.exception("Failed to load configuration")
             return OperationResultDTO(success=False, message="Failed to load configuration", error_details=str(e))
 
+    def load_config_from_file(self, path: str) -> dict[str, str]:
+        """Load configuration from a specific file.
+
+        Args:
+            path: Path to the configuration file
+
+        Returns:
+            Dictionary of configuration entries
+
+        """
+        loader = GrubConfigLoader(path)
+        entries, _ = loader.load()
+        return entries
+
     def apply_changes(self) -> OperationResultDTO:
         """Apply configuration changes to the system.
 
@@ -61,6 +76,24 @@ class GrubFacade:
         except (GrubServiceError, GrubConfigError) as e:
             logger.exception("Failed to apply changes")
             return OperationResultDTO(success=False, message="Failed to apply changes", error_details=str(e))
+
+    def get_service(self) -> GrubService:
+        """Get the underlying GrubService instance.
+
+        Returns:
+            The GrubService instance.
+
+        """
+        return self._service
+
+    def ensure_original_backup(self) -> bool:
+        """Ensure the original backup exists.
+
+        Returns:
+            True if created, False otherwise.
+
+        """
+        return self._service.backup_manager.create_original_backup_if_needed()
 
     def list_backups(self) -> list[BackupInfoDTO]:
         """List available backups.

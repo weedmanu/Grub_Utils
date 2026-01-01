@@ -18,10 +18,9 @@ class TestGrubFacadeIntegration:
 
         Yields:
             Path to temporary file
+
         """
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".conf", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".conf", delete=False) as f:
             f.write('GRUB_DEFAULT="0"\n')
             f.write('GRUB_TIMEOUT="5"\n')
             f.write('GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"\n')
@@ -43,6 +42,7 @@ class TestGrubFacadeIntegration:
 
         Returns:
             GrubFacade instance
+
         """
         facade = GrubFacade(str(temp_grub_file))
         # Mock le parser pour éviter accès à /boot/grub/grub.cfg
@@ -84,9 +84,7 @@ class TestGrubFacadeIntegration:
     def test_full_workflow_load_update_apply(self, facade, mocker):
         """Test complete workflow: load -> update -> apply."""
         # Mock save_and_apply to avoid system changes
-        mocker.patch.object(
-            facade._service, "save_and_apply", return_value=(True, "")
-        )
+        mocker.patch.object(facade._service, "save_and_apply", return_value=(True, ""))
 
         # Load
         load_result = facade.load_configuration()

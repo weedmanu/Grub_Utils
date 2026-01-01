@@ -1,0 +1,39 @@
+# GRUB2 Theme Configuration
+# Based on GNU GRUB official specification
+# https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
+
+desktop-image: "pirate.png"
+desktop-color: "#000000"
+
++ boot_menu {
+    left = 5%
+    width = 90%
+    top = 25%
+    height = 50%
+    item_font = "unicode"
+    item_color = "#cccccc"
+    selected_item_font = "unicode"
+    selected_item_color = "#ffffff"
+    item_height = 36
+    item_padding = 10
+    item_spacing = 5
+}
+
++ label {
+    text = "GNU GRUB"
+    font = "unicode"
+    color = "#cccccc"
+    left = 5%
+    top = 2%
+}
+
++ progress_bar {
+    id = "__timeout__"
+    left = 5%
+    bottom = 90%
+    width = 90%
+    height = 12
+    fg_color = "#aaaaaa"
+    bg_color = "#000000"
+    border_color = "#ffffff"
+}

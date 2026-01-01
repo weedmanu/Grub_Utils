@@ -1,9 +1,10 @@
 """Tests for the GRUB service module."""
 
 import os
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
+
 from src.core.exceptions import GrubConfigError, GrubServiceError
 from src.core.services.grub_service import GrubService
 from src.utils.config import GRUB_BACKGROUNDS_DIR
@@ -15,20 +16,22 @@ class TestGrubService:
     @pytest.fixture
     def mock_components(self):
         """Fixture providing mocked components."""
-        with patch("src.core.services.grub_service.GrubConfigLoader") as mock_loader, \
-             patch("src.core.services.grub_service.GrubMenuParser") as mock_parser, \
-             patch("src.core.services.grub_service.GrubConfigGenerator") as mock_generator, \
-             patch("src.core.services.grub_service.GrubValidator") as mock_validator, \
-             patch("src.core.services.grub_service.BackupManager") as mock_backup, \
-             patch("src.core.services.grub_service.SecureCommandExecutor") as mock_executor:
-            
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader") as mock_loader,
+            patch("src.core.services.grub_service.GrubMenuParser") as mock_parser,
+            patch("src.core.services.grub_service.GrubConfigGenerator") as mock_generator,
+            patch("src.core.services.grub_service.GrubValidator") as mock_validator,
+            patch("src.core.services.grub_service.BackupManager") as mock_backup,
+            patch("src.core.services.grub_service.SecureCommandExecutor") as mock_executor,
+        ):
+
             yield {
                 "loader": mock_loader,
                 "parser": mock_parser,
                 "generator": mock_generator,
                 "validator": mock_validator,
                 "backup": mock_backup,
-                "executor": mock_executor
+                "executor": mock_executor,
             }
 
     @pytest.fixture
@@ -68,17 +71,19 @@ class TestGrubService:
         # Setup state
         service._loaded = True
         service.entries = {"GRUB_TIMEOUT": "5"}
-        
+
         # Setup mocks
         mock_components["backup"].return_value.create_backup.return_value = "/backup/path"
         mock_components["generator"].return_value.generate.return_value = "GRUB_TIMEOUT=5"
         mock_components["executor"].return_value.copy_file_privileged.return_value = (True, "")
         mock_components["executor"].return_value.update_grub.return_value = (True, "")
 
-        with patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp, \
-             patch("src.core.services.grub_service.os.unlink"):
+        with (
+            patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp,
+            patch("src.core.services.grub_service.os.unlink"),
+        ):
             mock_temp.return_value.__enter__.return_value.name = "/tmp/file"
-            
+
             success, error = service.save_and_apply()
 
         assert success is True
@@ -102,10 +107,12 @@ class TestGrubService:
         service._loaded = True
         mock_components["executor"].return_value.copy_file_privileged.return_value = (False, "Permission denied")
 
-        with patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp, \
-             patch("src.core.services.grub_service.os.unlink"):
+        with (
+            patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp,
+            patch("src.core.services.grub_service.os.unlink"),
+        ):
             mock_temp.return_value.__enter__.return_value.name = "/tmp/file"
-            
+
             success, error = service.save_and_apply()
 
         assert success is False
@@ -118,10 +125,12 @@ class TestGrubService:
         mock_components["executor"].return_value.copy_file_privileged.return_value = (True, "")
         mock_components["executor"].return_value.update_grub.return_value = (False, "Update failed")
 
-        with patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp, \
-             patch("src.core.services.grub_service.os.unlink"):
+        with (
+            patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp,
+            patch("src.core.services.grub_service.os.unlink"),
+        ):
             mock_temp.return_value.__enter__.return_value.name = "/tmp/file"
-            
+
             success, error = service.save_and_apply()
 
         assert success is False
@@ -132,7 +141,7 @@ class TestGrubService:
         """Test successful backup restoration."""
         mock_components["backup"].return_value.restore_backup.return_value = "/restored/path"
         mock_components["executor"].return_value.update_grub.return_value = (True, "")
-        
+
         # Mock load to avoid actual file reading
         service.load = MagicMock()
 
@@ -172,7 +181,7 @@ class TestGrubService:
         """Test restore_backup when update-grub fails."""
         mock_components["backup"].return_value.restore_backup.return_value = "/restored/path"
         mock_components["executor"].return_value.update_grub.return_value = (False, "Update failed")
-        
+
         # Mock load to avoid actual file reading
         service.load = MagicMock()
 
@@ -184,7 +193,7 @@ class TestGrubService:
         """Test _write_config with OSError during temp file creation."""
         with patch("src.core.services.grub_service.tempfile.NamedTemporaryFile") as mock_temp:
             mock_temp.side_effect = OSError("Cannot create temp file")
-            
+
             success, error = service._write_config("GRUB_TIMEOUT=5")
 
         assert success is False
@@ -212,12 +221,14 @@ class TestGrubServiceCoverage:
     @pytest.fixture
     def service(self):
         """Create a GrubService instance with mocked dependencies."""
-        with patch("src.core.services.grub_service.GrubConfigLoader"), \
-             patch("src.core.services.grub_service.GrubMenuParser"), \
-             patch("src.core.services.grub_service.GrubConfigGenerator"), \
-             patch("src.core.services.grub_service.GrubValidator"), \
-             patch("src.core.services.grub_service.BackupManager"), \
-             patch("src.core.services.grub_service.SecureCommandExecutor"):
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
             service = GrubService("/tmp/grub")
             service.loader.load.return_value = ({}, [])
             service.parser.parse_menu_entries.return_value = []
@@ -317,10 +328,12 @@ submenu 'Submenu' {
     }
 }
 """
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=grub_cfg_content)), \
-             patch("tempfile.NamedTemporaryFile") as mock_temp, \
-             patch("os.unlink"):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=grub_cfg_content)),
+            patch("tempfile.NamedTemporaryFile") as mock_temp,
+            patch("os.unlink"),
+        ):
             mock_temp.return_value.__enter__.return_value.name = "/tmp/temp.cfg"
             service.executor.copy_file_privileged.return_value = (True, "")
             success, error = service._apply_hidden_entries()
@@ -330,10 +343,12 @@ submenu 'Submenu' {
     def test_apply_hidden_entries_copy_fail(self, service):
         """Test _apply_hidden_entries fails when copy fails."""
         service.hidden_entries = ["Hidden Entry"]
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data="menuentry 'Hidden Entry' {}")), \
-             patch("tempfile.NamedTemporaryFile"), \
-             patch("os.unlink"):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data="menuentry 'Hidden Entry' {}")),
+            patch("tempfile.NamedTemporaryFile"),
+            patch("os.unlink"),
+        ):
             service.executor.copy_file_privileged.return_value = (False, "Copy failed")
             success, error = service._apply_hidden_entries()
             assert success is False
@@ -342,8 +357,7 @@ submenu 'Submenu' {
     def test_apply_hidden_entries_exception(self, service):
         """Test _apply_hidden_entries handles exception."""
         service.hidden_entries = ["Hidden Entry"]
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", side_effect=IOError("Read error")):
+        with patch("os.path.exists", return_value=True), patch("builtins.open", side_effect=OSError("Read error")):
             success, error = service._apply_hidden_entries()
             assert success is False
             assert "Read error" in error
@@ -378,12 +392,14 @@ submenu 'Submenu' {
 
     def test_save_and_apply_copy_background_fail(self):
         """save_and_apply should surface copy errors raised by helper."""
-        with patch("src.core.services.grub_service.GrubConfigLoader"), \
-             patch("src.core.services.grub_service.GrubMenuParser"), \
-             patch("src.core.services.grub_service.GrubConfigGenerator"), \
-             patch("src.core.services.grub_service.GrubValidator"), \
-             patch("src.core.services.grub_service.BackupManager"), \
-             patch("src.core.services.grub_service.SecureCommandExecutor"):
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
             service = GrubService()
             service._loaded = True
             service.entries = {"GRUB_BACKGROUND": "/path/to/bg.png"}
@@ -391,3 +407,91 @@ submenu 'Submenu' {
                 success, error = service.save_and_apply()
                 assert success is False
                 assert "Copy fail" in error
+
+    def test_save_and_apply_generate_theme_fail(self):
+        """save_and_apply should surface theme generation errors."""
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
+            service = GrubService()
+            service._loaded = True
+            service.entries = {"GRUB_BACKGROUND": "/path/to/bg.png"}
+            with patch.object(service, "_copy_background_image", return_value=(True, "")):
+                with patch.object(service, "_generate_theme_if_needed", return_value=(False, "Theme generation failed")):
+                    success, error = service.save_and_apply()
+                    assert success is False
+                    assert "Theme generation failed" in error
+
+    def test_generate_theme_if_needed_exception(self):
+        """_generate_theme_if_needed should handle exceptions."""
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubThemeGenerator") as mock_generator,
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
+            service = GrubService()
+            service.entries = {"GRUB_BACKGROUND": "/path/bg.png"}
+            
+            # Make theme_generator raise an exception
+            service.theme_generator.should_generate_theme.return_value = True
+            service.theme_generator.generate_theme_from_config.side_effect = Exception("Theme error")
+            
+            success, error = service._generate_theme_if_needed()
+            assert success is False
+            assert "Theme error" in error
+
+    def test_generate_theme_if_needed_success(self):
+        """_generate_theme_if_needed should return True when generation succeeds."""
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubThemeGenerator"),
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
+            service = GrubService()
+            service.entries = {"GRUB_BACKGROUND": "/path/bg.png"}
+            
+            # Mock successful generation
+            service.theme_generator.should_generate_theme.return_value = True
+            service.theme_generator.generate_theme_from_config.return_value = (True, "/boot/grub/themes/custom/theme.txt", "")
+            
+            success, error = service._generate_theme_if_needed()
+            
+            assert success is True
+            assert error == ""
+            assert service.entries["GRUB_THEME"] == "/boot/grub/themes/custom/theme.txt"
+
+    def test_generate_theme_if_needed_failure(self):
+        """_generate_theme_if_needed should return False when generation fails."""
+        with (
+            patch("src.core.services.grub_service.GrubConfigLoader"),
+            patch("src.core.services.grub_service.GrubMenuParser"),
+            patch("src.core.services.grub_service.GrubConfigGenerator"),
+            patch("src.core.services.grub_service.GrubThemeGenerator"),
+            patch("src.core.services.grub_service.GrubValidator"),
+            patch("src.core.services.grub_service.BackupManager"),
+            patch("src.core.services.grub_service.SecureCommandExecutor"),
+        ):
+            service = GrubService()
+            service.entries = {"GRUB_BACKGROUND": "/path/bg.png"}
+            
+            # Mock failed generation
+            service.theme_generator.should_generate_theme.return_value = True
+            service.theme_generator.generate_theme_from_config.return_value = (False, "", "Generation error")
+            
+            success, error = service._generate_theme_if_needed()
+            
+            assert success is False
+            assert "Generation error" in error
