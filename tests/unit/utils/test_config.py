@@ -1,5 +1,7 @@
 import pytest
+
 from src.utils.config import grub_color_to_hex
+
 
 @pytest.mark.unit
 def test_grub_color_to_hex():

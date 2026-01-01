@@ -44,7 +44,7 @@ class TestGrubService:
         executor_mock.write_file_privileged.return_value = (True, "")
         executor_mock.update_grub.return_value = (True, "")
         executor_mock.run_command.return_value = (True, "")
-        
+
         return GrubService()
 
     def test_load_success(self, service, mock_components):
@@ -244,14 +244,14 @@ class TestGrubServiceCoverage:
             service = GrubService("/tmp/grub")
             service.loader.load.return_value = ({}, [])
             service.parser.parse_menu_entries.return_value = []
-            
+
             # Configure executor to return tuples by default
             service.executor.execute_with_pkexec.return_value = (True, "")
             service.executor.copy_file_privileged.return_value = (True, "")
             service.executor.write_file_privileged.return_value = (True, "")
             service.executor.run_command.return_value = (True, "")
             service.executor.update_grub.return_value = (True, "")
-            
+
             return service
 
     def test_load_os_error(self, service):
@@ -339,7 +339,7 @@ class TestGrubServiceCoverage:
         service.hidden_entries = []
         service.executor.write_file_privileged.return_value = (True, "")
         service.executor.run_command.return_value = (True, "")
-        
+
         success, error = service._apply_hidden_entries()
         assert success is True
 
@@ -348,7 +348,7 @@ class TestGrubServiceCoverage:
         service.hidden_entries = ["Entry 1"]
         service.executor.write_file_privileged.return_value = (True, "")
         service.executor.run_command.return_value = (True, "")
-        
+
         with patch("os.path.exists", return_value=False):
             success, error = service._apply_hidden_entries()
             assert success is True
@@ -378,7 +378,7 @@ submenu 'Submenu' {
             service.executor.copy_file_privileged.return_value = (True, "")
             service.executor.write_file_privileged.return_value = (True, "")
             service.executor.run_command.return_value = (True, "")
-            
+
             success, error = service._apply_hidden_entries()
             assert success is True
             assert service.executor.copy_file_privileged.called
@@ -395,7 +395,7 @@ submenu 'Submenu' {
             service.executor.copy_file_privileged.return_value = (False, "Copy failed")
             service.executor.write_file_privileged.return_value = (True, "")
             service.executor.run_command.return_value = (True, "")
-            
+
             success, error = service._apply_hidden_entries()
             assert success is False
             assert "Failed to apply hidden entries" in error
@@ -405,7 +405,7 @@ submenu 'Submenu' {
         service.hidden_entries = ["Hidden Entry"]
         service.executor.write_file_privileged.return_value = (True, "")
         service.executor.run_command.return_value = (True, "")
-        
+
         with patch("os.path.exists", return_value=True), patch("builtins.open", side_effect=OSError("Read error")):
             success, error = service._apply_hidden_entries()
             assert success is False
@@ -455,7 +455,7 @@ submenu 'Submenu' {
             mock_executor.return_value.write_file_privileged.return_value = (True, "")
             mock_executor.return_value.update_grub.return_value = (True, "")
             mock_executor.return_value.run_command.return_value = (True, "")
-            
+
             service = GrubService()
             service._loaded = True
             service.entries = {"GRUB_BACKGROUND": "/path/to/bg.png"}
@@ -467,4 +467,3 @@ submenu 'Submenu' {
     # Tests obsolètes - _generate_theme_if_needed n'existe plus
     # Les tests ci-dessous ont été supprimés car la fonctionnalité
     # de génération automatique de theme.txt a été retirée
-

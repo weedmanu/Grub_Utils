@@ -177,14 +177,14 @@ class TestGrubMenuParser:
     @patch("src.core.config.parser.os.path.exists")
     def test_parse_menu_entries_double_quotes(self, mock_exists):
         """Parse menu entries when titles are double-quoted (common with os-prober)."""
-        content = r'''
+        content = r"""
         menuentry "Ubuntu" --class ubuntu {
             linuxefi /boot/vmlinuz-5.15.0-generic root=UUID=xxx ro
         }
         menuentry "Windows Boot Manager (on /dev/nvme0n1p1)" --class windows --class os $menuentry_id_option 'osprober-efi-AAAA-BBBB' {
             chainloader +1
         }
-        '''
+        """
         mock_exists.return_value = True
 
         with patch("builtins.open", mock_open(read_data=content)):

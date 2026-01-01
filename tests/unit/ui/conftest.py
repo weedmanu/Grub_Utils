@@ -14,16 +14,21 @@ class MockWidget:
             return self._mocks[name]
 
         if name == "get_selected":
+
             def res():
                 return 0
+
         elif name == "get_child_at":
             # Gtk.Grid.get_child_at() returns None when no child exists at the given position.
             # Returning a MagicMock here causes infinite loops in code that scans for empty rows.
             def res(*args, **kwargs):
                 return None
+
         elif name == "get_buffer":
+
             def res():
                 return MagicMock()
+
         else:
             res = MagicMock()
 

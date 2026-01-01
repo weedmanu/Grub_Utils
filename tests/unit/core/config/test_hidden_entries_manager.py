@@ -3,7 +3,7 @@
 import json
 import os
 import tempfile
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -46,10 +46,7 @@ class TestHiddenEntriesManager:
 
     def test_load_hidden_entries_success(self, manager, temp_config_path):
         """Test du chargement réussi des entrées."""
-        config_data = {
-            "hidden_entries": ["Entry1", "Entry2", "Entry3"],
-            "version": "1.0"
-        }
+        config_data = {"hidden_entries": ["Entry1", "Entry2", "Entry3"], "version": "1.0"}
         with open(temp_config_path, "w", encoding="utf-8") as f:
             json.dump(config_data, f)
 
@@ -144,6 +141,7 @@ class TestHiddenEntriesIntegration:
 
     def test_save_and_load_cycle(self, manager, mock_executor, temp_config_path):
         """Test du cycle complet sauvegarde-chargement."""
+
         # Mock pour simuler l'écriture réussie
         def write_side_effect(path, content):
             if path == temp_config_path:
@@ -164,6 +162,7 @@ class TestHiddenEntriesIntegration:
 
     def test_multiple_saves_overwrite(self, manager, mock_executor, temp_config_path):
         """Test que les sauvegardes multiples écrasent les précédentes."""
+
         def write_side_effect(path, content):
             if path == temp_config_path:
                 with open(path, "w", encoding="utf-8") as f:

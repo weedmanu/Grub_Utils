@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.ui.dialogs.backup_selector_dialog import BackupSelectorDialog
-from src.ui.gtk_init import Gtk
 
 
 class TestBackupSelectorDialog:
@@ -63,8 +62,8 @@ class TestBackupSelectorDialog:
         backups = ["/path/to/backup1"]
         callback = MagicMock()
         dialog = BackupSelectorDialog(parent, backups, callback)
-        
-        with patch.object(dialog, 'close'):
+
+        with patch.object(dialog, "close"):
             dialog._on_cancel()
             callback.assert_called_with(None)
             dialog.close.assert_called_once()
@@ -74,8 +73,8 @@ class TestBackupSelectorDialog:
         parent = MagicMock()
         backups = ["/path/to/backup1"]
         dialog = BackupSelectorDialog(parent, backups, None)
-        
-        with patch.object(dialog, 'close'):
+
+        with patch.object(dialog, "close"):
             # Should not raise an error even without callback
             dialog._on_cancel()
             dialog.close.assert_called_once()
@@ -87,8 +86,8 @@ class TestBackupSelectorDialog:
         callback = MagicMock()
         dialog = BackupSelectorDialog(parent, backups, callback)
         dialog.selected_backup = "/path/to/backup2"
-        
-        with patch.object(dialog, 'close'):
+
+        with patch.object(dialog, "close"):
             dialog._on_restore()
             callback.assert_called_with("/path/to/backup2")
             dialog.close.assert_called_once()
@@ -99,10 +98,8 @@ class TestBackupSelectorDialog:
         backups = ["/path/to/backup1"]
         dialog = BackupSelectorDialog(parent, backups, None)
         dialog.selected_backup = "/path/to/backup1"
-        
-        with patch.object(dialog, 'close'):
+
+        with patch.object(dialog, "close"):
             # Should not raise an error even without callback
             dialog._on_restore()
             dialog.close.assert_called_once()
-
-

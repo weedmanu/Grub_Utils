@@ -59,7 +59,7 @@ class TestAppearanceTab:
             tab.normal_bg_dropdown.get_selected.return_value = 0
             tab.highlight_fg_dropdown.get_selected.return_value = 0
             tab.highlight_bg_dropdown.get_selected.return_value = 0
-            
+
             # Mock le get_text pour retourner une vraie chaîne
             tab.background_entry.get_text.return_value = "/valid/image.png"
             # Set background type to Image (index 1)
@@ -84,7 +84,7 @@ class TestAppearanceTab:
             tab.normal_bg_dropdown.get_selected.return_value = 0
             tab.highlight_fg_dropdown.get_selected.return_value = 0
             tab.highlight_bg_dropdown.get_selected.return_value = 0
-            
+
             tab.background_entry.get_text.return_value = ""
 
             result = tab.save_data()
@@ -107,7 +107,7 @@ class TestAppearanceTab:
             tab.normal_bg_dropdown.get_selected.return_value = 0
             tab.highlight_fg_dropdown.get_selected.return_value = 0
             tab.highlight_bg_dropdown.get_selected.return_value = 0
-            
+
             tab.background_entry.get_text.return_value = "/invalid/path.png"
             # Set background type to Image (index 1)
             tab.background_type_dropdown.get_selected.return_value = 1
@@ -176,7 +176,7 @@ class TestAppearanceTabCoverage:
     def test_on_file_dialog_response_accept(self, app):
         """_on_file_dialog_response met à jour l'entrée lors de l'acceptation."""
         from src.ui.gtk_init import Gtk
-        
+
         tab = AppearanceTab(app)
 
         dialog = MagicMock()
@@ -193,13 +193,13 @@ class TestAppearanceTabCoverage:
     def test_on_file_dialog_response_cancel(self, app):
         """_on_file_dialog_response ne fait rien lors de l'annulation."""
         from src.ui.gtk_init import Gtk
-        
+
         tab = AppearanceTab(app)
 
         dialog = MagicMock()
         tab._on_file_dialog_response(dialog, Gtk.ResponseType.CANCEL)
 
-        # Vérifier que set_text n'a PAS été appelé  
+        # Vérifier que set_text n'a PAS été appelé
         # (le nombre d'appels ne doit pas avoir changé depuis __init__)
         dialog.destroy.assert_called_once()
 
@@ -208,7 +208,7 @@ class TestAppearanceTabCoverage:
         app.facade.entries = {}
         with patch.object(AppearanceTab, "_select_color") as mock_select:
             AppearanceTab(app)
-        
+
         # Vérifier que _select_color a été appelé avec les bonnes couleurs par défaut
         called_values = [call.args[1] for call in mock_select.call_args_list]
         assert "light-gray" in called_values
@@ -221,4 +221,3 @@ class TestAppearanceTabCoverage:
         tab = AppearanceTab(app)
         dropdown = tab._create_color_dropdown()
         assert dropdown is not None
-

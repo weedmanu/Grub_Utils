@@ -106,7 +106,6 @@ class TestPreviewDialogCoverage:
     def test_color_fallbacks_without_slash(self, parent):
         """Color parsing should fall back when missing slash."""
         config_dict = {"GRUB_COLOR_NORMAL": "strange", "GRUB_COLOR_HIGHLIGHT": "odd"}
-        config = PreviewConfigDTO(old_config={}, new_config=config_dict)
 
         with (
             patch("src.ui.dialogs.grub_screen_builder.grub_color_to_hex") as mock_hex,
@@ -162,6 +161,7 @@ class TestPreviewDialogCoverage:
             entries = [{"title": f"Entry {i}"} for i in range(10)]
 
             from src.ui.dialogs.preview_dialog import GrubMenuBuilder
+
             GrubMenuBuilder.create_menu_entries(box, {"GRUB_DEFAULT": "0"}, entries, [], css_provider)
 
             more_label = labels[-1]

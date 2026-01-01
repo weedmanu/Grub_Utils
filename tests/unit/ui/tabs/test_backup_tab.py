@@ -136,4 +136,3 @@ class TestBackupTab:
 
         tab.preview_selected_backup()
         tab.app.show_toast.assert_called()
-

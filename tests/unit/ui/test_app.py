@@ -278,8 +278,8 @@ class TestGrubAppCoverageExtended:
         with (
             patch("src.ui.app.HAS_ADW", False),
             patch("src.ui.app.GrubFacade"),
-            patch("src.ui.app.Gtk.ApplicationWindow") as MockWindow,
-            patch("src.ui.app.Gtk.HeaderBar") as MockHeader,
+            patch("src.ui.app.Gtk.ApplicationWindow"),
+            patch("src.ui.app.Gtk.HeaderBar"),
             patch("src.ui.app.GeneralTab"),
             patch("src.ui.app.AppearanceTab"),
             patch("src.ui.app.MenuTab"),

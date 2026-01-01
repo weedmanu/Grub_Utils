@@ -393,10 +393,10 @@ class TestBackupManager:
         """Test create_original_backup_if_needed creates backup from current config."""
         # create_original_backup_if_needed devrait créer le backup
         result = manager.create_original_backup_if_needed()
-        
+
         assert result is True
         assert os.path.exists(manager.original_backup_path)
-        
+
         # Vérifier que le contenu correspond au config original
         with open(manager.original_backup_path, encoding="utf-8") as f:
             content = f.read()
@@ -411,10 +411,10 @@ class TestBackupManager:
 
         # Appeler create_original_backup_if_needed() devrait trouver et copier le legacy
         result = manager.create_original_backup_if_needed()
-        
+
         assert result is True
         assert os.path.exists(manager.original_backup_path)
-        
+
         # Vérifier que le contenu vient du legacy
         with open(manager.original_backup_path, encoding="utf-8") as f:
             content = f.read()
@@ -441,6 +441,7 @@ class TestBackupManager:
 
         # Mock shutil.copy2 pour échouer sur legacy, puis réussir sur config
         import shutil
+
         original_copy2 = shutil.copy2
         call_count = [0]
 
@@ -462,13 +463,12 @@ class TestBackupManager:
     def test_create_original_backup_copy_config_fails(self, manager, monkeypatch):
         """Test create_original_backup_if_needed when copy from config fails."""
         # Mock shutil.copy2 pour échouer lors de la copie du config
-        import shutil
-        
+
         def mock_copy2_error(src, dst):
             raise OSError("Permission denied")
-        
+
         monkeypatch.setattr("shutil.copy2", mock_copy2_error)
-        
+
         # Devrait lever une erreur
         with pytest.raises(GrubBackupError, match="Impossible de créer le backup original"):
             manager.create_original_backup_if_needed()
