@@ -10,8 +10,17 @@ dist/
 build/
 .pytest_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 .mypy_cache/
 .ruff_cache/
 *.log
 .DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+final_report.txt
+structure.md
+theme_base.txt
