@@ -168,14 +168,34 @@ class TestGrubMenuParser:
         assert entries[1]["submenu"] is True
 
     @patch("src.core.config.parser.os.path.exists")
-    def test_find_grub_cfg_first_location(self, mock_exists):
-        """Test finding grub.cfg in first location."""
-        mock_exists.side_effect = [True, False]  # Found in first location
-
+    def test_find_grub_cfg_prefers_newest(self, mock_exists):
+        """Prefer the first existing grub.cfg path (GRUB_CFG_PATHS order)."""
+        mock_exists.side_effect = [True, True]
         parser = GrubMenuParser()
-
         assert parser.grub_cfg_path == "/boot/grub/grub.cfg"
-        mock_exists.assert_called_once()
+
+    @patch("src.core.config.parser.os.path.exists")
+    def test_parse_menu_entries_double_quotes(self, mock_exists):
+        """Parse menu entries when titles are double-quoted (common with os-prober)."""
+        content = r'''
+        menuentry "Ubuntu" --class ubuntu {
+            linuxefi /boot/vmlinuz-5.15.0-generic root=UUID=xxx ro
+        }
+        menuentry "Windows Boot Manager (on /dev/nvme0n1p1)" --class windows --class os $menuentry_id_option 'osprober-efi-AAAA-BBBB' {
+            chainloader +1
+        }
+        '''
+        mock_exists.return_value = True
+
+        with patch("builtins.open", mock_open(read_data=content)):
+            parser = GrubMenuParser("/boot/grub/grub.cfg")
+            entries = parser.parse_menu_entries()
+
+        assert len(entries) == 2
+        assert entries[0]["title"] == "Ubuntu"
+        assert entries[0]["linux"] == "/boot/vmlinuz-5.15.0-generic"
+        assert entries[1]["title"].startswith("Windows Boot Manager")
+        assert entries[1]["linux"] == ""
 
     @patch("src.core.config.parser.os.path.exists")
     def test_extract_linux_path_with_match(self, mock_exists):

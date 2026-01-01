@@ -119,3 +119,49 @@ class SecureCommandExecutor:
         """
         commands = [f"cp '{source}' '{destination}'"]
         return self.execute_with_pkexec(commands)
+
+    def write_file_privileged(self, file_path: str, content: str) -> tuple[bool, str]:
+        """Write content to file with elevated privileges.
+
+        Args:
+            file_path: Destination file path
+            content: Content to write
+
+        Returns:
+            Tuple[bool, str]: (success, error_message)
+
+        """
+        try:
+            # Créer un fichier temporaire avec le contenu
+            with tempfile.NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+
+            # Copier le fichier temporaire vers la destination avec privilèges
+            success, error = self.copy_file_privileged(tmp_path, file_path)
+
+            # Nettoyer le fichier temporaire
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+
+            return success, error
+
+        except OSError as e:
+            logger.exception("Failed to write file with privileges")
+            return False, str(e)
+
+    def run_command(self, command: list[str]) -> tuple[bool, str]:
+        """Execute a command with elevated privileges.
+
+        Args:
+            command: Command and arguments as list
+
+        Returns:
+            Tuple[bool, str]: (success, error_message)
+
+        """
+        # Joindre les arguments avec des guillemets pour éviter les problèmes d'espaces
+        cmd_str = " ".join(f"'{arg}'" if " " in arg else arg for arg in command)
+        return self.execute_with_pkexec([cmd_str])

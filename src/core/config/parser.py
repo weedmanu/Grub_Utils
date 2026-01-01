@@ -13,8 +13,8 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
     """Parses GRUB menu entries from grub.cfg."""
 
     # Pattern to match menu entries
-    MENUENTRY_PATTERN = re.compile(r"menuentry\s+'([^']+)'")
-    SUBMENU_PATTERN = re.compile(r"submenu\s+'([^']+)'")
+    MENUENTRY_PATTERN = re.compile(r"menuentry\s+([\"'])(.+?)\1")
+    SUBMENU_PATTERN = re.compile(r"submenu\s+([\"'])(.+?)\1")
 
     def __init__(self, grub_cfg_path: str | None = None):
         """Initialize the parser.
@@ -35,9 +35,13 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
             FileNotFoundError: If grub.cfg not found
 
         """
+        # Keep the order from GRUB_CFG_PATHS.
+        # Some systems can have both /boot/grub/grub.cfg and /boot/grub2/grub.cfg;
+        # picking the newest file can select an unused grub.cfg and hide entries (ex: Windows).
         for path in GRUB_CFG_PATHS:
             if os.path.exists(path):
-                logger.debug("Found grub.cfg at %s", path)
+                # Use INFO so the selected path is visible even in normal mode.
+                logger.info("Using grub.cfg at %s", path)
                 return path
 
         raise FileNotFoundError("Could not find grub.cfg in standard locations")
@@ -75,7 +79,7 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
                 if submenu_match:
                     entries.append(
                         {
-                            "title": submenu_match.group(1),
+                            "title": submenu_match.group(2),
                             "linux": "",
                             "submenu": True,
                         }
@@ -86,7 +90,7 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
                 # Check for menuentry
                 menuentry_match = self.MENUENTRY_PATTERN.search(line)
                 if menuentry_match:
-                    title = menuentry_match.group(1)
+                    title = menuentry_match.group(2)
                     entries.append(
                         {
                             "title": title,
@@ -103,13 +107,7 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
                 if submenu_depth != -1 and brace_depth <= submenu_depth:
                     submenu_depth = -1
 
-            logger.info(
-                "Menu entries parsed",
-                extra={
-                    "path": self.grub_cfg_path,
-                    "entries_count": len(entries),
-                },
-            )
+            logger.info("Menu entries parsed from %s: %d", self.grub_cfg_path, len(entries))
             return entries
 
         except OSError as e:
@@ -127,7 +125,7 @@ class GrubMenuParser:  # pylint: disable=too-few-public-methods
             Path to Linux kernel or empty string
 
         """
-        # Simple extraction - look for "linux" line after menuentry
-        pattern = rf"menuentry\s+'{re.escape(title)}'.*?linux\s+(\S+)"
+        # Simple extraction - look for "linux"/"linuxefi" line after menuentry.
+        pattern = rf"menuentry\s+(?P<q>[\"']){re.escape(title)}(?P=q).*?\b(?:linux|linuxefi)\s+(\S+)"
         match = re.search(pattern, content, re.DOTALL)
-        return match.group(1) if match else ""
+        return match.group(2) if match else ""

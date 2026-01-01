@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.grubutils.GrubManager</id>
+  <name>GRUB Manager</name>
+  <summary>Gestionnaire GRUB graphique et sécurisé</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+
+  <description>
+    <p>Application GTK4 pour gérer la configuration GRUB2 de manière graphique et sécurisée.</p>
+  </description>
+
+  <launchable type="desktop-id">com.github.grubutils.GrubManager.desktop</launchable>
+
+  <requires>
+    <kernel version="3.10"/>
+  </requires>
+
+  <url type="homepage">https://github.com/votre-utilisateur/Grub_utils</url>
+
+  <provides>
+    <binary>grub-manager-gtk</binary>
+  </provides>
+</component>

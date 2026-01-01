@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=GRUB Manager
+Comment=Gestion graphique et sécurisée de la configuration GRUB2
+Exec=grub-manager-gtk
+Icon=grub-manager-gtk
+Terminal=false
+Categories=System;Settings;
+Keywords=grub;boot;bootloader;linux;
+StartupNotify=true

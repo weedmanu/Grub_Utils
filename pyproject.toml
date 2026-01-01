@@ -26,7 +26,9 @@ select = ["E", "W", "F", "I", "D", "C", "UP"]
 #   E501 - line too long (120 chars) - handled by black formatter instead
 #   D100 - missing module docstring (common in scripts)
 #   D104 - missing package docstring (common in __init__.py)
-ignore = ["E501", "D100", "D104"]
+#   D203 - 1 blank line required before class docstring (incompatible with D211)
+#   D213 - Multi-line docstring summary should start at the second line (incompatible with D212)
+ignore = ["E501", "D100", "D104", "D203", "D213"]
 
 # Relax docstring rules for tests where descriptive names are sufficient
 [tool.ruff.lint.per-file-ignores]

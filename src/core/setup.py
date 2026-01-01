@@ -4,8 +4,6 @@ from src.core.backup_manager import BackupManager
 from src.core.config.generator import GrubConfigGenerator
 from src.core.config.loader import GrubConfigLoader
 from src.core.config.parser import GrubMenuParser
-from src.core.config.theme_generator import GrubThemeGenerator
-from src.core.config.theme_manager import ThemeManager
 from src.core.container import Container
 from src.core.facade import GrubFacade
 from src.core.services.grub_service import GrubService
@@ -37,9 +35,6 @@ def setup_container() -> Container:
     # GrubConfigGenerator - Génère la configuration
     container.register_singleton("config_generator", GrubConfigGenerator)
 
-    # ThemeGenerator - Génère les fichiers theme.txt
-    container.register_singleton("theme_generator", GrubThemeGenerator)
-
     logger.info("Configuration layer enregistrée")
 
     # ===== Couche Métier =====
@@ -50,9 +45,6 @@ def setup_container() -> Container:
     # GrubService - Service principal GRUB
     # Dépend implicitement de ConfigLoader et BackupManager
     container.register_singleton("grub_service", GrubService)
-
-    # ThemeManager - Gère les modes de thème (standard/custom/modified)
-    container.register_singleton("theme_manager", ThemeManager)
 
     logger.info("Business layer enregistrée")
 
@@ -88,7 +80,7 @@ def initialize_application() -> Container:
         container = setup_container()
 
         # Vérifier que tous les services critiques sont présents
-        critical_services = ["facade", "theme_manager", "grub_service"]
+        critical_services = ["facade", "grub_service"]
         for service_name in critical_services:
             if not container.has(service_name):
                 raise RuntimeError(f"Service critique manquant: {service_name}")

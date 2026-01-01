@@ -175,11 +175,9 @@ class TestContainerIntegration(unittest.TestCase):
         container.register_singleton('backup_manager', lambda: mock_backup_mgr)
         container.register_singleton('grub_service', lambda: mock_grub_service)
         container.register_singleton('facade', lambda: mock_facade)
-        container.register_singleton('theme_manager', lambda: mock_theme_mgr)
         
         # Vérifier que tous les services sont présents
         self.assertTrue(container.has('facade'))
-        self.assertTrue(container.has('theme_manager'))
         self.assertTrue(container.has('grub_service'))
         
         # Vérifier que facade retourne le même service

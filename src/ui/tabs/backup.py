@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from src.core.dtos import PreviewConfigDTO
+from src.core.exceptions import GrubBackupError
 from src.ui.dialogs.confirm_dialog import ConfirmDialog, ConfirmOptions
 from src.ui.dialogs.preview_dialog import PreviewDialog
 from src.ui.enums import ActionType
@@ -156,6 +157,8 @@ class BackupTab(BaseTab):
     def get_selected_backup_path(self) -> str | None:
         """Get the path of the currently selected backup."""
         idx = self.backup_dropdown.get_selected()
+        if not isinstance(idx, int):
+            return None
         if 0 <= idx < len(self.backup_paths):
             return self.backup_paths[idx]
         return None
@@ -187,7 +190,7 @@ class BackupTab(BaseTab):
                     os.remove(path)
                     self.app.show_toast(f"Sauvegarde '{filename}' supprimée")
                     self._load_backups()
-                except Exception as e:
+                except (OSError, ValueError) as e:
                     self.app.logger.exception("Erreur lors de la suppression")
                     self.app.show_toast(f"Erreur: {e}")
 
@@ -221,7 +224,7 @@ class BackupTab(BaseTab):
                         self.app.reload_config()
                     else:
                         self.app.show_toast("Échec de la restauration")
-                except Exception as e:
+                except (GrubBackupError, OSError, ValueError) as e:
                     self.app.logger.exception("Erreur lors de la restauration")
                     self.app.show_toast(f"Erreur: {e}")
 

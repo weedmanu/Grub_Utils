@@ -1,15 +1,14 @@
 """Tests d'intégration - vérifient l'interaction entre composants."""
 
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock
 
 from src.core.container import Container
 from src.core.dtos import OperationResultDTO
-from src.core.config.theme_manager import ThemeMode
 
 
-class TestThemeManagerIntegration(unittest.TestCase):
-    """Tests d'intégration du ThemeManager avec le DI Container."""
+class TestContainerIntegration(unittest.TestCase):
+    """Tests d'intégration du DI Container."""
 
     def setUp(self):
         """Préparer l'environnement pour chaque test."""
@@ -19,38 +18,19 @@ class TestThemeManagerIntegration(unittest.TestCase):
     def _setup_mocks(self):
         """Créer les mocks nécessaires."""
         self.mock_loader = MagicMock(name='ConfigLoader')
-        self.mock_generator = MagicMock(name='ThemeGenerator')
         self.mock_backup_mgr = MagicMock(name='BackupManager')
 
     def test_di_container_provides_all_services(self):
         """Vérifier que le conteneur fournit tous les services."""
         self.container.register_singleton('config_loader', self.mock_loader)
-        self.container.register_singleton('theme_generator', self.mock_generator)
         self.container.register_singleton('backup_manager', self.mock_backup_mgr)
         
         # Résoudre tous les services
         loader = self.container.resolve('config_loader')
-        generator = self.container.resolve('theme_generator')
         backup_mgr = self.container.resolve('backup_manager')
         
         self.assertIsNotNone(loader)
-        self.assertIsNotNone(generator)
         self.assertIsNotNone(backup_mgr)
-
-    def test_theme_mode_persistence_through_container(self):
-        """Tester que le mode de thème persiste via le conteneur."""
-        # Simuler l'enregistrement du ThemeManager
-        mock_theme_mgr = MagicMock()
-        mock_theme_mgr.get_current_mode.return_value = ThemeMode.CUSTOM
-        
-        self.container.register_singleton('theme_manager', lambda: mock_theme_mgr)
-        
-        # Résoudre deux fois et vérifier que c'est la même instance
-        mgr1 = self.container.resolve('theme_manager')
-        mgr2 = self.container.resolve('theme_manager')
-        
-        self.assertIs(mgr1, mgr2)
-        self.assertEqual(mgr1.get_current_mode(), ThemeMode.CUSTOM)
 
     def test_multiple_operations_with_shared_container_state(self):
         """Tester plusieurs opérations avec état partagé du conteneur."""
@@ -160,7 +140,6 @@ class TestContainerStartupSequence(unittest.TestCase):
         mocks = {
             'backup_manager': MagicMock(name='BackupManager'),
             'grub_service': MagicMock(name='GrubService'),
-            'theme_manager': MagicMock(name='ThemeManager'),
             'facade': MagicMock(name='Facade'),
         }
         
@@ -181,7 +160,6 @@ class TestContainerStartupSequence(unittest.TestCase):
             'config_loader': MagicMock(),
             'parser': MagicMock(),
             'generator': MagicMock(),
-            'theme_generator': MagicMock(),
         }
         
         for name, service in services.items():

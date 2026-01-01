@@ -86,6 +86,15 @@ class GrubFacade:
         """
         return self._service
 
+    @property
+    def grub_service(self) -> GrubService:
+        """Backward-compatible alias for the underlying GrubService.
+
+        Some UI code expects `facade.grub_service.executor`.
+        Prefer using `get_service()` for new code.
+        """
+        return self._service
+
     def ensure_original_backup(self) -> bool:
         """Ensure the original backup exists.
 

@@ -30,10 +30,8 @@ class TestSetupContainer:
             'config_loader',
             'grub_parser',
             'config_generator',
-            'theme_generator',
             'backup_manager',
             'grub_service',
-            'theme_manager',
             'facade',
         ]
         
@@ -46,7 +44,7 @@ class TestSetupContainer:
         
         # Les services sont tous des singletons par construction
         # On vérifie juste qu'on peut les résoudre et qu'on récupère la même instance
-        service_names = ['config_loader', 'grub_parser', 'config_generator', 'theme_generator']
+        service_names = ['config_loader', 'grub_parser', 'config_generator']
         
         for service_name in service_names:
             instance1 = container.resolve(service_name)
@@ -54,10 +52,10 @@ class TestSetupContainer:
             assert instance1 is instance2, f"{service_name} is not a singleton"
 
     def test_setup_container_services_count(self):
-        """setup_container enregistre exactement 8 services."""
+        """setup_container enregistre exactement 6 services."""
         container = setup_container()
         services = container.get_registered_services()
-        assert len(services) == 8
+        assert len(services) == 6
 
     def test_setup_container_resolves_facade(self):
         """Le conteneur peut résoudre la façade."""
@@ -91,7 +89,7 @@ class TestInitializeApplication:
         reset_application_container()
         container = initialize_application()
         
-        critical_services = ['facade', 'theme_manager', 'grub_service']
+        critical_services = ['facade', 'grub_service']
         for service in critical_services:
             assert container.has(service), f"Critical service {service} not found"
 
@@ -145,7 +143,6 @@ class TestApplicationContainerGlobal:
         
         # Vérifier que le conteneur a les services
         assert container.has('facade')
-        assert container.has('theme_manager')
         assert container.has('grub_service')
 
     def test_reset_application_container_clears_state(self):
@@ -183,10 +180,8 @@ class TestApplicationContainerGlobal:
             'config_loader',
             'grub_parser',
             'config_generator',
-            'theme_generator',
             'backup_manager',
             'grub_service',
-            'theme_manager',
             'facade',
         ]
         

@@ -210,14 +210,15 @@ class TestGrubValidator:
         assert entries["GRUB_BACKGROUND"] == str(bg_file)
 
     def test_validate_all_remove_empty_background(self, validator):
-        """Test validate_all removes empty background."""
+        """Test validate_all keeps empty background (handled by generator)."""
         entries = {
             "GRUB_TIMEOUT": "5",
             "GRUB_BACKGROUND": "",
         }
 
         validator.validate_all(entries)
-        assert "GRUB_BACKGROUND" not in entries
+        assert "GRUB_BACKGROUND" in entries
+        assert entries["GRUB_BACKGROUND"] == ""
 
     def test_validate_all_with_theme(self, validator, tmp_path):
         """Test validate_all with theme file."""
@@ -233,14 +234,15 @@ class TestGrubValidator:
         assert entries["GRUB_THEME"] == str(theme_file)
 
     def test_validate_all_remove_empty_theme(self, validator):
-        """Test validate_all removes empty theme."""
+        """Test validate_all preserves empty GRUB_THEME entry."""
         entries = {
             "GRUB_TIMEOUT": "5",
             "GRUB_THEME": "",
         }
 
         validator.validate_all(entries)
-        assert "GRUB_THEME" not in entries
+        assert "GRUB_THEME" in entries
+        assert entries["GRUB_THEME"] == ""
 
     def test_validate_all_with_cmdline(self, validator):
         """Test validate_all with kernel cmdline."""
@@ -420,6 +422,7 @@ class TestGrubValidator:
     def test_validate_all_empty_theme(self):
         """Test validate_all with empty GRUB_THEME entry."""
         config = {"GRUB_THEME": ""}
-        # Should remove the empty entry
+        # Should keep the empty entry (handled by generator)
         GrubValidator.validate_all(config)
-        assert "GRUB_THEME" not in config
+        assert "GRUB_THEME" in config
+        assert config["GRUB_THEME"] == ""

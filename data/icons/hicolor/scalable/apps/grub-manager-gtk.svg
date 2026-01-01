@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect x="24" y="24" width="208" height="208" rx="28" ry="28" fill="#2e3436"/>
+  <rect x="40" y="56" width="176" height="40" rx="10" ry="10" fill="#555753"/>
+  <rect x="40" y="112" width="176" height="88" rx="10" ry="10" fill="#3c3f41"/>
+  <text x="128" y="172" text-anchor="middle" font-family="sans-serif" font-size="56" font-weight="700" fill="#eeeeec">GRUB</text>
+</svg>

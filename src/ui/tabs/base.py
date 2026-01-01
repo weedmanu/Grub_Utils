@@ -71,6 +71,13 @@ class BaseTab(Gtk.Box):
     def restore_defaults(self) -> None:
         """Restaure les valeurs par défaut de l'onglet."""
 
+    def load_data(self) -> None:
+        """Charge les données de configuration dans l'interface.
+
+        Cette méthode doit être implémentée par les onglets qui ont besoin
+        de recharger leurs données depuis la façade.
+        """
+
     @staticmethod
     def create_info_box() -> Gtk.Box:
         """Crée une Gtk.Box avec les marges standards pour les info frames.

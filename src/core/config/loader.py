@@ -38,7 +38,9 @@ class GrubConfigLoader:
             with open(self.config_path, encoding="utf-8") as f:
                 lines = f.readlines()
 
+            logger.debug("[LOADER] Lecture de %d lignes depuis %s", len(lines), self.config_path)
             entries = self._parse_entries(lines)
+            logger.debug("[LOADER] %d entrées parsées", len(entries))
             logger.info(
                 "Configuration loaded successfully",
                 extra={"path": self.config_path, "entries_count": len(entries)},
@@ -47,6 +49,37 @@ class GrubConfigLoader:
 
         except OSError as e:
             raise GrubConfigError(f"Failed to read configuration: {e}") from e
+
+    def reload(self) -> tuple[dict[str, str], list[str]]:
+        """Recharge la configuration depuis le fichier.
+
+        Utile pour rafraîchir la configuration après des modifications externes.
+
+        Returns:
+            Tuple of (entries dict, raw lines)
+
+        Raises:
+            GrubConfigError: If file cannot be read
+
+        """
+        return self.load()
+
+    def get_value(self, key: str, default: str | None = None) -> str | None:
+        """Récupère une valeur spécifique de la configuration.
+
+        Args:
+            key: Clé de configuration à récupérer
+            default: Valeur par défaut si la clé n'existe pas
+
+        Returns:
+            Valeur de la clé ou default
+
+        Raises:
+            GrubConfigError: Si le fichier ne peut pas être lu
+
+        """
+        entries, _ = self.load()
+        return entries.get(key, default)
 
     def _parse_entries(self, lines: list[str]) -> dict[str, str]:
         """Parse configuration entries from lines.

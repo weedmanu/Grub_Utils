@@ -41,33 +41,46 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(f"grub_manager.{name}")
 
 
-def setup_logging(debug: bool = False) -> None:
+def setup_logging(log_level: str = "normal") -> None:
     """Configure the logging system for the entire application.
 
     Args:
-        debug: Enable debug logging level.
+        log_level: Niveau de log ('normal', 'verbose', ou 'debug')
+            - normal: Pas de logs console, fichier en INFO
+            - verbose: Console en INFO, fichier en INFO
+            - debug: Console en DEBUG, fichier en DEBUG avec traces
 
     """
     log_path = get_log_path()
-    log_level = logging.DEBUG if debug else logging.INFO
+
+    # Définir les niveaux selon le mode
+    if log_level == "debug":
+        console_level = logging.DEBUG
+        file_level = logging.DEBUG
+    elif log_level == "verbose":
+        console_level = logging.INFO
+        file_level = logging.INFO
+    else:  # normal
+        console_level = logging.CRITICAL + 1  # Désactiver complètement
+        file_level = logging.INFO
 
     # Root logger configuration
     root_logger = logging.getLogger("grub_manager")
-    root_logger.setLevel(log_level)
+    root_logger.setLevel(logging.DEBUG)  # Toujours DEBUG pour capturer tout
 
-    # File handler
+    # File handler - garde les détails dans le fichier
     file_handler = logging.handlers.RotatingFileHandler(
         log_path, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8"
     )
-    file_handler.setLevel(log_level)
+    file_handler.setLevel(file_level)
 
-    # Console handler
+    # Console handler - niveau selon le mode
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
+    console_handler.setLevel(console_level)
 
-    # Formatter
+    # Formatter - horodatage, niveau, puis le reste
     formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "%(asctime)s - %(levelname)-8s - %(name)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     file_handler.setFormatter(formatter)

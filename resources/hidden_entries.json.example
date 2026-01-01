@@ -1,0 +1,11 @@
+{
+  "hidden_entries": [
+    "Ubuntu, with Linux 5.15.0-91-generic (recovery mode)",
+    "Advanced options for Ubuntu",
+    "Windows Boot Manager (on /dev/nvme0n1p1)",
+    "UEFI Firmware Settings"
+  ],
+  "version": "1.0",
+  "_comment": "Ce fichier est géré automatiquement par GRUB Manager",
+  "_description": "Liste des entrées de menu GRUB à masquer de manière persistante"
+}

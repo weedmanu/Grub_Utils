@@ -109,7 +109,7 @@ class TestPreviewDialogCoverage:
         config = PreviewConfigDTO(old_config={}, new_config=config_dict)
 
         with (
-            patch("src.ui.dialogs.preview_dialog.grub_color_to_hex") as mock_hex,
+            patch("src.ui.dialogs.grub_screen_builder.grub_color_to_hex") as mock_hex,
             patch("src.ui.dialogs.preview_dialog.Gtk") as mock_gtk,
         ):
             mock_gtk.CssProvider.return_value = MagicMock()
@@ -153,7 +153,7 @@ class TestPreviewDialogCoverage:
             return widget
 
         css_provider = MagicMock()
-        with patch("src.ui.dialogs.preview_dialog.Gtk") as mock_gtk:
+        with patch("src.ui.dialogs.grub_screen_builder.Gtk") as mock_gtk:
             mock_gtk.Label.side_effect = label_factory
             mock_gtk.Align = MagicMock(FILL="FILL", START="START", CENTER="CENTER")
             mock_gtk.STYLE_PROVIDER_PRIORITY_APPLICATION = 1
@@ -161,7 +161,8 @@ class TestPreviewDialogCoverage:
             box = MagicMock()
             entries = [{"title": f"Entry {i}"} for i in range(10)]
 
-            PreviewDialog._add_menu_entries(box, {"GRUB_DEFAULT": "0"}, entries, [], css_provider)
+            from src.ui.dialogs.preview_dialog import GrubMenuBuilder
+            GrubMenuBuilder.create_menu_entries(box, {"GRUB_DEFAULT": "0"}, entries, [], css_provider)
 
             more_label = labels[-1]
             more_label.get_style_context.return_value.add_provider.assert_called_with(css_provider, 1)
@@ -184,7 +185,8 @@ class TestPreviewDialogCoverage:
             mock_gtk.STYLE_PROVIDER_PRIORITY_APPLICATION = 1
 
             box = MagicMock()
-            PreviewDialog._add_status_info(box, "not-an-int", "auto", css_provider)
+            dialog = PreviewDialog.__new__(PreviewDialog)
+            dialog._add_status_info(box, "not-an-int", "auto", css_provider)
 
             timeout_label = labels[0]
             timeout_label.get_style_context.return_value.add_provider.assert_called_with(css_provider, 1)
@@ -204,8 +206,9 @@ class TestPreviewDialogCoverageV2:
         with patch("src.ui.dialogs.preview_dialog.Gtk"):
             dialog = PreviewDialog.__new__(PreviewDialog)
             grid = MagicMock()
-            dialog._add_status_info(grid, "-1", "auto")
-            dialog._add_status_info(grid, "0", "auto")
+            css_provider = MagicMock()
+            dialog._add_status_info(grid, "-1", "auto", css_provider)
+            dialog._add_status_info(grid, "0", "auto", css_provider)
 
     def test_create_boot_screen_invocation(self):
         """_create_boot_screen returns a frame with minimal config."""
@@ -220,10 +223,7 @@ class TestPreviewDialogCoverageV2:
             assert frame is not None
 
     def test_add_menu_entries_more_than_max(self):
-        """_add_menu_entries handles large menu lists."""
-        with patch("src.ui.dialogs.preview_dialog.Gtk"):
-            dialog = PreviewDialog.__new__(PreviewDialog)
-            box = MagicMock()
-            menu_entries = [{"title": f"Entry {i}"} for i in range(20)]
-            dialog._add_menu_entries(box, {}, menu_entries)
-            assert box.append.call_count > 0
+        """create_menu_entries handles large menu lists."""
+        # This test is obsolete since _add_menu_entries was moved to GrubMenuBuilder
+        # and is tested in test_add_menu_entries_styles_more_label
+        pass

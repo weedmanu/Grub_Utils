@@ -15,7 +15,7 @@ class TestGrubApp:
         """Test that GrubApp initializes with facade and tabs."""
         app = GrubApp()
         assert app.facade is not None
-        assert app.tabs == {}
+        assert app.ui.tabs == {}
 
     @patch("src.ui.app.GrubFacade")
     def test_do_activate(self, mock_facade_cls):
@@ -33,15 +33,15 @@ class TestGrubApp:
         """Test show_toast sets text and reveals."""
         app = GrubApp()
         # Manually setup toast components since we skip _build_ui
-        app.toast_label = MagicMock()
-        app.toast_revealer = MagicMock()
+        app.ui.toast_label = MagicMock()
+        app.ui.toast_revealer = MagicMock()
 
         from src.ui.gtk_init import GLib
 
         with patch.object(GLib, "timeout_add") as mock_timeout:
             app.show_toast("Test message")
-            app.toast_label.set_text.assert_called_with("Test message")
-            app.toast_revealer.set_reveal_child.assert_called_with(True)
+            app.ui.toast_label.set_text.assert_called_with("Test message")
+            app.ui.toast_revealer.set_reveal_child.assert_called_with(True)
             mock_timeout.assert_called_once()
 
     @patch("src.ui.app.GrubFacade")
@@ -82,7 +82,7 @@ class TestGrubApp:
     def test_on_file_clicked(self, mock_facade_cls):
         """Test file selection button click."""
         app = GrubApp()
-        app.win = MagicMock()
+        app.ui.win = MagicMock()
 
         mock_entry = MagicMock()
         with patch("src.ui.app.Gtk.FileDialog") as mock_file_dialog:
@@ -93,7 +93,7 @@ class TestGrubApp:
     def test_on_save_clicked(self, mock_facade_cls):
         """Test save button click shows confirmation."""
         app = GrubApp()
-        app.win = MagicMock()
+        app.ui.win = MagicMock()
 
         with patch.object(app, "_update_manager_from_ui"):
             with patch("src.ui.app.ConfirmDialog") as mock_confirm:
@@ -120,7 +120,7 @@ class TestGrubApp:
         mock_menu = MagicMock()
         mock_menu.get_hidden_entries.return_value = ["entry1"]
 
-        app.tabs = {"general": mock_general, "appearance": mock_appearance, "menu": mock_menu}
+        app.ui.tabs = {"general": mock_general, "appearance": mock_appearance, "menu": mock_menu}
 
         app._update_manager_from_ui()
 
@@ -165,7 +165,7 @@ class TestGrubApp:
     def test_refresh_ui(self, mock_facade_cls):
         """Test refresh_ui reloads config and rebuilds UI."""
         app = GrubApp()
-        app.win = MagicMock()
+        app.ui.win = MagicMock()
 
         with patch.object(app, "_build_ui") as mock_build:
             app._refresh_ui()
@@ -195,7 +195,7 @@ class TestGrubApp:
 
         mock_general = MagicMock()
         mock_general.get_config.return_value = {"GRUB_DEFAULT": "0"}
-        app.tabs = {"general": mock_general}
+        app.ui.tabs = {"general": mock_general}
 
         config = app._collect_ui_configuration()
 
@@ -218,18 +218,18 @@ class TestGrubAppCoverage:
     @patch("src.ui.app.GrubFacade")
     def test_hide_toast_callback(self, mock_facade_cls):
         app = GrubApp()
-        app.toast_revealer = MagicMock()
+        app.ui.toast_revealer = MagicMock()
         with patch("src.ui.app.GLib.timeout_add") as mock_timeout:
             app.show_toast("message")
             callback = mock_timeout.call_args[0][1]
             result = callback()
-            app.toast_revealer.set_reveal_child.assert_called_with(False)
+            app.ui.toast_revealer.set_reveal_child.assert_called_with(False)
             assert result is False
 
     @patch("src.ui.app.GrubFacade")
     def test_refresh_ui_with_win(self, mock_facade_cls):
         app = GrubApp()
-        app.win = MagicMock()
+        app.ui.win = MagicMock()
         app.facade.load_configuration.return_value = MagicMock(success=True)
         with patch.object(app, "_build_ui") as mock_build:
             app._refresh_ui()
@@ -269,7 +269,7 @@ class TestGrubAppCoverageExtended:
             ),
         ):
             app = GrubApp()
-            app.win = MagicMock()
+            app.ui.win = MagicMock()
             app.facade = MagicMock()
             app.facade.entries = {}
             return app
@@ -308,7 +308,7 @@ class TestGrubAppCoverageExtended:
 
     def test_collect_ui_configuration_savedefault_false(self, app):
         app.facade.entries = {"GRUB_DEFAULT": "0", "GRUB_SAVEDEFAULT": "true"}
-        app.tabs = {}
+        app.ui.tabs = {}
         config = app._collect_ui_configuration()
         assert "GRUB_SAVEDEFAULT" not in config
 
@@ -333,8 +333,8 @@ class TestGrubAppCoverageV2:
         with patch("src.ui.app.GrubFacade"):
             app = GrubApp()
             app.facade = MagicMock()
-            app.win = MagicMock()
-            app.tabs = {}
+            app.ui.win = MagicMock()
+            app.ui.tabs = {}
             app._build_ui_mock = MagicMock()
             # Mock the _build_ui method
             app._build_ui = app._build_ui_mock
@@ -384,7 +384,7 @@ class TestGrubAppCoverageV2:
     def test_update_manager_from_ui_sets_hidden(self, app):
         menu_tab = MagicMock()
         menu_tab.get_hidden_entries.return_value = ["hidden"]
-        app.tabs = {"menu": menu_tab}
+        app.ui.tabs = {"menu": menu_tab}
         with patch.object(app, "_collect_ui_configuration", return_value={"KEY": "VAL"}):
             app._update_manager_from_ui()
         assert app.facade.entries == {"KEY": "VAL"}
@@ -393,7 +393,7 @@ class TestGrubAppCoverageV2:
     def test_on_preview_clicked_success(self, app):
         app.facade.entries = {"A": "1"}
         app.facade.menu_entries = [{"title": "entry", "linux": "vmlinuz"}]
-        app.tabs = {"menu": MagicMock(get_hidden_entries=MagicMock(return_value=["h"]))}
+        app.ui.tabs = {"menu": MagicMock(get_hidden_entries=MagicMock(return_value=["h"]))}
         with (
             patch.object(app, "_collect_ui_configuration", return_value={"A": "2"}),
             patch("src.ui.app.PreviewDialog") as mock_preview,

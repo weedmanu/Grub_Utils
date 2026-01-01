@@ -1,0 +1,16 @@
+Source: grub-manager-gtk
+Section: admin
+Priority: optional
+Maintainer: GRUB Manager Maintainers <maintainers@example.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/votre-utilisateur/Grub_utils
+
+Package: grub-manager-gtk
+Architecture: all
+Depends: ${misc:Depends}, python3, python3-gi, gir1.2-gtk-4.0, policykit-1, grub2-common
+Recommends: gir1.2-adw-1, python3-gi-cairo
+Description: Gestionnaire GRUB graphique (GTK4)
+  Application GTK4 pour gérer /etc/default/grub et la configuration GRUB2.
+  Inclut une intégration desktop (fichier .desktop, icône, AppStream).

@@ -47,7 +47,7 @@ class TestLogger:
         mock_root = MagicMock()
         mock_get_logger.return_value = mock_root
 
-        setup_logging(debug=True)
+        setup_logging(log_level="debug")
 
         mock_get_logger.assert_called_with("grub_manager")
         mock_root.setLevel.assert_called_with(logging.DEBUG)

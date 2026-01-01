@@ -19,33 +19,45 @@ TIMEOUT_OPTIONS = [
 class GeneralTab(BaseTab):
     """Classe pour l'onglet des paramètres généraux."""
 
+    # UI class requires many attributes for widgets
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(self, app):
         """Initialise l'onglet avec une référence à l'application."""
         super().__init__(app)
 
         # Default Entry
-        self.grid.attach(Gtk.Label(label="Entrée :", xalign=0), 0, 0, 1, 1)
+        grid = self.grid
+        grid.attach(Gtk.Label(label="Entrée :", xalign=0), 0, 0, 1, 1)
         flat_entries = self._get_flat_menu_entries()
-        self.entry_ids = ["0", "saved"] + [str(i) for i in range(len(flat_entries))]
-        self.entry_labels = [
+        entry_ids = ["0", "saved"] + [str(i) for i in range(len(flat_entries))]
+        entry_labels = [
             "Première entrée (0)",
             "Dernière utilisée (saved)",
         ] + flat_entries
-        self.default_dropdown = Gtk.DropDown.new_from_strings(self.entry_labels)
+        default_dropdown = Gtk.DropDown.new_from_strings(entry_labels)
 
         curr = self.app.facade.entries.get("GRUB_DEFAULT", "0")
-        self.default_dropdown.set_selected(self.entry_ids.index(curr) if curr in self.entry_ids else 0)
-        self.grid.attach(self.default_dropdown, 1, 0, 1, 1)
+        default_dropdown.set_selected(entry_ids.index(curr) if curr in entry_ids else 0)
+        grid.attach(default_dropdown, 1, 0, 1, 1)
+
+        # Stocker les références dans self
+        self.default_dropdown = default_dropdown
+        self.entry_ids = entry_ids
+        self.entry_labels = entry_labels
 
         # Timeout - Liste déroulante
-        self.grid.attach(Gtk.Label(label="Délai avant démarrage :", xalign=0), 0, 1, 1, 1)
+        grid.attach(Gtk.Label(label="Délai avant démarrage :", xalign=0), 0, 1, 1, 1)
         self._setup_timeout_dropdown()
 
         # Kernel params
-        self.grid.attach(Gtk.Label(label="Paramètres noyau :", xalign=0), 0, 2, 1, 1)
+        grid.attach(Gtk.Label(label="Paramètres noyau :", xalign=0), 0, 2, 1, 1)
         self._setup_kernel_dropdown()
 
-        # Zone d'information dédiée
+        # La détection OS (os-prober) n'est plus gérée dans l'UI.
+        self.os_prober_switch = None
+
+        # # Zone d'information dédiée
         info_frame = Gtk.Frame(label="Informations")
         info_frame.set_margin_top(20)
 
@@ -248,3 +260,29 @@ class GeneralTab(BaseTab):
                 config["GRUB_CMDLINE_LINUX_DEFAULT"] = self.kernel_options[selected_idx]
 
         return config
+
+    def load_data(self) -> None:
+        """Charge les données de configuration dans l'interface."""
+        # Recharger l'entrée par défaut
+        curr = self.app.facade.entries.get("GRUB_DEFAULT", "0")
+        if curr in self.entry_ids:
+            self.default_dropdown.set_selected(self.entry_ids.index(curr))
+        else:
+            self.default_dropdown.set_selected(0)
+
+        # Recharger le timeout
+        current_timeout = self.app.facade.entries.get("GRUB_TIMEOUT", "5")
+        self._select_timeout(current_timeout)
+
+        # Recharger les paramètres noyau
+        curr_kernel = self.app.facade.entries.get("GRUB_CMDLINE_LINUX_DEFAULT", "quiet splash")
+        if curr_kernel not in self.kernel_options:
+            self.kernel_options.append(curr_kernel)
+            # Mettre à jour le dropdown avec la nouvelle option
+            # Note: Gtk.DropDown ne permet pas facilement de mettre à jour les options
+            # Une solution serait de reconstruire le dropdown, mais pour simplifier
+            # on garde les options existantes
+        if curr_kernel in self.kernel_options:
+            self.kernel_dropdown.set_selected(self.kernel_options.index(curr_kernel))
+        else:
+            self.kernel_dropdown.set_selected(0)

@@ -1,0 +1,7 @@
+main.py usr/share/grub-manager-gtk/
+src usr/share/grub-manager-gtk/
+resources usr/share/grub-manager-gtk/
+debian/grub-manager-gtk usr/bin/
+data/applications/com.github.grubutils.GrubManager.desktop usr/share/applications/
+data/icons/hicolor/scalable/apps/grub-manager-gtk.svg usr/share/icons/hicolor/scalable/apps/
+data/metainfo/com.github.grubutils.GrubManager.metainfo.xml usr/share/metainfo/

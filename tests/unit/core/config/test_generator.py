@@ -137,18 +137,6 @@ class TestGrubConfigGenerator:
         assert 'GRUB_DEFAULT="saved"' in content
         assert "Some random text without equals" in content
 
-    def test_key_in_lines_method(self, generator):
-        """Test _key_in_lines method directly."""
-        lines = [
-            "GRUB_TIMEOUT=5",
-            "#GRUB_DISABLED=true",
-            "# Comment",
-        ]
-
-        assert generator._key_in_lines("GRUB_TIMEOUT", lines) is True
-        assert generator._key_in_lines("GRUB_DISABLED", lines) is True
-        assert generator._key_in_lines("NONEXISTENT", lines) is False
-
     def test_generate_multiple_new_entries(self, generator):
         """Test adding multiple new entries not in original."""
         original_lines = ["GRUB_TIMEOUT=5"]

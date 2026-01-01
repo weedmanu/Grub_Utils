@@ -258,6 +258,45 @@ class GrubValidator:
         return f"{fg}/{bg}"
 
     @staticmethod
+    def _validate_timeout_entry(entries: dict[str, str]) -> None:
+        if "GRUB_TIMEOUT" in entries:
+            entries["GRUB_TIMEOUT"] = str(GrubValidator.validate_timeout(entries["GRUB_TIMEOUT"]))
+
+    @staticmethod
+    def _validate_gfxmode_entry(entries: dict[str, str]) -> None:
+        if "GRUB_GFXMODE" in entries:
+            entries["GRUB_GFXMODE"] = GrubValidator.validate_gfxmode(entries["GRUB_GFXMODE"])
+
+    @staticmethod
+    def _validate_optional_path_entry(entries: dict[str, str], key: str, allowed_extensions: set[str]) -> None:
+        if key not in entries:
+            return
+
+        raw_value = entries[key]
+        if not raw_value:
+            entries[key] = ""
+            return
+
+        validated_path = GrubValidator.validate_file_path(raw_value, allowed_extensions)
+        if validated_path is None:
+            del entries[key]
+            return
+
+        entries[key] = validated_path
+
+    @staticmethod
+    def _validate_kernel_params_entry(entries: dict[str, str]) -> None:
+        if "GRUB_CMDLINE_LINUX_DEFAULT" in entries:
+            entries["GRUB_CMDLINE_LINUX_DEFAULT"] = GrubValidator.validate_kernel_params(
+                entries["GRUB_CMDLINE_LINUX_DEFAULT"]
+            )
+
+    @staticmethod
+    def _validate_color_pair_entry(entries: dict[str, str], key: str) -> None:
+        if key in entries:
+            entries[key] = GrubValidator.validate_color_pair(entries[key], key)
+
+    @staticmethod
     def validate_all(entries: dict[str, str]) -> None:  # noqa: C901
         """Validate all GRUB entries.
 
@@ -269,46 +308,15 @@ class GrubValidator:
 
         """
         try:
-            # Valider le timeout
-            if "GRUB_TIMEOUT" in entries:
-                entries["GRUB_TIMEOUT"] = str(GrubValidator.validate_timeout(entries["GRUB_TIMEOUT"]))
+            GrubValidator._validate_timeout_entry(entries)
+            GrubValidator._validate_gfxmode_entry(entries)
 
-            # Valider GFXMODE
-            if "GRUB_GFXMODE" in entries:
-                entries["GRUB_GFXMODE"] = GrubValidator.validate_gfxmode(entries["GRUB_GFXMODE"])
+            GrubValidator._validate_optional_path_entry(entries, "GRUB_BACKGROUND", ALLOWED_IMAGE_EXTENSIONS)
+            GrubValidator._validate_optional_path_entry(entries, "GRUB_THEME", ALLOWED_THEME_EXTENSIONS)
 
-            # Valider l'image de fond
-            if "GRUB_BACKGROUND" in entries:
-                validated_path = GrubValidator.validate_file_path(entries["GRUB_BACKGROUND"], ALLOWED_IMAGE_EXTENSIONS)
-                if validated_path is None:
-                    del entries["GRUB_BACKGROUND"]
-                else:
-                    entries["GRUB_BACKGROUND"] = validated_path
-
-            # Valider le thème
-            if "GRUB_THEME" in entries:
-                validated_path = GrubValidator.validate_file_path(entries["GRUB_THEME"], ALLOWED_THEME_EXTENSIONS)
-                if validated_path is None:
-                    del entries["GRUB_THEME"]
-                else:
-                    entries["GRUB_THEME"] = validated_path
-
-            # Valider les paramètres noyau
-            if "GRUB_CMDLINE_LINUX_DEFAULT" in entries:
-                entries["GRUB_CMDLINE_LINUX_DEFAULT"] = GrubValidator.validate_kernel_params(
-                    entries["GRUB_CMDLINE_LINUX_DEFAULT"]
-                )
-
-            # Valider les couleurs (palette GRUB limitée)
-            if "GRUB_COLOR_NORMAL" in entries:
-                entries["GRUB_COLOR_NORMAL"] = GrubValidator.validate_color_pair(
-                    entries["GRUB_COLOR_NORMAL"], "GRUB_COLOR_NORMAL"
-                )
-
-            if "GRUB_COLOR_HIGHLIGHT" in entries:
-                entries["GRUB_COLOR_HIGHLIGHT"] = GrubValidator.validate_color_pair(
-                    entries["GRUB_COLOR_HIGHLIGHT"], "GRUB_COLOR_HIGHLIGHT"
-                )
+            GrubValidator._validate_kernel_params_entry(entries)
+            GrubValidator._validate_color_pair_entry(entries, "GRUB_COLOR_NORMAL")
+            GrubValidator._validate_color_pair_entry(entries, "GRUB_COLOR_HIGHLIGHT")
 
         except (KeyError, ValueError, TypeError) as e:
             logger.exception("Unexpected error during validation")

@@ -60,3 +60,26 @@ class TestMenuTabCoverage:
         tab.check_buttons = {"New Hidden": mock_check}
         hidden = tab.get_hidden_entries()
         assert hidden == ["New Hidden"]
+
+    def test_restore_defaults(self):
+        """Test restore_defaults unhides all entries."""
+        app = MagicMock()
+        app.facade.menu_entries = [{"title": "Entry 1"}]
+        app.facade.hidden_entries = ["Entry 1"]
+        tab = MenuTab(app)
+        
+        # Configure the mock for get_active to return False initially
+        tab.check_buttons["Entry 1"].get_active.return_value = False
+        
+        # Verify initial state
+        assert not tab.check_buttons["Entry 1"].get_active()
+        
+        # Call restore_defaults
+        tab.restore_defaults()
+        
+        # Verify facade updated
+        assert app.facade.hidden_entries == []
+        
+        # Verify UI updated
+        tab.check_buttons["Entry 1"].set_active.assert_called_with(True)
+        app.show_toast.assert_called_with("Toutes les entrées sont affichées")

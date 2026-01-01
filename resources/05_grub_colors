@@ -1,0 +1,13 @@
+#!/bin/sh
+# Script pour appliquer les couleurs personnalisées GRUB
+# Généré automatiquement par Grub Utils
+
+cat << EOF
+# Couleurs personnalisées
+if [ x\$feature_default_font_path = xy ] ; then
+   set color_normal=\${GRUB_COLOR_NORMAL:-light-gray/black}
+   set color_highlight=\${GRUB_COLOR_HIGHLIGHT:-white/dark-gray}
+   set menu_color_normal=\${GRUB_COLOR_NORMAL:-light-gray/black}
+   set menu_color_highlight=\${GRUB_COLOR_HIGHLIGHT:-white/dark-gray}
+fi
+EOF

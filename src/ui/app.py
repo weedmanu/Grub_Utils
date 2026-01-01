@@ -3,6 +3,7 @@
 from src.core.dtos import PreviewConfigDTO
 from src.core.exceptions import GrubConfigError
 from src.core.facade import GrubFacade
+from src.ui.app_state import AppUIState
 from src.ui.dialogs.confirm_dialog import ConfirmDialog, ConfirmOptions
 from src.ui.dialogs.error_dialog import ErrorDialog, ErrorOptions
 from src.ui.dialogs.preview_dialog import PreviewDialog
@@ -23,22 +24,12 @@ class GrubApp(Gtk.Application):
 
     def __init__(self):
         """Initialise l'application et les variables d'état."""
-        super().__init__(application_id="com.example.GrubUtils")
+        super().__init__(application_id="com.github.grubutils.GrubManager")
         self.facade = GrubFacade()
         self.logger = logger  # Exposer le logger pour les onglets
-        self.win = None
-        self.tabs = {}
-        self.overlay = None
-        self.toast_revealer = None
-        self.toast_label = None
+        self.ui = AppUIState()
 
-        # UI Components initialized later
-        self.preview_btn = None
-        self.default_btn = None
-        self.save_btn = None
-        self.restore_btn = None
-        self.delete_btn = None
-
+    # pylint: disable=arguments-differ
     def run(self, argv: list[str] | None = None) -> int:
         """Lance l'application GTK.
 
@@ -73,7 +64,8 @@ class GrubApp(Gtk.Application):
         self._setup_overlay()
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        self.overlay.set_child(box)
+        assert self.ui.overlay is not None
+        self.ui.overlay.set_child(box)
 
         header = self._create_header()
         box.append(header)
@@ -89,25 +81,27 @@ class GrubApp(Gtk.Application):
         # Toast notification
         self._setup_toast()
 
-        self.win.present()
+        assert self.ui.win is not None
+        self.ui.win.present()
 
     def _setup_window(self):
         """Configure la fenêtre principale."""
-        if not self.win:
+        if not self.ui.win:
             if HAS_ADW:
-                self.win = Adw.ApplicationWindow(application=self)
+                self.ui.win = Adw.ApplicationWindow(application=self)
             else:
-                self.win = Gtk.ApplicationWindow(application=self)
-            self.win.set_title("Grub Customizer (Python)")
-            self.win.set_default_size(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
+                self.ui.win = Gtk.ApplicationWindow(application=self)
+            self.ui.win.set_title("Grub Customizer (Python)")
+            self.ui.win.set_default_size(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
 
     def _setup_overlay(self):
         """Configure l'overlay pour les notifications."""
-        self.overlay = Gtk.Overlay()
+        self.ui.overlay = Gtk.Overlay()
+        assert self.ui.win is not None
         if HAS_ADW:
-            self.win.set_content(self.overlay)
+            self.ui.win.set_content(self.ui.overlay)
         else:
-            self.win.set_child(self.overlay)
+            self.ui.win.set_child(self.ui.overlay)
 
     def _create_header(self):
         """Crée la barre d'en-tête."""
@@ -123,17 +117,22 @@ class GrubApp(Gtk.Application):
         header.set_title_widget(stack_switcher)
 
         # Initialisation des onglets
-        self.tabs["general"] = GeneralTab(self)
-        stack.add_titled(self.tabs["general"], "general", "Général")
+        self.ui.tabs["general"] = GeneralTab(self)
+        stack.add_titled(self.ui.tabs["general"], "general", "Général")
 
-        self.tabs["appearance"] = AppearanceTab(self)
-        stack.add_titled(self.tabs["appearance"], "appearance", "Apparence")
+        self.ui.tabs["appearance"] = AppearanceTab(self)
+        stack.add_titled(self.ui.tabs["appearance"], "appearance", "Apparence")
 
-        self.tabs["menu"] = MenuTab(self)
-        stack.add_titled(self.tabs["menu"], "menu", "Menu")
+        self.ui.tabs["menu"] = MenuTab(self)
+        stack.add_titled(self.ui.tabs["menu"], "menu", "Menu")
 
-        self.tabs["backup"] = BackupTab(self)
-        stack.add_titled(self.tabs["backup"], "backup", "Sauvegardes")
+        self.ui.tabs["backup"] = BackupTab(self)
+        stack.add_titled(self.ui.tabs["backup"], "backup", "Sauvegardes")
+
+        # Charger les données dans tous les onglets après leur création
+        for tab in self.ui.tabs.values():
+            if hasattr(tab, "load_data"):
+                tab.load_data()
 
         # Connecter le changement d'onglet pour gérer la visibilité des boutons
         stack.connect("notify::visible-child-name", self._on_tab_changed)
@@ -142,11 +141,11 @@ class GrubApp(Gtk.Application):
 
     def _setup_toast(self):
         """Configure le système de notification toast."""
-        self.toast_revealer = Gtk.Revealer()
-        self.toast_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
-        self.toast_revealer.set_valign(Gtk.Align.START)
-        self.toast_revealer.set_halign(Gtk.Align.CENTER)
-        self.toast_revealer.set_margin_top(10)
+        self.ui.toast_revealer = Gtk.Revealer()
+        self.ui.toast_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
+        self.ui.toast_revealer.set_valign(Gtk.Align.START)
+        self.ui.toast_revealer.set_halign(Gtk.Align.CENTER)
+        self.ui.toast_revealer.set_margin_top(10)
 
         toast_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         toast_box.set_margin_start(20)
@@ -155,15 +154,16 @@ class GrubApp(Gtk.Application):
         toast_box.set_margin_bottom(10)
         toast_box.get_style_context().add_class("osd")  # Style toast-like
 
-        self.toast_label = Gtk.Label()
-        toast_box.append(self.toast_label)
+        self.ui.toast_label = Gtk.Label()
+        toast_box.append(self.ui.toast_label)
 
         close_btn = Gtk.Button(icon_name="window-close-symbolic")
-        close_btn.connect("clicked", lambda _: self.toast_revealer.set_reveal_child(False))
+        close_btn.connect("clicked", lambda _: self.ui.toast_revealer.set_reveal_child(False))
         toast_box.append(close_btn)
 
-        self.toast_revealer.set_child(toast_box)
-        self.overlay.add_overlay(self.toast_revealer)
+        self.ui.toast_revealer.set_child(toast_box)
+        assert self.ui.overlay is not None
+        self.ui.overlay.add_overlay(self.ui.toast_revealer)
 
     def show_toast(self, message: str, timeout: int = TOAST_TIMEOUT) -> None:
         """Affiche une notification toast.
@@ -173,15 +173,15 @@ class GrubApp(Gtk.Application):
             timeout: Durée en ms avant disparition automatique
 
         """
-        if self.toast_label is not None:
-            self.toast_label.set_text(message)
-        if self.toast_revealer is not None:
-            self.toast_revealer.set_reveal_child(True)
+        if self.ui.toast_label is not None:
+            self.ui.toast_label.set_text(message)
+        if self.ui.toast_revealer is not None:
+            self.ui.toast_revealer.set_reveal_child(True)
 
         # Masquer automatiquement après le timeout
         def hide_toast():
-            if self.toast_revealer is not None:
-                self.toast_revealer.set_reveal_child(False)
+            if self.ui.toast_revealer is not None:
+                self.ui.toast_revealer.set_reveal_child(False)
             return False  # Ne pas répéter
 
         # Convertir ms en secondes pour GLib.timeout_add
@@ -200,38 +200,38 @@ class GrubApp(Gtk.Application):
         action_bar.append(spacer_l)
 
         # Bouton Aperçu (visible pour Général, Apparence, Menu)
-        self.preview_btn = Gtk.Button(label="Aperçu")
-        self.preview_btn.set_tooltip_text("Voir l'aperçu de la configuration GRUB")
-        self.preview_btn.connect("clicked", self.on_preview_clicked)
-        action_bar.append(self.preview_btn)
+        self.ui.preview_btn = Gtk.Button(label="Aperçu")
+        self.ui.preview_btn.set_tooltip_text("Voir l'aperçu de la configuration GRUB")
+        self.ui.preview_btn.connect("clicked", self.on_preview_clicked)
+        action_bar.append(self.ui.preview_btn)
 
         # Bouton Défaut
-        self.default_btn = Gtk.Button(label="Défaut")
-        self.default_btn.set_tooltip_text("Remettre les valeurs par défaut pour cet onglet")
-        self.default_btn.connect("clicked", self.on_default_clicked)
-        action_bar.append(self.default_btn)
+        self.ui.default_btn = Gtk.Button(label="Défaut")
+        self.ui.default_btn.set_tooltip_text("Remettre les valeurs par défaut pour cet onglet")
+        self.ui.default_btn.connect("clicked", self.on_default_clicked)
+        action_bar.append(self.ui.default_btn)
 
         # Bouton Sauvegarder et Appliquer (visible pour Général, Apparence, Menu)
-        self.save_btn = Gtk.Button(label="Sauvegarder et Appliquer")
-        self.save_btn.set_tooltip_text("Sauvegarder la configuration et mettre à jour GRUB")
-        self.save_btn.add_css_class("suggested-action")
-        self.save_btn.connect("clicked", self.on_save_clicked)
-        action_bar.append(self.save_btn)
+        self.ui.save_btn = Gtk.Button(label="Sauvegarder et Appliquer")
+        self.ui.save_btn.set_tooltip_text("Sauvegarder la configuration et mettre à jour GRUB")
+        self.ui.save_btn.add_css_class("suggested-action")
+        self.ui.save_btn.connect("clicked", self.on_save_clicked)
+        action_bar.append(self.ui.save_btn)
 
         # Bouton Restaurer (visible pour Backup)
-        self.restore_btn = Gtk.Button(label="Restaurer")
-        self.restore_btn.set_tooltip_text("Restaurer la sauvegarde sélectionnée")
-        self.restore_btn.connect("clicked", self.on_restore_clicked)
-        self.restore_btn.set_visible(False)
-        action_bar.append(self.restore_btn)
+        self.ui.restore_btn = Gtk.Button(label="Restaurer")
+        self.ui.restore_btn.set_tooltip_text("Restaurer la sauvegarde sélectionnée")
+        self.ui.restore_btn.connect("clicked", self.on_restore_clicked)
+        self.ui.restore_btn.set_visible(False)
+        action_bar.append(self.ui.restore_btn)
 
         # Bouton Supprimer (visible pour Backup)
-        self.delete_btn = Gtk.Button(label="Supprimer")
-        self.delete_btn.set_tooltip_text("Supprimer la sauvegarde sélectionnée")
-        self.delete_btn.add_css_class("destructive-action")
-        self.delete_btn.connect("clicked", self.on_delete_clicked)
-        self.delete_btn.set_visible(False)
-        action_bar.append(self.delete_btn)
+        self.ui.delete_btn = Gtk.Button(label="Supprimer")
+        self.ui.delete_btn.set_tooltip_text("Supprimer la sauvegarde sélectionnée")
+        self.ui.delete_btn.add_css_class("destructive-action")
+        self.ui.delete_btn.connect("clicked", self.on_delete_clicked)
+        self.ui.delete_btn.set_visible(False)
+        action_bar.append(self.ui.delete_btn)
 
         # Spacer droit pour centrer
         spacer_r = Gtk.Box()
@@ -240,10 +240,10 @@ class GrubApp(Gtk.Application):
 
     def _get_current_tab(self):
         """Récupère l'onglet actuellement visible."""
-        if not self.overlay:
+        if not self.ui.overlay:
             return None
 
-        box = self.overlay.get_child()
+        box = self.ui.overlay.get_child()
         if not box:
             return None
 
@@ -252,7 +252,7 @@ class GrubApp(Gtk.Application):
             return None
 
         visible_name = stack.get_visible_child_name()
-        return self.tabs.get(visible_name)
+        return self.ui.tabs.get(visible_name)
 
     def _on_stack_switch(self, stack, _param):  # pylint: disable=unused-argument
         """Gère le changement d'onglet pour afficher/masquer les boutons appropriés."""
@@ -264,26 +264,35 @@ class GrubApp(Gtk.Application):
         """Gère le changement d'onglet pour afficher/masquer les boutons appropriés."""
         # Récupérer le nom de l'enfant visible directement depuis le stack passé en argument
         visible_name = stack.get_visible_child_name()
-        current_tab = self.tabs.get(visible_name)
+        current_tab = self.ui.tabs.get(visible_name)
 
         if current_tab:
             actions = current_tab.get_available_actions()
 
-            self.save_btn.set_visible(ActionType.SAVE in actions)
-            self.restore_btn.set_visible(ActionType.RESTORE in actions)
-            self.delete_btn.set_visible(ActionType.DELETE in actions)
-            self.preview_btn.set_visible(ActionType.PREVIEW in actions)
-            self.default_btn.set_visible(ActionType.DEFAULT in actions)
+            assert self.ui.save_btn is not None
+            assert self.ui.restore_btn is not None
+            assert self.ui.delete_btn is not None
+            assert self.ui.preview_btn is not None
+            assert self.ui.default_btn is not None
+
+            self.ui.save_btn.set_visible(ActionType.SAVE in actions)
+            self.ui.restore_btn.set_visible(ActionType.RESTORE in actions)
+            self.ui.delete_btn.set_visible(ActionType.DELETE in actions)
+            self.ui.preview_btn.set_visible(ActionType.PREVIEW in actions)
+            self.ui.default_btn.set_visible(ActionType.DEFAULT in actions)
 
         # Reset common properties
-        self.preview_btn.set_label("Aperçu")
-        self.preview_btn.set_tooltip_text("Voir l'aperçu de la configuration GRUB")
-        self.preview_btn.remove_css_class("destructive-action")
-        self.preview_btn.set_sensitive(True)
+        assert self.ui.preview_btn is not None
+        assert self.ui.save_btn is not None
 
-        self.save_btn.set_label("Sauvegarder et Appliquer")
-        self.save_btn.set_tooltip_text("Sauvegarder la configuration et mettre à jour GRUB")
-        self.save_btn.set_sensitive(True)
+        self.ui.preview_btn.set_label("Aperçu")
+        self.ui.preview_btn.set_tooltip_text("Voir l'aperçu de la configuration GRUB")
+        self.ui.preview_btn.remove_css_class("destructive-action")
+        self.ui.preview_btn.set_sensitive(True)
+
+        self.ui.save_btn.set_label("Sauvegarder et Appliquer")
+        self.ui.save_btn.set_tooltip_text("Sauvegarder la configuration et mettre à jour GRUB")
+        self.ui.save_btn.set_sensitive(True)
 
         self.update_action_buttons_state()
 
@@ -293,12 +302,18 @@ class GrubApp(Gtk.Application):
         if not current_tab:
             return
 
+        assert self.ui.save_btn is not None
+        assert self.ui.restore_btn is not None
+        assert self.ui.delete_btn is not None
+        assert self.ui.preview_btn is not None
+        assert self.ui.default_btn is not None
+
         # Mettre à jour la sensibilité des boutons en fonction de l'onglet
-        self.save_btn.set_sensitive(current_tab.can_perform_action(ActionType.SAVE))
-        self.restore_btn.set_sensitive(current_tab.can_perform_action(ActionType.RESTORE))
-        self.delete_btn.set_sensitive(current_tab.can_perform_action(ActionType.DELETE))
-        self.preview_btn.set_sensitive(current_tab.can_perform_action(ActionType.PREVIEW))
-        self.default_btn.set_sensitive(current_tab.can_perform_action(ActionType.DEFAULT))
+        self.ui.save_btn.set_sensitive(current_tab.can_perform_action(ActionType.SAVE))
+        self.ui.restore_btn.set_sensitive(current_tab.can_perform_action(ActionType.RESTORE))
+        self.ui.delete_btn.set_sensitive(current_tab.can_perform_action(ActionType.DELETE))
+        self.ui.preview_btn.set_sensitive(current_tab.can_perform_action(ActionType.PREVIEW))
+        self.ui.default_btn.set_sensitive(current_tab.can_perform_action(ActionType.DEFAULT))
 
     def on_preview_clicked(self, _btn) -> None:
         """Gère le clic sur le bouton Aperçu."""
@@ -319,14 +334,14 @@ class GrubApp(Gtk.Application):
                 menu_entries=self.facade.menu_entries,
             )
             PreviewDialog(
-                self.win,
+                self.ui.win,
                 "Aperçu de la configuration",
                 config_dto,
             )
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("Erreur lors de l'aperçu: %s", e)
             ErrorDialog(
-                self.win,
+                self.ui.win,
                 ErrorOptions(
                     title="Erreur",
                     message=f"Impossible d'afficher l'aperçu: {e}",
@@ -343,7 +358,7 @@ class GrubApp(Gtk.Application):
                 self._apply_configuration()
 
         ConfirmDialog(
-            self.win,
+            self.ui.win,
             on_confirm,
             ConfirmOptions(
                 title="Appliquer la configuration",
@@ -375,7 +390,7 @@ class GrubApp(Gtk.Application):
     def on_file_clicked(self, _btn, entry, title) -> None:
         """Ouvre un sélecteur de fichier et met à jour l'entrée correspondante."""
         dialog = Gtk.FileDialog(title=title)
-        dialog.open(self.win, None, self._on_file_dialog_response, entry)
+        dialog.open(self.ui.win, None, self._on_file_dialog_response, entry)
 
     def _on_file_dialog_response(self, dialog, result, entry):
         """Gère la réponse du sélecteur de fichier."""
@@ -393,12 +408,16 @@ class GrubApp(Gtk.Application):
             Dictionnaire avec la configuration modifiée depuis les onglets UI
 
         """
+        logger.debug("[UI] Collecte configuration depuis les onglets")
         config = self.facade.entries.copy()
 
         # Collecter la configuration de chaque onglet
-        for tab in self.tabs.values():
+        for tab_name, tab in self.ui.tabs.items():
             if hasattr(tab, "get_config"):
-                config.update(tab.get_config())
+                logger.debug("[UI] Collecte config depuis onglet '%s'", tab_name)
+                tab_config = tab.get_config()
+                logger.debug("[UI] Onglet '%s' retourne %d entrées", tab_name, len(tab_config))
+                config.update(tab_config)
 
         # Appliquer la logique métier (effets de bord)
 
@@ -412,11 +431,15 @@ class GrubApp(Gtk.Application):
         bg = config.get("GRUB_BACKGROUND", "")
         theme = config.get("GRUB_THEME", "")
 
+        logger.debug("GRUB_BACKGROUND avant nettoyage: '%s'", bg)
+
         # Nettoyer les valeurs vides
+        # IMPORTANT: On ne supprime PAS la clé, on la garde avec valeur vide
+        # pour que le générateur sache qu'il doit supprimer la ligne
         if not bg:
-            config.pop("GRUB_BACKGROUND", None)
+            config["GRUB_BACKGROUND"] = ""
         if not theme:
-            config.pop("GRUB_THEME", None)
+            config["GRUB_THEME"] = ""
 
         # Force gfxterm if background, theme, or custom colors are used
         if bg or theme or config.get("GRUB_COLOR_NORMAL") or config.get("GRUB_COLOR_HIGHLIGHT"):
@@ -426,21 +449,36 @@ class GrubApp(Gtk.Application):
 
     def _update_manager_from_ui(self):
         """Met à jour le manager avec les données de l'UI."""
+        logger.debug("[UI] Mise à jour du gestionnaire depuis l'interface")
         # Récupérer la configuration complète depuis l'UI
         new_config = self._collect_ui_configuration()
 
+        logger.debug("[UI] Configuration collectée: %d entrées", len(new_config))
+
         # Mettre à jour la façade
         self.facade.entries = new_config
+        logger.debug("[UI] Façade mise à jour")
 
         # Mettre à jour les entrées cachées
-        if "menu" in self.tabs:
-            self.facade.hidden_entries = self.tabs["menu"].get_hidden_entries()
+        if "menu" in self.ui.tabs:
+            self.facade.hidden_entries = self.ui.tabs["menu"].get_hidden_entries()
+            logger.debug("[UI] %d entrées de menu cachées", len(self.facade.hidden_entries))
 
     def _apply_configuration(self):
         """Applique la configuration GRUB."""
         try:
             result = self.facade.apply_changes()
             if result.success:
+                # Recharger les entrées de menu depuis grub.cfg après update-grub
+                logger.debug("[UI] Rechargement des entrées de menu après apply_changes")
+                self.facade.grub_service.menu_entries = self.facade.grub_service.parser.parse_menu_entries()
+                logger.debug("[UI] %d entrées de menu rechargées", len(self.facade.menu_entries))
+
+                # Mettre à jour l'onglet menu avec les nouvelles entrées
+                if "menu" in self.ui.tabs:
+                    self.ui.tabs["menu"].reload_menu_entries()
+                    logger.debug("[UI] Onglet Menu mis à jour avec les nouvelles entrées")
+
                 self.show_toast("Configuration appliquée avec succès !")
                 logger.info("Configuration GRUB appliquée via UI")
             else:
@@ -465,14 +503,14 @@ class GrubApp(Gtk.Application):
             False pour arrêter le timeout
 
         """
-        if self.toast_revealer:
-            self.toast_revealer.set_reveal_child(False)
+        if self.ui.toast_revealer:
+            self.ui.toast_revealer.set_reveal_child(False)
         return False
 
     def _show_error(self, title: str, message: str, details: str | None = None) -> None:
         """Affiche un dialog d'erreur."""
         ErrorDialog(
-            self.win,
+            self.ui.win,
             ErrorOptions(title=title, message=message, details=details),
         )
 
@@ -481,7 +519,7 @@ class GrubApp(Gtk.Application):
         result = self.facade.load_configuration()
         if not result.success:
             logger.error("Failed to load: %s", result.error_details)
-        if self.win:
+        if self.ui.win:
             self._build_ui()
 
     def reload_config(self) -> None:

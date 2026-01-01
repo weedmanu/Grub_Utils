@@ -42,6 +42,11 @@ class MockBackupManager:
 class MockService:
     def __init__(self):
         self.backup_manager = MockBackupManager()
+        # Minimal executor used by theme config/theme generator code paths.
+        self.executor = MagicMock()
+        self.executor.execute_with_pkexec.return_value = (True, "")
+        self.executor.copy_file_privileged.return_value = (True, "")
+        self.executor.update_grub.return_value = (True, "")
         self.entries = {
             "GRUB_DEFAULT": "0",
             "GRUB_TIMEOUT": "5",
@@ -71,6 +76,15 @@ class MockFacade:
     def __init__(self, config_path=None):
         self._service = MockService()
         self._loaded = False
+
+    @property
+    def grub_service(self):
+        # UI tabs expect facade.grub_service.executor
+        return self._service
+
+    def ensure_original_backup(self) -> bool:
+        # Called on app activation.
+        return bool(self._service.backup_manager.create_original_backup_if_needed())
 
     def load_configuration(self) -> OperationResultDTO:
         self._loaded = True
